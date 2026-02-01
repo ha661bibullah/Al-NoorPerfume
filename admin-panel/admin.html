@@ -4,17 +4,29 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>আল-নূর আতর - এডমিন প্যানেল</title>
+    
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts (Bangla) -->
     <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
     <style>
         * {
             font-family: 'Hind Siliguri', sans-serif;
         }
         
+        /* Sidebar Styling */
         .sidebar {
-            transition: all 0.3s ease;
+            width: 260px;
+            transition: transform 0.3s ease;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
         }
         
         @media (max-width: 768px) {
@@ -23,11 +35,12 @@
                 left: -100%;
                 top: 0;
                 bottom: 0;
-                z-index: 40;
-                width: 280px;
+                z-index: 50;
+                transform: translateX(-100%);
             }
             
             .sidebar.active {
+                transform: translateX(0);
                 left: 0;
             }
             
@@ -39,7 +52,7 @@
                 right: 0;
                 bottom: 0;
                 background: rgba(0,0,0,0.5);
-                z-index: 30;
+                z-index: 40;
             }
             
             .overlay.active {
@@ -47,6 +60,7 @@
             }
         }
         
+        /* Status Badges */
         .status-badge {
             padding: 4px 12px;
             border-radius: 20px;
@@ -80,15 +94,17 @@
             color: #991b1b;
         }
         
+        /* Card Hover Effects */
         .stat-card {
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
         
         .stat-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
         }
         
+        /* Navigation Links */
         .nav-link {
             display: flex;
             align-items: center;
@@ -97,6 +113,7 @@
             color: #f3f4f6;
             text-decoration: none;
             transition: all 0.3s ease;
+            margin-bottom: 4px;
         }
         
         .nav-link:hover {
@@ -106,17 +123,20 @@
         .nav-link.active {
             background-color: #d97706;
             color: white;
+            box-shadow: 0 4px 6px -1px rgba(217, 119, 6, 0.2);
         }
         
+        /* Page Transitions */
         .page-content {
             animation: fadeIn 0.3s ease;
         }
         
         @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         
+        /* Loading Spinner */
         .loader {
             border: 3px solid #f3f3f3;
             border-radius: 50%;
@@ -132,6 +152,7 @@
             100% { transform: rotate(360deg); }
         }
         
+        /* Text Clamping */
         .line-clamp-2 {
             display: -webkit-box;
             -webkit-line-clamp: 2;
@@ -139,6 +160,14 @@
             overflow: hidden;
         }
         
+        .line-clamp-3 {
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        /* Toast Notifications */
         .toast {
             position: fixed;
             top: 20px;
@@ -149,6 +178,7 @@
             z-index: 1000;
             animation: slideIn 0.3s ease, fadeOut 0.3s ease 2.7s;
             max-width: 300px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         }
         
         .toast.success {
@@ -163,6 +193,10 @@
             background-color: #f59e0b;
         }
         
+        .toast.info {
+            background-color: #3b82f6;
+        }
+        
         @keyframes slideIn {
             from { transform: translateX(100%); opacity: 0; }
             to { transform: translateX(0); opacity: 1; }
@@ -172,15 +206,124 @@
             from { opacity: 1; }
             to { opacity: 0; }
         }
+        
+        /* Modal Styling */
+        .modal {
+            animation: modalFadeIn 0.3s ease;
+        }
+        
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        
+        /* Form Styling */
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-size: 16px;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: #D97706;
+            box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.1);
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #4b5563;
+        }
+        
+        /* Table Styling */
+        .table-header {
+            background-color: #f9fafb;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .table-row:hover {
+            background-color: #f9fafb;
+        }
+        
+        /* Button Styling */
+        .btn-primary {
+            background: linear-gradient(to right, #D97706, #B45309);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(217, 119, 6, 0.3);
+        }
+        
+        .btn-secondary {
+            background: transparent;
+            color: #D97706;
+            border: 2px solid #D97706;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-secondary:hover {
+            background: #D97706;
+            color: white;
+        }
+        
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #d1d5db;
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #9ca3af;
+        }
+        
+        /* Utility Classes */
+        .text-gradient {
+            background: linear-gradient(to right, #d4af37, #b8860b);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .shadow-custom {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
     </style>
 </head>
-<body class="bg-gray-100">
+<body class="bg-gray-50">
     <!-- লগইন পেজ -->
     <div id="loginPage" class="min-h-screen flex items-center justify-center bg-gradient-to-br from-amber-50 to-amber-100 p-4">
-        <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md">
+        <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md border border-amber-200">
             <div class="text-center mb-8">
                 <div class="flex justify-center mb-4">
-                    <i class="fas fa-wine-bottle text-5xl text-amber-600"></i>
+                    <div class="w-16 h-16 bg-gradient-to-r from-amber-500 to-amber-600 rounded-full flex items-center justify-center">
+                        <i class="fas fa-user-shield text-3xl text-white"></i>
+                    </div>
                 </div>
                 <h1 class="text-3xl font-bold text-amber-900">আল-নূর আতর</h1>
                 <p class="text-gray-600 mt-2">এডমিন প্যানেল লগইন</p>
@@ -188,33 +331,40 @@
             
             <form id="loginForm" class="space-y-6">
                 <div>
-                    <label class="block text-gray-700 mb-2">ইমেইল</label>
+                    <label class="form-label">ইমেইল</label>
                     <input type="email" id="loginEmail" required 
-                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
+                           class="form-input"
+                           placeholder="admin@alnoor.com"
                            value="admin@alnoor.com">
                 </div>
                 
                 <div>
-                    <label class="block text-gray-700 mb-2">পাসওয়ার্ড</label>
+                    <label class="form-label">পাসওয়ার্ড</label>
                     <input type="password" id="loginPassword" required 
-                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
+                           class="form-input"
+                           placeholder="পাসওয়ার্ড দিন"
                            value="admin123">
                 </div>
                 
-                <div id="loginError" class="hidden p-3 bg-red-100 text-red-700 rounded-lg"></div>
+                <div id="loginError" class="hidden p-4 bg-red-50 text-red-700 rounded-lg border border-red-200">
+                    <!-- Error messages will appear here -->
+                </div>
                 
-                <button type="submit" id="loginButton" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-3 px-4 rounded-lg transition flex items-center justify-center">
+                <button type="submit" id="loginButton" class="btn-primary w-full py-3 text-lg flex items-center justify-center">
                     <span id="loginButtonText">
                         <i class="fas fa-sign-in-alt mr-2"></i> লগইন করুন
                     </span>
                     <div id="loginSpinner" class="loader hidden ml-2" style="width: 20px; height: 20px; border-width: 2px;"></div>
                 </button>
                 
-                <div class="text-center text-sm text-gray-600 mt-4 p-3 bg-gray-50 rounded-lg">
-                    <p class="font-semibold mb-1">ডেমো লগইন তথ্য:</p>
-                    <p>ইমেইল: admin@alnoor.com</p>
-                    <p>পাসওয়ার্ড: admin123</p>
-                    <p class="mt-2 text-xs">(MongoDB না থাকলে ডেমো মোডে চালু হবে)</p>
+                <div class="text-center text-sm text-gray-600 mt-6 p-4 bg-amber-50 rounded-lg border border-amber-200">
+                    <p class="font-semibold mb-2 text-amber-800">ডেমো লগইন তথ্য:</p>
+                    <p class="mb-1">ইমেইল: <span class="font-mono">admin@alnoor.com</span></p>
+                    <p class="mb-1">পাসওয়ার্ড: <span class="font-mono">admin123</span></p>
+                    <p class="mt-3 text-xs text-amber-600">
+                        <i class="fas fa-info-circle mr-1"></i>
+                        MongoDB না থাকলে স্বয়ংক্রিয়ভাবে ডেমো মোডে চালু হবে
+                    </p>
                 </div>
             </form>
         </div>
@@ -223,12 +373,12 @@
     <!-- মূল ড্যাশবোর্ড -->
     <div id="dashboard" class="hidden min-h-screen">
         <!-- মোবাইল হেডার -->
-        <div class="md:hidden bg-amber-800 text-white p-4 flex justify-between items-center">
-            <div class="flex items-center space-x-2">
-                <i class="fas fa-wine-bottle text-2xl"></i>
+        <div class="md:hidden bg-gradient-to-r from-amber-800 to-amber-900 text-white p-4 flex justify-between items-center sticky top-0 z-30 shadow-lg">
+            <div class="flex items-center space-x-3">
+                <i class="fas fa-wine-bottle text-2xl text-amber-300"></i>
                 <span class="font-bold">আল-নূর এডমিন</span>
             </div>
-            <button id="mobileMenuBtn" class="text-2xl">
+            <button id="mobileMenuBtn" class="text-2xl hover:text-amber-300 transition">
                 <i class="fas fa-bars"></i>
             </button>
         </div>
@@ -237,30 +387,36 @@
         <div id="overlay" class="overlay"></div>
 
         <!-- সাইডবার -->
-        <div class="sidebar bg-amber-900 text-white w-64 min-h-screen fixed md:relative z-40">
+        <div class="sidebar bg-gradient-to-b from-amber-900 to-amber-800 text-white fixed md:relative z-40">
             <div class="p-6 border-b border-amber-800">
-                <div class="flex items-center space-x-3">
-                    <i class="fas fa-wine-bottle text-3xl text-amber-300"></i>
+                <div class="flex items-center space-x-3 mb-4">
+                    <div class="w-12 h-12 bg-amber-600 rounded-full flex items-center justify-center">
+                        <i class="fas fa-wine-bottle text-2xl text-white"></i>
+                    </div>
                     <div>
                         <h2 class="text-xl font-bold">আল-নূর আতর</h2>
                         <p class="text-amber-300 text-sm">এডমিন প্যানেল</p>
                     </div>
                 </div>
-                <div class="mt-4 text-sm">
-                    <p id="adminEmail" class="text-amber-200"></p>
-                    <p id="demoMode" class="text-amber-300 text-xs hidden">(ডেমো মোড)</p>
+                <div class="mt-4 text-sm space-y-1">
+                    <p id="adminEmail" class="text-amber-200 font-medium"></p>
+                    <p id="demoMode" class="text-amber-300 text-xs hidden">
+                        <i class="fas fa-exclamation-triangle mr-1"></i> ডেমো মোড
+                    </p>
                 </div>
             </div>
 
-            <nav class="p-4 space-y-2">
+            <nav class="p-4 space-y-1">
                 <a href="#dashboard-view" class="nav-link active" data-page="dashboard">
                     <i class="fas fa-tachometer-alt mr-3"></i> ড্যাশবোর্ড
                 </a>
                 <a href="#orders-view" class="nav-link" data-page="orders">
                     <i class="fas fa-shopping-bag mr-3"></i> অর্ডারসমূহ
+                    <span id="pendingOrdersBadge" class="ml-auto bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center hidden">0</span>
                 </a>
                 <a href="#reviews-view" class="nav-link" data-page="reviews">
                     <i class="fas fa-star mr-3"></i> পর্যালোচনা
+                    <span id="pendingReviewsBadge" class="ml-auto bg-yellow-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center hidden">0</span>
                 </a>
                 <a href="#products-view" class="nav-link" data-page="products">
                     <i class="fas fa-wine-bottle mr-3"></i> পণ্য ব্যবস্থাপনা
@@ -268,86 +424,102 @@
                 <a href="#settings-view" class="nav-link" data-page="settings">
                     <i class="fas fa-cog mr-3"></i> সেটিংস
                 </a>
-                <button id="logoutBtn" class="w-full text-left p-3 rounded-lg hover:bg-amber-800 transition mt-8 flex items-center">
+                <button id="logoutBtn" class="nav-link w-full text-left mt-8 hover:bg-amber-800">
                     <i class="fas fa-sign-out-alt mr-3"></i> লগআউট
                 </button>
             </nav>
             
             <div class="p-4 border-t border-amber-800 mt-4">
                 <div class="text-xs text-amber-300">
-                    <p>সিস্টেম স্ট্যাটাস:</p>
-                    <div class="flex items-center mt-1">
+                    <p class="mb-2">সিস্টেম স্ট্যাটাস:</p>
+                    <div class="flex items-center">
                         <div id="dbStatusIndicator" class="w-2 h-2 rounded-full bg-green-500 mr-2"></div>
                         <span id="dbStatusText">একটিভ</span>
+                    </div>
+                    <div class="mt-2 text-xs">
+                        <i class="fas fa-server mr-1"></i>
+                        <span id="apiStatus">API সংযুক্ত</span>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- মূল কন্টেন্ট -->
-        <div class="md:ml-64">
+        <!-- প্রধান কন্টেন্ট -->
+        <div class="md:ml-64 min-h-screen bg-gray-50">
             <!-- ডেস্কটপ হেডার -->
-            <header class="hidden md:block bg-white shadow-sm p-4">
+            <header class="hidden md:block bg-white shadow-sm p-6 border-b border-gray-200">
                 <div class="flex justify-between items-center">
-                    <h1 id="pageTitle" class="text-2xl font-bold text-amber-900">ড্যাশবোর্ড</h1>
-                    <div class="flex items-center space-x-4">
-                        <span id="currentDate" class="text-gray-600"></span>
+                    <div>
+                        <h1 id="pageTitle" class="text-2xl font-bold text-amber-900">ড্যাশবোর্ড</h1>
+                        <p id="pageSubtitle" class="text-gray-600">সর্বশেষ আপডেট: <span id="lastUpdate">লোড হচ্ছে...</span></p>
+                    </div>
+                    <div class="flex items-center space-x-6">
+                        <div class="text-right">
+                            <p id="currentDate" class="text-gray-800 font-medium"></p>
+                            <p id="currentTime" class="text-gray-600 text-sm"></p>
+                        </div>
                         <div class="relative">
-                            <i class="fas fa-bell text-amber-600 text-xl cursor-pointer" id="notificationBell"></i>
-                            <span id="notificationBadge" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center hidden">0</span>
+                            <button id="notificationBell" class="text-amber-600 hover:text-amber-700 text-xl transition relative">
+                                <i class="fas fa-bell"></i>
+                                <span id="notificationBadge" class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center hidden">0</span>
+                            </button>
                         </div>
                     </div>
                 </div>
             </header>
 
-            <!-- কন্টেন্ট এরিয়া -->
-            <main class="p-4">
+            <!-- কন্টেন্ট এরিয়া -->
+            <main class="p-4 md:p-6">
                 <!-- ড্যাশবোর্ড -->
                 <div id="dashboard-view" class="page-content">
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                        <div class="stat-card bg-white p-6 rounded-xl shadow">
+                        <div class="stat-card bg-white p-6 rounded-xl shadow-custom border border-gray-100">
                             <div class="flex items-center justify-between">
                                 <div>
-                                    <p class="text-gray-500">মোট অর্ডার</p>
-                                    <h3 id="totalOrders" class="text-3xl font-bold text-amber-700 mt-2">0</h3>
+                                    <p class="text-gray-500 text-sm mb-1">মোট অর্ডার</p>
+                                    <h3 id="totalOrders" class="text-3xl font-bold text-amber-700">0</h3>
+                                    <p class="text-gray-600 text-sm mt-2">সর্বমোট</p>
                                 </div>
-                                <div class="bg-amber-100 p-3 rounded-lg">
+                                <div class="bg-amber-100 p-3 rounded-full">
                                     <i class="fas fa-shopping-bag text-amber-600 text-2xl"></i>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="stat-card bg-white p-6 rounded-xl shadow">
+                        <div class="stat-card bg-white p-6 rounded-xl shadow-custom border border-gray-100">
                             <div class="flex items-center justify-between">
                                 <div>
-                                    <p class="text-gray-500">মোট আয়</p>
-                                    <h3 id="totalRevenue" class="text-3xl font-bold text-green-700 mt-2">৳ 0</h3>
+                                    <p class="text-gray-500 text-sm mb-1">মোট আয়</p>
+                                    <h3 id="totalRevenue" class="text-3xl font-bold text-green-700">৳ 0</h3>
+                                    <p class="text-gray-600 text-sm mt-2">সম্পূর্ণ রাজস্ব</p>
                                 </div>
-                                <div class="bg-green-100 p-3 rounded-lg">
+                                <div class="bg-green-100 p-3 rounded-full">
                                     <i class="fas fa-money-bill-wave text-green-600 text-2xl"></i>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="stat-card bg-white p-6 rounded-xl shadow">
+                        <div class="stat-card bg-white p-6 rounded-xl shadow-custom border border-gray-100">
                             <div class="flex items-center justify-between">
                                 <div>
-                                    <p class="text-gray-500">পেন্ডিং অর্ডার</p>
-                                    <h3 id="pendingOrders" class="text-3xl font-bold text-orange-700 mt-2">0</h3>
+                                    <p class="text-gray-500 text-sm mb-1">পেন্ডিং অর্ডার</p>
+                                    <h3 id="pendingOrdersCount" class="text-3xl font-bold text-orange-700">0</h3>
+                                    <p class="text-gray-600 text-sm mt-2">ম্যানেজমেন্ট প্রয়োজন</p>
                                 </div>
-                                <div class="bg-orange-100 p-3 rounded-lg">
+                                <div class="bg-orange-100 p-3 rounded-full">
                                     <i class="fas fa-clock text-orange-600 text-2xl"></i>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="stat-card bg-white p-6 rounded-xl shadow">
+                        <div class="stat-card bg-white p-6 rounded-xl shadow-custom border border-gray-100">
                             <div class="flex items-center justify-between">
                                 <div>
-                                    <p class="text-gray-500">পণ্য সংখ্যা</p>
-                                    <h3 id="totalProducts" class="text-3xl font-bold text-blue-700 mt-2">0</h3>
+                                    <p class="text-gray-500 text-sm mb-1">পণ্য সংখ্যা</p>
+                                    <h3 id="totalProductsCount" class="text-3xl font-bold text-blue-700">0</h3>
+                                    <p class="text-gray-600 text-sm mt-2">স্টকে আছে</p>
                                 </div>
-                                <div class="bg-blue-100 p-3 rounded-lg">
+                                <div class="bg-blue-100 p-3 rounded-full">
                                     <i class="fas fa-wine-bottle text-blue-600 text-2xl"></i>
                                 </div>
                             </div>
@@ -355,17 +527,27 @@
                     </div>
 
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-                        <div class="bg-white p-6 rounded-xl shadow">
-                            <h3 class="text-xl font-bold mb-4">মাসিক আয়</h3>
+                        <div class="bg-white p-6 rounded-xl shadow-custom border border-gray-100">
+                            <div class="flex justify-between items-center mb-6">
+                                <h3 class="text-xl font-bold text-gray-800">মাসিক আয়</h3>
+                                <select id="chartPeriod" class="px-3 py-1 border border-gray-300 rounded-lg text-sm">
+                                    <option value="monthly">মাসিক</option>
+                                    <option value="weekly">সাপ্তাহিক</option>
+                                </select>
+                            </div>
                             <div class="h-64">
                                 <canvas id="revenueChart"></canvas>
                             </div>
                         </div>
 
-                        <div class="bg-white p-6 rounded-xl shadow">
-                            <h3 class="text-xl font-bold mb-4">সাম্প্রতিক অর্ডার</h3>
-                            <div id="recentOrdersList" class="space-y-4">
-                                <!-- Recent orders will be loaded here -->
+                        <div class="bg-white p-6 rounded-xl shadow-custom border border-gray-100">
+                            <div class="flex justify-between items-center mb-6">
+                                <h3 class="text-xl font-bold text-gray-800">সাম্প্রতিক অর্ডার</h3>
+                                <button onclick="loadOrders()" class="text-amber-600 hover:text-amber-700">
+                                    <i class="fas fa-sync-alt"></i>
+                                </button>
+                            </div>
+                            <div id="recentOrdersList" class="space-y-4 max-h-64 overflow-y-auto pr-2">
                                 <div class="text-center py-8">
                                     <div class="loader mx-auto mb-4"></div>
                                     <p class="text-gray-500">লোড হচ্ছে...</p>
@@ -373,16 +555,54 @@
                             </div>
                         </div>
                     </div>
+
+                    <div class="bg-white p-6 rounded-xl shadow-custom border border-gray-100">
+                        <h3 class="text-xl font-bold text-gray-800 mb-6">দ্রুত কর্ম</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <button onclick="showPage('orders')" class="bg-amber-50 hover:bg-amber-100 p-4 rounded-lg border border-amber-200 transition flex items-center">
+                                <div class="bg-amber-100 p-3 rounded-lg mr-4">
+                                    <i class="fas fa-shopping-bag text-amber-600"></i>
+                                </div>
+                                <div class="text-left">
+                                    <p class="font-bold text-amber-800">নতুন অর্ডার দেখুন</p>
+                                    <p class="text-sm text-gray-600">সাম্প্রতিক অর্ডার ব্যবস্থাপনা</p>
+                                </div>
+                            </button>
+                            
+                            <button onclick="showPage('reviews')" class="bg-blue-50 hover:bg-blue-100 p-4 rounded-lg border border-blue-200 transition flex items-center">
+                                <div class="bg-blue-100 p-3 rounded-lg mr-4">
+                                    <i class="fas fa-star text-blue-600"></i>
+                                </div>
+                                <div class="text-left">
+                                    <p class="font-bold text-blue-800">পর্যালোচনা ম্যানেজ করুন</p>
+                                    <p class="text-sm text-gray-600">গ্রাহক রিভিউ অনুমোদন করুন</p>
+                                </div>
+                            </button>
+                            
+                            <button onclick="showPage('products')" class="bg-green-50 hover:bg-green-100 p-4 rounded-lg border border-green-200 transition flex items-center">
+                                <div class="bg-green-100 p-3 rounded-lg mr-4">
+                                    <i class="fas fa-plus text-green-600"></i>
+                                </div>
+                                <div class="text-left">
+                                    <p class="font-bold text-green-800">নতুন পণ্য যোগ করুন</p>
+                                    <p class="text-sm text-gray-600">পণ্য তালিকা আপডেট করুন</p>
+                                </div>
+                            </button>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- অর্ডার ম্যানেজমেন্ট -->
                 <div id="orders-view" class="page-content hidden">
-                    <div class="bg-white rounded-xl shadow overflow-hidden mb-6">
-                        <div class="p-6 border-b">
-                            <div class="flex flex-col md:flex-row justify-between items-start md:items-center space-y-4 md:space-y-0">
-                                <h2 class="text-2xl font-bold text-amber-900">অর্ডার ব্যবস্থাপনা</h2>
+                    <div class="bg-white rounded-xl shadow-custom overflow-hidden border border-gray-200 mb-6">
+                        <div class="p-6 border-b border-gray-200">
+                            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                                <div>
+                                    <h2 class="text-2xl font-bold text-amber-900">অর্ডার ব্যবস্থাপনা</h2>
+                                    <p class="text-gray-600 mt-1">সমস্ত গ্রাহক অর্ডার দেখুন ও ম্যানেজ করুন</p>
+                                </div>
                                 <div class="flex flex-wrap gap-2">
-                                    <select id="orderStatusFilter" class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500">
+                                    <select id="orderStatusFilter" class="form-input py-2">
                                         <option value="">সব অর্ডার</option>
                                         <option value="Pending">পেন্ডিং</option>
                                         <option value="Processing">প্রসেসিং</option>
@@ -390,8 +610,12 @@
                                         <option value="Delivered">ডেলিভার্ড</option>
                                         <option value="Cancelled">ক্যান্সেলড</option>
                                     </select>
-                                    <input type="text" id="orderSearch" placeholder="অর্ডার আইডি বা নাম" class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500">
-                                    <button id="refreshOrders" class="bg-amber-600 text-white px-4 py-2 rounded-lg hover:bg-amber-700 transition">
+                                    <div class="relative">
+                                        <input type="text" id="orderSearch" placeholder="অর্ডার আইডি/নাম/ফোন" 
+                                               class="form-input py-2 pr-10">
+                                        <i class="fas fa-search absolute right-3 top-3 text-gray-400"></i>
+                                    </div>
+                                    <button id="refreshOrders" class="btn-primary py-2 px-4">
                                         <i class="fas fa-sync-alt"></i>
                                     </button>
                                 </div>
@@ -402,16 +626,16 @@
                             <table class="w-full">
                                 <thead class="bg-gray-50">
                                     <tr>
-                                        <th class="p-4 text-left">অর্ডার আইডি</th>
-                                        <th class="p-4 text-left">গ্রাহক</th>
-                                        <th class="p-4 text-left">পণ্য</th>
-                                        <th class="p-4 text-left">মূল্য</th>
-                                        <th class="p-4 text-left">স্ট্যাটাস</th>
-                                        <th class="p-4 text-left">তারিখ</th>
-                                        <th class="p-4 text-left">অ্যাকশন</th>
+                                        <th class="p-4 text-left text-sm font-semibold text-gray-700">অর্ডার আইডি</th>
+                                        <th class="p-4 text-left text-sm font-semibold text-gray-700">গ্রাহক</th>
+                                        <th class="p-4 text-left text-sm font-semibold text-gray-700">পণ্য</th>
+                                        <th class="p-4 text-left text-sm font-semibold text-gray-700">মূল্য</th>
+                                        <th class="p-4 text-left text-sm font-semibold text-gray-700">স্ট্যাটাস</th>
+                                        <th class="p-4 text-left text-sm font-semibold text-gray-700">তারিখ</th>
+                                        <th class="p-4 text-left text-sm font-semibold text-gray-700">অ্যাকশন</th>
                                     </tr>
                                 </thead>
-                                <tbody id="ordersTableBody">
+                                <tbody id="ordersTableBody" class="divide-y divide-gray-200">
                                     <tr>
                                         <td colspan="7" class="p-8 text-center">
                                             <div class="loader mx-auto mb-4"></div>
@@ -422,12 +646,12 @@
                             </table>
                         </div>
 
-                        <div class="p-4 border-t flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-                            <div id="ordersPagination" class="flex space-x-2">
+                        <div class="p-4 border-t border-gray-200 flex flex-col md:flex-row justify-between items-center gap-4">
+                            <div id="ordersPagination" class="flex flex-wrap gap-1">
                                 <!-- Pagination will be generated here -->
                             </div>
-                            <div class="text-gray-600">
-                                <span id="ordersCount">0</span> অর্ডার
+                            <div class="text-gray-600 text-sm">
+                                <span id="ordersCount">0</span>টি অর্ডার
                             </div>
                         </div>
                     </div>
@@ -435,17 +659,20 @@
 
                 <!-- রিভিউ ম্যানেজমেন্ট -->
                 <div id="reviews-view" class="page-content hidden">
-                    <div class="bg-white rounded-xl shadow overflow-hidden mb-6">
-                        <div class="p-6 border-b">
-                            <div class="flex flex-col md:flex-row justify-between items-start md:items-center space-y-4 md:space-y-0">
-                                <h2 class="text-2xl font-bold text-amber-900">পর্যালোচনা ব্যবস্থাপনা</h2>
+                    <div class="bg-white rounded-xl shadow-custom overflow-hidden border border-gray-200 mb-6">
+                        <div class="p-6 border-b border-gray-200">
+                            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                                <div>
+                                    <h2 class="text-2xl font-bold text-amber-900">পর্যালোচনা ব্যবস্থাপনা</h2>
+                                    <p class="text-gray-600 mt-1">গ্রাহক রিভিউ অনুমোদন ও ম্যানেজ করুন</p>
+                                </div>
                                 <div class="flex flex-wrap gap-2">
-                                    <select id="reviewStatusFilter" class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500">
+                                    <select id="reviewStatusFilter" class="form-input py-2">
                                         <option value="">সব পর্যালোচনা</option>
                                         <option value="true">অনুমোদিত</option>
                                         <option value="false">অননুমোদিত</option>
                                     </select>
-                                    <button id="refreshReviews" class="bg-amber-600 text-white px-4 py-2 rounded-lg hover:bg-amber-700 transition">
+                                    <button id="refreshReviews" class="btn-primary py-2 px-4">
                                         <i class="fas fa-sync-alt"></i>
                                     </button>
                                 </div>
@@ -456,16 +683,16 @@
                             <table class="w-full">
                                 <thead class="bg-gray-50">
                                     <tr>
-                                        <th class="p-4 text-left">গ্রাহক</th>
-                                        <th class="p-4 text-left">পণ্য</th>
-                                        <th class="p-4 text-left">রেটিং</th>
-                                        <th class="p-4 text-left">পর্যালোচনা</th>
-                                        <th class="p-4 text-left">তারিখ</th>
-                                        <th class="p-4 text-left">স্ট্যাটাস</th>
-                                        <th class="p-4 text-left">অ্যাকশন</th>
+                                        <th class="p-4 text-left text-sm font-semibold text-gray-700">গ্রাহক</th>
+                                        <th class="p-4 text-left text-sm font-semibold text-gray-700">পণ্য</th>
+                                        <th class="p-4 text-left text-sm font-semibold text-gray-700">রেটিং</th>
+                                        <th class="p-4 text-left text-sm font-semibold text-gray-700">পর্যালোচনা</th>
+                                        <th class="p-4 text-left text-sm font-semibold text-gray-700">তারিখ</th>
+                                        <th class="p-4 text-left text-sm font-semibold text-gray-700">স্ট্যাটাস</th>
+                                        <th class="p-4 text-left text-sm font-semibold text-gray-700">অ্যাকশন</th>
                                     </tr>
                                 </thead>
-                                <tbody id="reviewsTableBody">
+                                <tbody id="reviewsTableBody" class="divide-y divide-gray-200">
                                     <tr>
                                         <td colspan="7" class="p-8 text-center">
                                             <div class="loader mx-auto mb-4"></div>
@@ -476,12 +703,12 @@
                             </table>
                         </div>
 
-                        <div class="p-4 border-t flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-                            <div id="reviewsPagination" class="flex space-x-2">
+                        <div class="p-4 border-t border-gray-200 flex flex-col md:flex-row justify-between items-center gap-4">
+                            <div id="reviewsPagination" class="flex flex-wrap gap-1">
                                 <!-- Pagination will be generated here -->
                             </div>
-                            <div class="text-gray-600">
-                                <span id="reviewsCount">0</span> পর্যালোচনা
+                            <div class="text-gray-600 text-sm">
+                                <span id="reviewsCount">0</span>টি পর্যালোচনা
                             </div>
                         </div>
                     </div>
@@ -489,15 +716,18 @@
 
                 <!-- পণ্য ম্যানেজমেন্ট -->
                 <div id="products-view" class="page-content hidden">
-                    <div class="bg-white rounded-xl shadow overflow-hidden mb-6">
-                        <div class="p-6 border-b">
-                            <div class="flex flex-col md:flex-row justify-between items-start md:items-center space-y-4 md:space-y-0">
-                                <h2 class="text-2xl font-bold text-amber-900">পণ্য ব্যবস্থাপনা</h2>
-                                <div class="flex space-x-2">
-                                    <button id="addProductBtn" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition flex items-center">
+                    <div class="bg-white rounded-xl shadow-custom overflow-hidden border border-gray-200 mb-6">
+                        <div class="p-6 border-b border-gray-200">
+                            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                                <div>
+                                    <h2 class="text-2xl font-bold text-amber-900">পণ্য ব্যবস্থাপনা</h2>
+                                    <p class="text-gray-600 mt-1">পণ্য তালিকা আপডেট ও ম্যানেজ করুন</p>
+                                </div>
+                                <div class="flex gap-2">
+                                    <button id="addProductBtn" class="btn-primary py-2 px-4 flex items-center">
                                         <i class="fas fa-plus mr-2"></i> নতুন পণ্য
                                     </button>
-                                    <button id="refreshProducts" class="bg-amber-600 text-white px-4 py-2 rounded-lg hover:bg-amber-700 transition">
+                                    <button id="refreshProducts" class="btn-secondary py-2 px-4">
                                         <i class="fas fa-sync-alt"></i>
                                     </button>
                                 </div>
@@ -508,15 +738,15 @@
                             <table class="w-full">
                                 <thead class="bg-gray-50">
                                     <tr>
-                                        <th class="p-4 text-left">পণ্যের নাম</th>
-                                        <th class="p-4 text-left">বর্ণনা</th>
-                                        <th class="p-4 text-left">দাম</th>
-                                        <th class="p-4 text-left">স্টক</th>
-                                        <th class="p-4 text-left">বিক্রিত</th>
-                                        <th class="p-4 text-left">অ্যাকশন</th>
+                                        <th class="p-4 text-left text-sm font-semibold text-gray-700">পণ্যের নাম</th>
+                                        <th class="p-4 text-left text-sm font-semibold text-gray-700">বর্ণনা</th>
+                                        <th class="p-4 text-left text-sm font-semibold text-gray-700">দাম</th>
+                                        <th class="p-4 text-left text-sm font-semibold text-gray-700">স্টক</th>
+                                        <th class="p-4 text-left text-sm font-semibold text-gray-700">বিক্রিত</th>
+                                        <th class="p-4 text-left text-sm font-semibold text-gray-700">অ্যাকশন</th>
                                     </tr>
                                 </thead>
-                                <tbody id="productsTableBody">
+                                <tbody id="productsTableBody" class="divide-y divide-gray-200">
                                     <tr>
                                         <td colspan="6" class="p-8 text-center">
                                             <div class="loader mx-auto mb-4"></div>
@@ -531,67 +761,97 @@
 
                 <!-- সেটিংস -->
                 <div id="settings-view" class="page-content hidden">
-                    <div class="bg-white rounded-xl shadow p-6">
+                    <div class="bg-white rounded-xl shadow-custom p-6 border border-gray-200">
                         <h2 class="text-2xl font-bold mb-6 text-amber-900">সিস্টেম সেটিংস</h2>
                         
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                             <div>
-                                <h3 class="text-xl font-bold mb-4">ডাটাবেজ তথ্য</h3>
+                                <h3 class="text-xl font-bold mb-4 text-gray-800">ডাটাবেজ তথ্য</h3>
                                 <div class="space-y-4">
-                                    <div class="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
-                                        <span>ডাটাবেজ কানেকশন</span>
-                                        <span id="dbStatus" class="px-3 py-1 rounded-full bg-green-100 text-green-800">একটিভ</span>
+                                    <div class="flex justify-between items-center p-4 bg-gray-50 rounded-lg border border-gray-200">
+                                        <div>
+                                            <p class="font-medium">ডাটাবেজ কানেকশন</p>
+                                            <p class="text-sm text-gray-600">MongoDB সংযোগ অবস্থা</p>
+                                        </div>
+                                        <span id="dbStatus" class="px-3 py-1 rounded-full bg-green-100 text-green-800 font-medium">একটিভ</span>
                                     </div>
-                                    <div class="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
-                                        <span>সার্ভার স্ট্যাটাস</span>
-                                        <span id="serverStatus" class="px-3 py-1 rounded-full bg-blue-100 text-blue-800">চালু</span>
+                                    
+                                    <div class="flex justify-between items-center p-4 bg-gray-50 rounded-lg border border-gray-200">
+                                        <div>
+                                            <p class="font-medium">সার্ভার স্ট্যাটাস</p>
+                                            <p class="text-sm text-gray-600">API সার্ভার অবস্থা</p>
+                                        </div>
+                                        <span id="serverStatus" class="px-3 py-1 rounded-full bg-blue-100 text-blue-800 font-medium">চালু</span>
                                     </div>
-                                    <div class="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
-                                        <span>এপিআই ভার্সন</span>
-                                        <span id="apiVersion" class="font-bold">v1.0.0</span>
+                                    
+                                    <div class="flex justify-between items-center p-4 bg-gray-50 rounded-lg border border-gray-200">
+                                        <div>
+                                            <p class="font-medium">এপিআই ভার্সন</p>
+                                            <p class="text-sm text-gray-600">বর্তমান API ভার্সন</p>
+                                        </div>
+                                        <span id="apiVersion" class="font-bold text-amber-700">v2.0.0</span>
                                     </div>
-                                    <button id="backupBtn" class="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition flex items-center justify-center">
+                                    
+                                    <button id="backupBtn" class="w-full btn-primary py-3 flex items-center justify-center">
                                         <i class="fas fa-download mr-2"></i> ডাটাবেজ ব্যাকআপ
                                     </button>
                                 </div>
                             </div>
 
                             <div>
-                                <h3 class="text-xl font-bold mb-4">অ্যাপ কনফিগারেশন</h3>
+                                <h3 class="text-xl font-bold mb-4 text-gray-800">অ্যাপ কনফিগারেশন</h3>
                                 <div class="space-y-4">
                                     <div>
-                                        <label class="block text-gray-700 mb-2">সাইটের নাম</label>
-                                        <input type="text" id="siteName" value="আল-নূর আতর" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500">
+                                        <label class="form-label">সাইটের নাম</label>
+                                        <input type="text" id="siteName" value="আল-নূর আতর" class="form-input">
                                     </div>
+                                    
                                     <div>
-                                        <label class="block text-gray-700 mb-2">ডেলিভারি চার্জ</label>
-                                        <input type="number" id="deliveryCharge" value="0" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500">
+                                        <label class="form-label">ডেলিভারি চার্জ (৳)</label>
+                                        <input type="number" id="deliveryCharge" value="0" class="form-input">
+                                        <p class="text-sm text-gray-600 mt-1">০ রাখলে ফ্রি ডেলিভারি দেখাবে</p>
                                     </div>
+                                    
                                     <div>
-                                        <label class="block text-gray-700 mb-2">যোগাযোগ নম্বর</label>
-                                        <input type="text" id="contactNumber" value="০১৭১২-৩৪৫৬৭৮" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500">
+                                        <label class="form-label">যোগাযোগ নম্বর</label>
+                                        <input type="text" id="contactNumber" value="০১৭১২-৩৪৫৬৭৮" class="form-input">
                                     </div>
-                                    <button id="saveSettings" class="w-full bg-amber-600 text-white py-3 rounded-lg hover:bg-amber-700 transition flex items-center justify-center">
+                                    
+                                    <button id="saveSettings" class="w-full btn-primary py-3 flex items-center justify-center">
                                         <i class="fas fa-save mr-2"></i> সেটিংস সংরক্ষণ করুন
                                     </button>
                                 </div>
                             </div>
                         </div>
                         
-                        <div class="mt-8 p-4 bg-gray-50 rounded-lg">
-                            <h3 class="text-xl font-bold mb-4">সিস্টেম তথ্য</h3>
+                        <div class="mt-8 pt-8 border-t border-gray-200">
+                            <h3 class="text-xl font-bold mb-4 text-gray-800">সিস্টেম তথ্য</h3>
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                <div>
-                                    <p class="text-gray-600">সার্ভার সময়</p>
-                                    <p id="serverTime" class="font-bold">--:--:--</p>
+                                <div class="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                                    <p class="text-gray-600 mb-1">সার্ভার সময়</p>
+                                    <p id="serverTime" class="font-bold text-lg">--:--:--</p>
                                 </div>
-                                <div>
-                                    <p class="text-gray-600">মেমোরি ব্যবহার</p>
-                                    <p id="memoryUsage" class="font-bold">লোড হচ্ছে...</p>
+                                
+                                <div class="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                                    <p class="text-gray-600 mb-1">সিস্টেম মেমোরি</p>
+                                    <p id="memoryUsage" class="font-bold text-lg">লোড হচ্ছে...</p>
                                 </div>
-                                <div>
-                                    <p class="text-gray-600">আপটাইম</p>
-                                    <p id="uptime" class="font-bold">০ ঘণ্টা</p>
+                                
+                                <div class="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                                    <p class="text-gray-600 mb-1">আপটাইম</p>
+                                    <p id="uptime" class="font-bold text-lg">০ ঘণ্টা</p>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-6 p-4 bg-amber-50 rounded-lg border border-amber-200">
+                                <div class="flex items-start">
+                                    <i class="fas fa-info-circle text-amber-600 mt-1 mr-3"></i>
+                                    <div>
+                                        <p class="font-medium text-amber-800">সিস্টেম তথ্য</p>
+                                        <p class="text-sm text-amber-700 mt-1">
+                                            এডমিন প্যানেল ভার্সন: ২.০.০ | সর্বশেষ আপডেট: ২০২৩-১০-১৫
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -602,48 +862,52 @@
     </div>
 
     <!-- পণ্য মডাল -->
-    <div id="productModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
-            <div class="bg-amber-600 text-white p-4 rounded-t-xl flex justify-between items-center">
-                <h3 id="productModalTitle" class="text-xl font-bold">নতুন পণ্য যোগ করুন</h3>
+    <div id="productModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto modal">
+            <div class="bg-gradient-to-r from-amber-600 to-amber-700 text-white p-5 rounded-t-xl flex justify-between items-center">
+                <h3 id="productModalTitle" class="text-xl font-bold flex items-center">
+                    <i class="fas fa-wine-bottle mr-2"></i>
+                    <span>নতুন পণ্য যোগ করুন</span>
+                </h3>
                 <button id="closeProductModal" class="text-2xl hover:text-amber-300 transition">&times;</button>
             </div>
             
             <div class="p-6">
-                <form id="productForm" class="space-y-4">
+                <form id="productForm" class="space-y-6">
                     <input type="hidden" id="productId">
                     
                     <div>
-                        <label class="block text-gray-700 mb-2">পণ্যের নাম *</label>
-                        <input type="text" id="productName" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500">
+                        <label class="form-label">পণ্যের নাম *</label>
+                        <input type="text" id="productName" required class="form-input" placeholder="যেমন: গোলাপ আতর">
                     </div>
                     
                     <div>
-                        <label class="block text-gray-700 mb-2">বর্ণনা *</label>
-                        <textarea id="productDescription" rows="3" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500"></textarea>
+                        <label class="form-label">বর্ণনা *</label>
+                        <textarea id="productDescription" rows="3" required class="form-input" placeholder="পণ্যের বিস্তারিত বর্ণনা লিখুন..."></textarea>
                     </div>
                     
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-gray-700 mb-2">দাম (৳) *</label>
-                            <input type="number" id="productPrice" required min="0" step="0.01" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500">
+                            <label class="form-label">দাম (৳) *</label>
+                            <input type="number" id="productPrice" required min="0" step="0.01" class="form-input" placeholder="1299">
                         </div>
                         
                         <div>
-                            <label class="block text-gray-700 mb-2">মূল দাম</label>
-                            <input type="number" id="productOriginalPrice" min="0" step="0.01" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500">
+                            <label class="form-label">মূল দাম</label>
+                            <input type="number" id="productOriginalPrice" min="0" step="0.01" class="form-input" placeholder="1599">
+                            <p class="text-xs text-gray-500 mt-1">ছাড় দেখানোর জন্য</p>
                         </div>
                     </div>
                     
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-gray-700 mb-2">স্টক *</label>
-                            <input type="number" id="productStock" required min="0" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500">
+                            <label class="form-label">স্টক *</label>
+                            <input type="number" id="productStock" required min="0" class="form-input" placeholder="50">
                         </div>
                         
                         <div>
-                            <label class="block text-gray-700 mb-2">ক্যাটাগরি</label>
-                            <select id="productCategory" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500">
+                            <label class="form-label">ক্যাটাগরি</label>
+                            <select id="productCategory" class="form-input">
                                 <option value="আতর">আতর</option>
                                 <option value="পারফিউম">পারফিউম</option>
                                 <option value="অয়েল">অয়েল</option>
@@ -652,19 +916,21 @@
                     </div>
                     
                     <div>
-                        <label class="block text-gray-700 mb-2">ইমেজ URL</label>
-                        <input type="text" id="productImageUrl" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500" placeholder="https://example.com/image.jpg">
+                        <label class="form-label">ইমেজ URL</label>
+                        <input type="text" id="productImageUrl" class="form-input" 
+                               placeholder="https://images.unsplash.com/photo-1541643600914-78b084683601?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80">
+                        <p class="text-xs text-gray-500 mt-1">Unsplash বা অন্য কোন ইমেজ লিঙ্ক</p>
                     </div>
                     
                     <div class="flex items-center">
-                        <input type="checkbox" id="productFeatured" class="mr-2 h-5 w-5 text-amber-600">
-                        <label for="productFeatured" class="text-gray-700">ফিচার্ড পণ্য হিসেবে দেখান</label>
+                        <input type="checkbox" id="productFeatured" class="mr-3 h-5 w-5 text-amber-600 rounded">
+                        <label for="productFeatured" class="text-gray-700 cursor-pointer">ফিচার্ড পণ্য হিসেবে দেখান</label>
                     </div>
                     
-                    <div id="productFormError" class="hidden p-3 bg-red-100 text-red-700 rounded-lg"></div>
+                    <div id="productFormError" class="hidden p-4 bg-red-50 text-red-700 rounded-lg border border-red-200"></div>
                     
                     <div class="pt-4">
-                        <button type="submit" id="saveProductBtn" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-3 px-6 rounded-lg transition flex items-center justify-center">
+                        <button type="submit" id="saveProductBtn" class="w-full btn-primary py-3 flex items-center justify-center">
                             <span id="saveProductBtnText">
                                 <i class="fas fa-save mr-2"></i> সংরক্ষণ করুন
                             </span>
@@ -677,10 +943,13 @@
     </div>
 
     <!-- অর্ডার ডিটেইলস মডাল -->
-    <div id="orderModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div class="bg-amber-600 text-white p-4 rounded-t-xl flex justify-between items-center">
-                <h3 id="orderModalTitle" class="text-xl font-bold">অর্ডার বিবরণ</h3>
+    <div id="orderModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto modal">
+            <div class="bg-gradient-to-r from-amber-600 to-amber-700 text-white p-5 rounded-t-xl flex justify-between items-center">
+                <h3 id="orderModalTitle" class="text-xl font-bold flex items-center">
+                    <i class="fas fa-receipt mr-2"></i>
+                    <span>অর্ডার বিবরণ</span>
+                </h3>
                 <button id="closeOrderModal" class="text-2xl hover:text-amber-300 transition">&times;</button>
             </div>
             
@@ -693,25 +962,25 @@
                     </div>
                 </div>
                 
-                <div class="mt-6 pt-6 border-t">
-                    <h4 class="text-lg font-bold mb-3">স্ট্যাটাস আপডেট</h4>
-                    <div class="flex flex-wrap gap-2 mb-4">
-                        <select id="updateOrderStatus" class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500">
+                <div class="mt-8 pt-6 border-t border-gray-200">
+                    <h4 class="text-lg font-bold mb-4 text-gray-800">স্ট্যাটাস আপডেট</h4>
+                    <div class="flex flex-wrap items-center gap-4 mb-4">
+                        <select id="updateOrderStatus" class="form-input py-2 flex-1">
                             <option value="Pending">পেন্ডিং</option>
                             <option value="Processing">প্রসেসিং</option>
                             <option value="Shipped">শিপড</option>
                             <option value="Delivered">ডেলিভার্ড</option>
                             <option value="Cancelled">ক্যান্সেলড</option>
                         </select>
-                        <button id="updateStatusBtn" class="bg-amber-600 text-white px-4 py-2 rounded-lg hover:bg-amber-700 transition flex items-center">
+                        <button id="updateStatusBtn" class="btn-primary py-2 px-6 flex items-center">
                             <span id="updateStatusBtnText">স্ট্যাটাস আপডেট</span>
                             <div id="updateStatusSpinner" class="loader hidden ml-2" style="width: 16px; height: 16px; border-width: 2px;"></div>
                         </button>
                     </div>
                     
                     <div>
-                        <label class="block text-gray-700 mb-2">নোটস</label>
-                        <textarea id="orderNotes" rows="2" class="w-full px-4 py-2 border border-gray-300 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-amber-500"></textarea>
+                        <label class="form-label">নোটস (ঐচ্ছিক)</label>
+                        <textarea id="orderNotes" rows="3" class="form-input" placeholder="অর্ডার সম্পর্কিত বিশেষ নোট..."></textarea>
                     </div>
                 </div>
             </div>
@@ -723,18 +992,24 @@
 
     <!-- JavaScript -->
     <script>
-const API_BASE_URL = window.location.hostname === 'localhost' 
+        // =============================================
+        // GLOBAL CONFIGURATION
+        // =============================================
+        const API_BASE_URL = window.location.hostname === 'localhost' 
     ? 'http://localhost:5000/api' 
     : 'https://al-noorperfume.onrender.com/api';
 
-        // Global Variables
         let authToken = null;
         let currentAdmin = null;
-        let revenueChart = null;
         let isDemoMode = false;
+        let revenueChart = null;
         let serverStartTime = Date.now();
+        let currentPage = 'dashboard';
+        let currentOrderId = null;
 
-        // DOM Elements
+        // =============================================
+        // DOM ELEMENTS
+        // =============================================
         const loginPage = document.getElementById('loginPage');
         const dashboard = document.getElementById('dashboard');
         const loginForm = document.getElementById('loginForm');
@@ -747,23 +1022,35 @@ const API_BASE_URL = window.location.hostname === 'localhost'
         const overlay = document.getElementById('overlay');
         const navLinks = document.querySelectorAll('.nav-link');
         const logoutBtn = document.getElementById('logoutBtn');
-        const pageContents = document.querySelectorAll('.page-content');
         const pageTitle = document.getElementById('pageTitle');
+        const pageSubtitle = document.getElementById('pageSubtitle');
         const currentDate = document.getElementById('currentDate');
+        const currentTime = document.getElementById('currentTime');
         const adminEmail = document.getElementById('adminEmail');
         const demoMode = document.getElementById('demoMode');
 
-        // Toast Function
+        // =============================================
+        // UTILITY FUNCTIONS
+        // =============================================
+        
+        // টোস্ট মেসেজ ফাংশন
         function showToast(message, type = 'success') {
             const toastContainer = document.getElementById('toastContainer');
             const toast = document.createElement('div');
             toast.className = `toast ${type}`;
+            
+            let icon = 'fa-check-circle';
+            if (type === 'error') icon = 'fa-exclamation-circle';
+            if (type === 'warning') icon = 'fa-exclamation-triangle';
+            if (type === 'info') icon = 'fa-info-circle';
+            
             toast.innerHTML = `
                 <div class="flex items-center">
-                    <i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-exclamation-triangle'} mr-2"></i>
-                    <span>${message}</span>
+                    <i class="fas ${icon} mr-3 text-lg"></i>
+                    <span class="flex-1">${message}</span>
                 </div>
             `;
+            
             toastContainer.appendChild(toast);
             
             // Remove toast after 3 seconds
@@ -774,25 +1061,120 @@ const API_BASE_URL = window.location.hostname === 'localhost'
             }, 3000);
         }
 
-        // Loading Indicator Helper
+        // লোডিং ইনডিকেটর
         function showLoading(button, spinner, text) {
-            button.disabled = true;
-            spinner.classList.remove('hidden');
-            text.classList.add('hidden');
+            if (button) button.disabled = true;
+            if (spinner) spinner.classList.remove('hidden');
+            if (text) text.classList.add('hidden');
         }
 
         function hideLoading(button, spinner, text) {
-            button.disabled = false;
-            spinner.classList.add('hidden');
-            text.classList.remove('hidden');
+            if (button) button.disabled = false;
+            if (spinner) spinner.classList.add('hidden');
+            if (text) text.classList.remove('hidden');
         }
 
-        // Login Function
+        // API রিকোয়েস্ট হেল্পার
+        async function apiRequest(endpoint, options = {}) {
+            // Check if we have a token
+            if (!authToken) {
+                const savedToken = localStorage.getItem('adminToken');
+                const savedEmail = localStorage.getItem('adminEmail');
+                const savedDemo = localStorage.getItem('isDemoMode');
+                
+                if (savedToken && savedEmail) {
+                    authToken = savedToken;
+                    currentAdmin = { email: savedEmail };
+                    isDemoMode = savedDemo === 'true';
+                } else {
+                    // Redirect to login
+                    dashboard.classList.add('hidden');
+                    loginPage.classList.remove('hidden');
+                    showToast('দয়া করে পুনরায় লগইন করুন', 'warning');
+                    return null;
+                }
+            }
+            
+            const defaultHeaders = {
+                'Content-Type': 'application/json'
+            };
+            
+            // Add Authorization header if we have a token
+            if (authToken && !endpoint.includes('/public') && !endpoint.includes('/new')) {
+                defaultHeaders['Authorization'] = `Bearer ${authToken}`;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+                    ...options,
+                    headers: {
+                        ...defaultHeaders,
+                        ...options.headers
+                    }
+                });
+                
+                // Handle 401 Unauthorized
+                if (response.status === 401) {
+                    localStorage.removeItem('adminToken');
+                    localStorage.removeItem('adminEmail');
+                    localStorage.removeItem('isDemoMode');
+                    authToken = null;
+                    currentAdmin = null;
+                    
+                    dashboard.classList.add('hidden');
+                    loginPage.classList.remove('hidden');
+                    showToast('সেশন শেষ হয়েছে। পুনরায় লগইন করুন।', 'warning');
+                    return null;
+                }
+                
+                const data = await response.json();
+                return data;
+                
+            } catch (error) {
+                console.error('API Request Error:', error);
+                showToast('সার্ভার সংযোগ ব্যর্থ!', 'error');
+                return null;
+            }
+        }
+
+        // পেমেন্ট মেথড টেক্সট কনভার্টার
+        function getPaymentMethodText(method) {
+            const methods = {
+                'cod': 'ক্যাশ অন ডেলিভারি',
+                'bkash': 'bKash',
+                'nagad': 'Nagad',
+                'card': 'ক্রেডিট/ডেবিট কার্ড'
+            };
+            return methods[method] || method;
+        }
+
+        // তারিখ ফরম্যাটার
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('bn-BD', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+        }
+
+        // =============================================
+        // AUTHENTICATION
+        // =============================================
+        
+        // লগইন ফর্ম সাবমিশন
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            const email = document.getElementById('loginEmail').value;
+            const email = document.getElementById('loginEmail').value.trim();
             const password = document.getElementById('loginPassword').value;
+            
+            // ভ্যালিডেশন
+            if (!email || !password) {
+                loginError.textContent = 'ইমেইল ও পাসওয়ার্ড দিন';
+                loginError.classList.remove('hidden');
+                return;
+            }
             
             // Show loading
             showLoading(loginButton, loginSpinner, loginButtonText);
@@ -814,48 +1196,70 @@ const API_BASE_URL = window.location.hostname === 'localhost'
                     currentAdmin = data.admin;
                     isDemoMode = data.admin.demo || false;
                     
-                    // Save token to localStorage for persistence
+                    // Save to localStorage
                     localStorage.setItem('adminToken', authToken);
                     localStorage.setItem('adminEmail', currentAdmin.email);
                     localStorage.setItem('isDemoMode', isDemoMode);
+                    
+                    // Update UI
+                    adminEmail.textContent = currentAdmin.email;
+                    if (isDemoMode) {
+                        demoMode.classList.remove('hidden');
+                        updateDBStatus('ডেমো মোড', 'yellow');
+                    } else {
+                        demoMode.classList.add('hidden');
+                        updateDBStatus('একটিভ', 'green');
+                    }
                     
                     // Switch to dashboard
                     loginPage.classList.add('hidden');
                     dashboard.classList.remove('hidden');
                     
-                    // Update admin info
-                    adminEmail.textContent = currentAdmin.email;
-                    if (isDemoMode) {
-                        demoMode.classList.remove('hidden');
-                        document.getElementById('dbStatusText').textContent = 'ডেমো মোড';
-                        document.getElementById('dbStatusIndicator').className = 'w-2 h-2 rounded-full bg-yellow-500 mr-2';
-                    }
-                    
-                    // Set current date
-                    updateCurrentDate();
-                    
-                    // Load dashboard data
+                    // Load initial data
+                    updateDateTime();
                     loadDashboardData();
                     
-                    // Show success message
                     showToast('লগইন সফল!', 'success');
+                    
                 } else {
-                    loginError.textContent = data.error || 'লগইন ব্যর্থ। দয়া করে পুনরায় চেষ্টা করুন।';
+                    loginError.textContent = data.error || 'লগইন ব্যর্থ হয়েছে';
                     loginError.classList.remove('hidden');
                     showToast('লগইন ব্যর্থ!', 'error');
                 }
+                
             } catch (error) {
-                console.error('Login error:', error);
-                loginError.textContent = 'সার্ভার এরর। দয়া করে পরে চেষ্টা করুন।';
+                console.error('Login Error:', error);
+                loginError.textContent = 'সার্ভার সংযোগ সমস্যা';
                 loginError.classList.remove('hidden');
                 showToast('নেটওয়ার্ক এরর!', 'error');
+                
             } finally {
-                // Hide loading
                 hideLoading(loginButton, loginSpinner, loginButtonText);
             }
         });
 
-        // Mobile Menu Toggle
+        // লগআউট
+        logoutBtn.addEventListener('click', () => {
+            if (confirm('আপনি কি নিশ্চিত যে লগআউট করতে চান?')) {
+                authToken = null;
+                currentAdmin = null;
+                
+                localStorage.removeItem('adminToken');
+                localStorage.removeItem('adminEmail');
+                localStorage.removeItem('isDemoMode');
+                
+                dashboard.classList.add('hidden');
+                loginPage.classList.remove('hidden');
+                
+                showToast('লগআউট সফল!', 'success');
+            }
+        });
+
+        // =============================================
+        // NAVIGATION
+        // =============================================
+        
+        // মোবাইল মেনু টগল
         mobileMenuBtn.addEventListener('click', () => {
             sidebar.classList.toggle('active');
             overlay.classList.toggle('active');
@@ -866,42 +1270,19 @@ const API_BASE_URL = window.location.hostname === 'localhost'
             overlay.classList.remove('active');
         });
 
-        // Navigation
+        // নেভিগেশন লিঙ্ক ক্লিক
         navLinks.forEach(link => {
             link.addEventListener('click', (e) => {
                 e.preventDefault();
                 
                 const page = link.getAttribute('data-page');
                 
-                // Update active nav link
+                // Update active state
                 navLinks.forEach(nav => nav.classList.remove('active'));
                 link.classList.add('active');
                 
                 // Show selected page
-                pageContents.forEach(content => content.classList.add('hidden'));
-                document.getElementById(`${page}-view`).classList.remove('hidden');
-                
-                // Update page title
-                pageTitle.textContent = link.textContent.trim();
-                
-                // Load page data
-                switch(page) {
-                    case 'dashboard':
-                        loadDashboardData();
-                        break;
-                    case 'orders':
-                        loadOrders();
-                        break;
-                    case 'reviews':
-                        loadReviews();
-                        break;
-                    case 'products':
-                        loadProducts();
-                        break;
-                    case 'settings':
-                        loadSettings();
-                        break;
-                }
+                showPage(page);
                 
                 // Close mobile menu
                 sidebar.classList.remove('active');
@@ -909,86 +1290,101 @@ const API_BASE_URL = window.location.hostname === 'localhost'
             });
         });
 
-        // Logout
-        logoutBtn.addEventListener('click', () => {
-            authToken = null;
-            currentAdmin = null;
-            localStorage.removeItem('adminToken');
-            localStorage.removeItem('adminEmail');
-            localStorage.removeItem('isDemoMode');
+        // পৃষ্ঠা দেখানোর ফাংশন
+        function showPage(page) {
+            currentPage = page;
             
-            dashboard.classList.add('hidden');
-            loginPage.classList.remove('hidden');
+            // Hide all pages
+            document.querySelectorAll('.page-content').forEach(el => {
+                el.classList.add('hidden');
+            });
             
-            showToast('লগআউট সফল!', 'success');
-        });
+            // Show selected page
+            const pageElement = document.getElementById(`${page}-view`);
+            if (pageElement) {
+                pageElement.classList.remove('hidden');
+            }
+            
+            // Update page title
+            const pageTitles = {
+                'dashboard': 'ড্যাশবোর্ড',
+                'orders': 'অর্ডারসমূহ',
+                'reviews': 'পর্যালোচনা',
+                'products': 'পণ্য ব্যবস্থাপনা',
+                'settings': 'সেটিংস'
+            };
+            
+            pageTitle.textContent = pageTitles[page] || 'ড্যাশবোর্ড';
+            pageSubtitle.textContent = `সর্বশেষ আপডেট: ${new Date().toLocaleTimeString('bn-BD')}`;
+            
+            // Load page data
+            switch(page) {
+                case 'dashboard':
+                    loadDashboardData();
+                    break;
+                case 'orders':
+                    loadOrders();
+                    break;
+                case 'reviews':
+                    loadReviews();
+                    break;
+                case 'products':
+                    loadProducts();
+                    break;
+                case 'settings':
+                    loadSettings();
+                    break;
+            }
+        }
 
-        // Update Current Date
-        function updateCurrentDate() {
+        // =============================================
+        // DASHBOARD FUNCTIONS
+        // =============================================
+        
+        // তারিখ ও সময় আপডেট
+        function updateDateTime() {
             const now = new Date();
-            const options = { 
+            
+            // তারিখ
+            const dateOptions = { 
                 weekday: 'long', 
                 year: 'numeric', 
                 month: 'long', 
                 day: 'numeric' 
             };
-            currentDate.textContent = now.toLocaleDateString('bn-BD', options);
+            currentDate.textContent = now.toLocaleDateString('bn-BD', dateOptions);
+            
+            // সময়
+            currentTime.textContent = now.toLocaleTimeString('bn-BD', {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+            
+            // প্রতি সেকেন্ডে আপডেট
+            setTimeout(updateDateTime, 1000);
         }
 
-        // API Request Helper
-        async function apiRequest(endpoint, options = {}) {
-            if (!authToken) {
-                // Try to get token from localStorage
-                const savedToken = localStorage.getItem('adminToken');
-                const savedEmail = localStorage.getItem('adminEmail');
-                const savedDemoMode = localStorage.getItem('isDemoMode') === 'true';
-                
-                if (savedToken && savedEmail) {
-                    authToken = savedToken;
-                    currentAdmin = { email: savedEmail };
-                    isDemoMode = savedDemoMode;
-                } else {
-                    // Redirect to login
-                    dashboard.classList.add('hidden');
-                    loginPage.classList.remove('hidden');
-                    return null;
-                }
-            }
+        // ডাটাবেজ স্ট্যাটাস আপডেট
+        function updateDBStatus(status, color) {
+            const indicator = document.getElementById('dbStatusIndicator');
+            const text = document.getElementById('dbStatusText');
             
-            const defaultHeaders = {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${authToken}`
+            text.textContent = status;
+            
+            // রং সেট করুন
+            const colors = {
+                'green': 'bg-green-500',
+                'yellow': 'bg-yellow-500',
+                'red': 'bg-red-500',
+                'gray': 'bg-gray-500'
             };
             
-            try {
-                const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-                    ...options,
-                    headers: {
-                        ...defaultHeaders,
-                        ...options.headers
-                    }
-                });
-                
-                if (response.status === 401) {
-                    // Token expired, redirect to login
-                    localStorage.removeItem('adminToken');
-                    localStorage.removeItem('adminEmail');
-                    localStorage.removeItem('isDemoMode');
-                    dashboard.classList.add('hidden');
-                    loginPage.classList.remove('hidden');
-                    showToast('সেশন শেষ হয়েছে। পুনরায় লগইন করুন।', 'warning');
-                    return null;
-                }
-                
-                return await response.json();
-            } catch (error) {
-                console.error('API request error:', error);
-                showToast('সার্ভার এরর!', 'error');
-                return null;
-            }
+            indicator.className = 'w-2 h-2 rounded-full mr-2';
+            indicator.classList.add(colors[color] || 'bg-gray-500');
         }
 
-        // Load Dashboard Data
+        // ড্যাশবোর্ড ডেটা লোড
         async function loadDashboardData() {
             const data = await apiRequest('/dashboard/stats');
             
@@ -996,74 +1392,118 @@ const API_BASE_URL = window.location.hostname === 'localhost'
                 // Update stats
                 document.getElementById('totalOrders').textContent = data.totalOrders.toLocaleString('bn-BD');
                 document.getElementById('totalRevenue').textContent = `৳ ${data.totalRevenue.toLocaleString('bn-BD')}`;
-                document.getElementById('pendingOrders').textContent = data.pendingOrders.toLocaleString('bn-BD');
-                document.getElementById('totalProducts').textContent = data.totalProducts.toLocaleString('bn-BD');
+                document.getElementById('pendingOrdersCount').textContent = data.pendingOrders.toLocaleString('bn-BD');
+                document.getElementById('totalProductsCount').textContent = data.totalProducts.toLocaleString('bn-BD');
+                
+                // Update badges
+                updateBadge('pendingOrdersBadge', data.pendingOrders);
+                updateBadge('pendingReviewsBadge', data.pendingReviews);
                 
                 // Update recent orders
-                const recentOrdersList = document.getElementById('recentOrdersList');
-                if (data.recentOrders && data.recentOrders.length > 0) {
-                    recentOrdersList.innerHTML = data.recentOrders.map(order => `
-                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition">
-                            <div>
-                                <p class="font-bold">${order.customerName}</p>
-                                <p class="text-sm text-gray-600">${order.product} (${order.quantity}x)</p>
-                            </div>
-                            <div class="text-right">
-                                <p class="font-bold">৳ ${order.totalPrice.toLocaleString('bn-BD')}</p>
-                                <span class="status-badge status-${order.status ? order.status.toLowerCase() : 'pending'}">${order.status || 'Pending'}</span>
-                            </div>
-                        </div>
-                    `).join('');
-                } else {
-                    recentOrdersList.innerHTML = `
-                        <div class="text-center py-8">
-                            <i class="fas fa-shopping-cart text-3xl text-gray-400 mb-3"></i>
-                            <p class="text-gray-500">কোনো সাম্প্রতিক অর্ডার নেই</p>
-                        </div>
-                    `;
-                }
+                updateRecentOrders(data.recentOrders || []);
                 
                 // Update chart
-                updateRevenueChart(data.monthlyRevenue);
+                updateRevenueChart(data.monthlyRevenue || []);
+                
+                // Update last update time
+                pageSubtitle.textContent = `সর্বশেষ আপডেট: ${new Date().toLocaleTimeString('bn-BD')}`;
             }
         }
 
-        // Update Revenue Chart
-        function updateRevenueChart(monthlyData) {
-            const ctx = document.getElementById('revenueChart').getContext('2d');
+        // ব্যাজ আপডেট
+        function updateBadge(badgeId, count) {
+            const badge = document.getElementById(badgeId);
+            if (count > 0) {
+                badge.textContent = count > 99 ? '99+' : count;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+        }
+
+        // সাম্প্রতিক অর্ডার আপডেট
+        function updateRecentOrders(orders) {
+            const container = document.getElementById('recentOrdersList');
             
+            if (orders.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-8">
+                        <i class="fas fa-shopping-cart text-3xl text-gray-300 mb-3"></i>
+                        <p class="text-gray-500">কোনো সাম্প্রতিক অর্ডার নেই</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = orders.slice(0, 5).map(order => `
+                <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition">
+                    <div class="flex-1">
+                        <div class="flex items-center mb-1">
+                            <div class="w-8 h-8 bg-amber-100 rounded-full flex items-center justify-center mr-3">
+                                <i class="fas fa-user text-amber-600 text-sm"></i>
+                            </div>
+                            <div>
+                                <p class="font-bold text-gray-800">${order.customerName}</p>
+                                <p class="text-sm text-gray-600">${order.product} (${order.quantity}x)</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <p class="font-bold text-gray-800">৳ ${order.totalPrice ? order.totalPrice.toLocaleString('bn-BD') : '0'}</p>
+                        <span class="inline-block mt-1 px-2 py-1 text-xs rounded-full 
+                              ${order.status === 'Pending' ? 'bg-yellow-100 text-yellow-800' : 
+                                order.status === 'Delivered' ? 'bg-green-100 text-green-800' :
+                                order.status === 'Processing' ? 'bg-blue-100 text-blue-800' :
+                                'bg-gray-100 text-gray-800'}">
+                            ${order.status || 'Pending'}
+                        </span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // রাজস্ব চার্ট আপডেট
+        function updateRevenueChart(monthlyData) {
+            const ctx = document.getElementById('revenueChart');
+            if (!ctx) return;
+            
+            const canvasCtx = ctx.getContext('2d');
+            
+            // Destroy previous chart if exists
             if (revenueChart) {
                 revenueChart.destroy();
             }
             
-            const months = ['জানু', 'ফেব্রু', 'মার্চ', 'এপ্রিল', 'মে', 'জুন', 'জুলাই', 'আগস্ট', 'সেপ্টেম্বর', 'অক্টোবর', 'নভেম্বর', 'ডিসেম্বর'];
+            const months = ['জানু', 'ফেব্রু', 'মার্চ', 'এপ্রিল', 'মে', 'জুন', 
+                           'জুলাই', 'আগস্ট', 'সেপ্ট', 'অক্টো', 'নভে', 'ডিসে'];
             
             // Prepare data
             const labels = [];
             const revenue = [];
             
             for (let i = 1; i <= 12; i++) {
-                labels.push(months[i - 1]);
-                const monthData = monthlyData ? monthlyData.find(d => d._id === i) : null;
+                labels.push(months[i-1]);
+                const monthData = monthlyData.find(d => d._id === i);
                 revenue.push(monthData ? monthData.revenue : 0);
             }
             
-            revenueChart = new Chart(ctx, {
+            revenueChart = new Chart(canvasCtx, {
                 type: 'line',
                 data: {
                     labels: labels,
                     datasets: [{
-                        label: 'মাসিক আয় (৳)',
+                        label: 'মাসিক আয় (৳)',
                         data: revenue,
                         borderColor: '#D97706',
                         backgroundColor: 'rgba(217, 119, 6, 0.1)',
-                        borderWidth: 2,
+                        borderWidth: 3,
                         fill: true,
                         tension: 0.4,
                         pointBackgroundColor: '#D97706',
                         pointBorderColor: '#ffffff',
                         pointBorderWidth: 2,
-                        pointRadius: 4
+                        pointRadius: 5,
+                        pointHoverRadius: 7
                     }]
                 },
                 options: {
@@ -1075,8 +1515,10 @@ const API_BASE_URL = window.location.hostname === 'localhost'
                             position: 'top',
                             labels: {
                                 font: {
-                                    family: "'Hind Siliguri', sans-serif"
-                                }
+                                    family: "'Hind Siliguri', sans-serif",
+                                    size: 14
+                                },
+                                padding: 20
                             }
                         },
                         tooltip: {
@@ -1084,12 +1526,22 @@ const API_BASE_URL = window.location.hostname === 'localhost'
                                 label: function(context) {
                                     return `৳ ${context.parsed.y.toLocaleString('bn-BD')}`;
                                 }
+                            },
+                            backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                            titleFont: {
+                                family: "'Hind Siliguri', sans-serif"
+                            },
+                            bodyFont: {
+                                family: "'Hind Siliguri', sans-serif"
                             }
                         }
                     },
                     scales: {
                         y: {
                             beginAtZero: true,
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            },
                             ticks: {
                                 callback: function(value) {
                                     return '৳ ' + value.toLocaleString('bn-BD');
@@ -1100,6 +1552,9 @@ const API_BASE_URL = window.location.hostname === 'localhost'
                             }
                         },
                         x: {
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            },
                             ticks: {
                                 font: {
                                     family: "'Hind Siliguri', sans-serif"
@@ -1111,7 +1566,11 @@ const API_BASE_URL = window.location.hostname === 'localhost'
             });
         }
 
-        // Load Orders
+        // =============================================
+        // ORDERS MANAGEMENT
+        // =============================================
+        
+        // অর্ডার লোড
         async function loadOrders(page = 1) {
             const statusFilter = document.getElementById('orderStatusFilter').value;
             const searchQuery = document.getElementById('orderSearch').value;
@@ -1123,53 +1582,180 @@ const API_BASE_URL = window.location.hostname === 'localhost'
             
             const data = await apiRequest(endpoint);
             
-            if (data) {
-                const tbody = document.getElementById('ordersTableBody');
-                
-                if (data.orders && data.orders.length > 0) {
-                    tbody.innerHTML = data.orders.map(order => `
-                        <tr class="border-b hover:bg-gray-50 transition">
-                            <td class="p-4 font-mono font-bold">${order.orderId || 'N/A'}</td>
-                            <td class="p-4">
-                                <p class="font-bold">${order.customerName}</p>
-                                <p class="text-sm text-gray-600">${order.phone}</p>
-                            </td>
-                            <td class="p-4">${order.product}</td>
-                            <td class="p-4 font-bold">৳ ${order.totalPrice ? order.totalPrice.toLocaleString('bn-BD') : '0'}</td>
-                            <td class="p-4">
-                                <span class="status-badge status-${order.status ? order.status.toLowerCase() : 'pending'}">${order.status || 'Pending'}</span>
-                            </td>
-                            <td class="p-4">${new Date(order.orderDate).toLocaleDateString('bn-BD')}</td>
-                            <td class="p-4">
-                                <button onclick="viewOrderDetails('${order._id}')" class="text-blue-600 hover:text-blue-800 mr-2 transition" title="বিস্তারিত">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                                <button onclick="deleteOrder('${order._id}')" class="text-red-600 hover:text-red-800 transition" title="মুছুন">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </td>
-                        </tr>
-                    `).join('');
-                } else {
-                    tbody.innerHTML = `
-                        <tr>
-                            <td colspan="7" class="p-8 text-center">
-                                <i class="fas fa-shopping-cart text-3xl text-gray-400 mb-3"></i>
-                                <p class="text-gray-500">কোনো অর্ডার পাওয়া যায়নি</p>
-                            </td>
-                        </tr>
-                    `;
-                }
-                
-                // Update pagination
+            if (data && data.success) {
+                updateOrdersTable(data.orders || []);
                 updatePagination('ordersPagination', data.totalPages, page, loadOrders);
-                
-                // Update count
                 document.getElementById('ordersCount').textContent = data.total || 0;
             }
         }
 
-        // Load Reviews
+        // অর্ডার টেবিল আপডেট
+        function updateOrdersTable(orders) {
+            const tbody = document.getElementById('ordersTableBody');
+            
+            if (orders.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="p-8 text-center">
+                            <i class="fas fa-shopping-cart text-3xl text-gray-300 mb-3"></i>
+                            <p class="text-gray-500">কোনো অর্ডার পাওয়া যায়নি</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            tbody.innerHTML = orders.map(order => {
+                const statusClass = order.status ? 
+                    `status-${order.status.toLowerCase()}` : 'status-pending';
+                const statusText = order.status || 'Pending';
+                
+                return `
+                    <tr class="hover:bg-gray-50 transition">
+                        <td class="p-4">
+                            <code class="bg-gray-100 px-2 py-1 rounded text-sm font-mono">${order.orderId || 'N/A'}</code>
+                        </td>
+                        <td class="p-4">
+                            <p class="font-bold text-gray-800">${order.customerName}</p>
+                            <p class="text-sm text-gray-600">${order.phone}</p>
+                            ${order.email ? `<p class="text-xs text-gray-500">${order.email}</p>` : ''}
+                        </td>
+                        <td class="p-4">
+                            <p class="font-medium">${order.product}</p>
+                            <p class="text-sm text-gray-600">পরিমাণ: ${order.quantity}</p>
+                        </td>
+                        <td class="p-4 font-bold text-gray-800">
+                            ৳ ${order.totalPrice ? order.totalPrice.toLocaleString('bn-BD') : '0'}
+                        </td>
+                        <td class="p-4">
+                            <span class="status-badge ${statusClass}">${statusText}</span>
+                        </td>
+                        <td class="p-4 text-sm text-gray-600">
+                            ${formatDate(order.orderDate)}
+                        </td>
+                        <td class="p-4">
+                            <div class="flex items-center space-x-2">
+                                <button onclick="viewOrderDetails('${order._id}')" 
+                                        class="text-blue-600 hover:text-blue-800 transition p-2 rounded-full hover:bg-blue-50"
+                                        title="বিস্তারিত">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button onclick="deleteOrder('${order._id}')" 
+                                        class="text-red-600 hover:text-red-800 transition p-2 rounded-full hover:bg-red-50"
+                                        title="মুছুন">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // অর্ডার ডিটেইলস দেখান
+        async function viewOrderDetails(orderId) {
+            currentOrderId = orderId;
+            
+            const data = await apiRequest(`/orders/${orderId}`);
+            
+            if (data && data.success) {
+                const content = document.getElementById('orderDetailsContent');
+                
+                content.innerHTML = `
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <h4 class="font-bold text-lg mb-3 text-gray-800">গ্রাহক তথ্য</h4>
+                            <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                                <div class="space-y-2">
+                                    <p><span class="font-medium">নাম:</span> ${data.customerName}</p>
+                                    <p><span class="font-medium">ফোন:</span> ${data.phone}</p>
+                                    <p><span class="font-medium">ইমেইল:</span> ${data.email || 'N/A'}</p>
+                                    <p><span class="font-medium">ঠিকানা:</span> ${data.address}</p>
+                                    ${data.demo ? '<p class="text-amber-600 text-sm mt-2"><i class="fas fa-info-circle mr-1"></i> ডেমো ডেটা</p>' : ''}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h4 class="font-bold text-lg mb-3 text-gray-800">অর্ডার তথ্য</h4>
+                            <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                                <div class="space-y-2">
+                                    <p><span class="font-medium">অর্ডার আইডি:</span> <code>${data.orderId || 'N/A'}</code></p>
+                                    <p><span class="font-medium">পণ্য:</span> ${data.product}</p>
+                                    <p><span class="font-medium">পরিমাণ:</span> ${data.quantity} টি</p>
+                                    <p><span class="font-medium">মোট মূল্য:</span> ৳ ${data.totalPrice ? data.totalPrice.toLocaleString('bn-BD') : '0'}</p>
+                                    <p><span class="font-medium">পেমেন্ট:</span> ${getPaymentMethodText(data.paymentMethod)}</p>
+                                    <p><span class="font-medium">স্ট্যাটাস:</span> 
+                                        <span class="status-badge status-${data.status ? data.status.toLowerCase() : 'pending'} ml-2">
+                                            ${data.status || 'Pending'}
+                                        </span>
+                                    </p>
+                                    <p><span class="font-medium">অর্ডার তারিখ:</span> ${formatDate(data.orderDate)}</p>
+                                    ${data.deliveryDate ? `<p><span class="font-medium">ডেলিভারি তারিখ:</span> ${formatDate(data.deliveryDate)}</p>` : ''}
+                                    ${data.notes ? `<p><span class="font-medium">নোটস:</span> ${data.notes}</p>` : ''}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                // Set current values
+                document.getElementById('updateOrderStatus').value = data.status || 'Pending';
+                document.getElementById('orderNotes').value = data.notes || '';
+                
+                // Show modal
+                document.getElementById('orderModal').classList.remove('hidden');
+            }
+        }
+
+        // অর্ডার স্ট্যাটাস আপডেট
+        document.getElementById('updateStatusBtn').addEventListener('click', async () => {
+            if (!currentOrderId) return;
+            
+            const status = document.getElementById('updateOrderStatus').value;
+            const notes = document.getElementById('orderNotes').value;
+            
+            const button = document.getElementById('updateStatusBtn');
+            const buttonText = document.getElementById('updateStatusBtnText');
+            const spinner = document.getElementById('updateStatusSpinner');
+            
+            showLoading(button, spinner, buttonText);
+            
+            const data = await apiRequest(`/orders/${currentOrderId}/status`, {
+                method: 'PUT',
+                body: JSON.stringify({ status, notes })
+            });
+            
+            if (data && data.success) {
+                showToast('অর্ডার স্ট্যাটাস আপডেট করা হয়েছে!', 'success');
+                document.getElementById('orderModal').classList.add('hidden');
+                loadOrders();
+                loadDashboardData(); // Refresh dashboard stats
+            }
+            
+            hideLoading(button, spinner, buttonText);
+        });
+
+        // অর্ডার ডিলিট
+        async function deleteOrder(orderId) {
+            if (!confirm('আপনি কি নিশ্চিত যে এই অর্ডারটি মুছতে চান?')) return;
+            
+            const data = await apiRequest(`/orders/${orderId}`, {
+                method: 'DELETE'
+            });
+            
+            if (data && data.success) {
+                showToast('অর্ডার মুছে ফেলা হয়েছে!', 'success');
+                loadOrders();
+                loadDashboardData();
+            }
+        }
+
+        // =============================================
+        // REVIEWS MANAGEMENT
+        // =============================================
+        
+        // রিভিউ লোড
         async function loadReviews(page = 1) {
             const statusFilter = document.getElementById('reviewStatusFilter').value;
             
@@ -1180,312 +1766,81 @@ const API_BASE_URL = window.location.hostname === 'localhost'
             
             const data = await apiRequest(endpoint);
             
-            if (data) {
-                const tbody = document.getElementById('reviewsTableBody');
-                
-                if (data.reviews && data.reviews.length > 0) {
-                    tbody.innerHTML = data.reviews.map(review => `
-                        <tr class="border-b hover:bg-gray-50 transition">
-                            <td class="p-4 font-bold">${review.customerName}</td>
-                            <td class="p-4">${review.product}</td>
-                            <td class="p-4">
-                                <div class="flex text-amber-500">
-                                    ${'★'.repeat(review.rating)}${'☆'.repeat(5-review.rating)}
-                                    <span class="ml-2 text-gray-600">(${review.rating})</span>
-                                </div>
-                            </td>
-                            <td class="p-4">
-                                <p class="line-clamp-2">${review.reviewText}</p>
-                            </td>
-                            <td class="p-4">${new Date(review.date).toLocaleDateString('bn-BD')}</td>
-                            <td class="p-4">
-                                ${review.approved 
-                                    ? '<span class="px-3 py-1 rounded-full bg-green-100 text-green-800">অনুমোদিত</span>' 
-                                    : '<span class="px-3 py-1 rounded-full bg-yellow-100 text-yellow-800">অননুমোদিত</span>'}
-                            </td>
-                            <td class="p-4">
-                                <button onclick="toggleReviewApproval('${review._id}', ${!review.approved})" class="text-green-600 hover:text-green-800 mr-2 transition" title="${review.approved ? 'অননুমোদন' : 'অনুমোদন'}">
-                                    <i class="fas fa-${review.approved ? 'times' : 'check'}"></i>
-                                </button>
-                                <button onclick="deleteReview('${review._id}')" class="text-red-600 hover:text-red-800 transition" title="মুছুন">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </td>
-                        </tr>
-                    `).join('');
-                } else {
-                    tbody.innerHTML = `
-                        <tr>
-                            <td colspan="7" class="p-8 text-center">
-                                <i class="fas fa-star text-3xl text-gray-400 mb-3"></i>
-                                <p class="text-gray-500">কোনো পর্যালোচনা পাওয়া যায়নি</p>
-                            </td>
-                        </tr>
-                    `;
-                }
-                
-                // Update pagination
+            if (data && data.success) {
+                updateReviewsTable(data.reviews || []);
                 updatePagination('reviewsPagination', data.totalPages, page, loadReviews);
-                
-                // Update count
                 document.getElementById('reviewsCount').textContent = data.total || 0;
             }
         }
 
-        // Load Products
-        async function loadProducts() {
-            const data = await apiRequest('/products');
+        // রিভিউ টেবিল আপডেট
+        function updateReviewsTable(reviews) {
+            const tbody = document.getElementById('reviewsTableBody');
             
-            if (data) {
-                const tbody = document.getElementById('productsTableBody');
+            if (reviews.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="p-8 text-center">
+                            <i class="fas fa-star text-3xl text-gray-300 mb-3"></i>
+                            <p class="text-gray-500">কোনো পর্যালোচনা পাওয়া যায়নি</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            tbody.innerHTML = reviews.map(review => {
+                const stars = '★'.repeat(review.rating) + '☆'.repeat(5 - review.rating);
+                const statusText = review.approved ? 'অনুমোদিত' : 'অননুমোদিত';
+                const statusClass = review.approved ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800';
+                const actionText = review.approved ? 'অননুমোদন' : 'অনুমোদন';
+                const actionIcon = review.approved ? 'fa-times' : 'fa-check';
                 
-                if (data.length > 0) {
-                    tbody.innerHTML = data.map(product => `
-                        <tr class="border-b hover:bg-gray-50 transition">
-                            <td class="p-4 font-bold">${product.name}</td>
-                            <td class="p-4">
-                                <p class="line-clamp-2">${product.description}</p>
-                            </td>
-                            <td class="p-4">
-                                <span class="font-bold">৳ ${product.price.toLocaleString('bn-BD')}</span>
-                                ${product.originalPrice ? `<br><span class="text-sm text-gray-500 line-through">৳ ${product.originalPrice.toLocaleString('bn-BD')}</span>` : ''}
-                            </td>
-                            <td class="p-4">
-                                <span class="px-2 py-1 rounded-full ${product.stock > 10 ? 'bg-green-100 text-green-800' : product.stock > 0 ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'}">
-                                    ${product.stock}
-                                </span>
-                            </td>
-                            <td class="p-4">${product.sold || 0}</td>
-                            <td class="p-4">
-                                <button onclick="editProduct('${product._id}')" class="text-blue-600 hover:text-blue-800 mr-2 transition" title="সম্পাদনা">
-                                    <i class="fas fa-edit"></i>
+                return `
+                    <tr class="hover:bg-gray-50 transition">
+                        <td class="p-4">
+                            <p class="font-bold text-gray-800">${review.customerName}</p>
+                        </td>
+                        <td class="p-4">
+                            <p class="font-medium">${review.product}</p>
+                        </td>
+                        <td class="p-4">
+                            <div class="flex items-center">
+                                <div class="text-amber-500 text-lg mr-2">${stars}</div>
+                                <span class="text-gray-600 text-sm">(${review.rating}.0)</span>
+                            </div>
+                        </td>
+                        <td class="p-4">
+                            <p class="line-clamp-2 text-gray-700">"${review.reviewText}"</p>
+                        </td>
+                        <td class="p-4 text-sm text-gray-600">
+                            ${formatDate(review.date)}
+                        </td>
+                        <td class="p-4">
+                            <span class="px-3 py-1 rounded-full ${statusClass} text-xs font-medium">
+                                ${statusText}
+                            </span>
+                        </td>
+                        <td class="p-4">
+                            <div class="flex items-center space-x-2">
+                                <button onclick="toggleReviewApproval('${review._id}', ${!review.approved})" 
+                                        class="text-green-600 hover:text-green-800 transition p-2 rounded-full hover:bg-green-50"
+                                        title="${actionText}">
+                                    <i class="fas ${actionIcon}"></i>
                                 </button>
-                                <button onclick="deleteProduct('${product._id}')" class="text-red-600 hover:text-red-800 transition" title="মুছুন">
+                                <button onclick="deleteReview('${review._id}')" 
+                                        class="text-red-600 hover:text-red-800 transition p-2 rounded-full hover:bg-red-50"
+                                        title="মুছুন">
                                     <i class="fas fa-trash"></i>
                                 </button>
-                            </td>
-                        </tr>
-                    `).join('');
-                } else {
-                    tbody.innerHTML = `
-                        <tr>
-                            <td colspan="6" class="p-8 text-center">
-                                <i class="fas fa-wine-bottle text-3xl text-gray-400 mb-3"></i>
-                                <p class="text-gray-500">কোনো পণ্য পাওয়া যায়নি</p>
-                                <button id="addProductBtnEmpty" class="mt-4 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition">
-                                    <i class="fas fa-plus mr-2"></i> প্রথম পণ্য যোগ করুন
-                                </button>
-                            </td>
-                        </tr>
-                    `;
-                    
-                    document.getElementById('addProductBtnEmpty').addEventListener('click', () => {
-                        document.getElementById('addProductBtn').click();
-                    });
-                }
-            }
-        }
-
-        // Load Settings
-        function loadSettings() {
-            // Update server time
-            updateServerTime();
-            
-            // Update uptime
-            updateUptime();
-            
-            // Set API version
-            document.getElementById('apiVersion').textContent = 'v1.0.0';
-            
-            // Check server status
-            checkServerStatus();
-        }
-
-        // Update Server Time
-        function updateServerTime() {
-            const now = new Date();
-            const timeString = now.toLocaleTimeString('bn-BD', { 
-                hour: '2-digit', 
-                minute: '2-digit', 
-                second: '2-digit' 
-            });
-            document.getElementById('serverTime').textContent = timeString;
-            
-            // Update every second
-            setTimeout(updateServerTime, 1000);
-        }
-
-        // Update Uptime
-        function updateUptime() {
-            const uptimeMs = Date.now() - serverStartTime;
-            const hours = Math.floor(uptimeMs / (1000 * 60 * 60));
-            const minutes = Math.floor((uptimeMs % (1000 * 60 * 60)) / (1000 * 60));
-            
-            document.getElementById('uptime').textContent = `${hours} ঘণ্টা ${minutes} মিনিট`;
-            
-            // Update every minute
-            setTimeout(updateUptime, 60000);
-        }
-
-        // Check Server Status
-        async function checkServerStatus() {
-            try {
-                const response = await fetch(`${API_BASE_URL}/health`);
-                if (response.ok) {
-                    document.getElementById('serverStatus').textContent = 'চালু';
-                    document.getElementById('serverStatus').className = 'px-3 py-1 rounded-full bg-green-100 text-green-800';
-                } else {
-                    document.getElementById('serverStatus').textContent = 'অচল';
-                    document.getElementById('serverStatus').className = 'px-3 py-1 rounded-full bg-red-100 text-red-800';
-                }
-            } catch (error) {
-                document.getElementById('serverStatus').textContent = 'অচল';
-                document.getElementById('serverStatus').className = 'px-3 py-1 rounded-full bg-red-100 text-red-800';
-            }
-        }
-
-        // Pagination Helper
-        function updatePagination(containerId, totalPages, currentPage, callback) {
-            const container = document.getElementById(containerId);
-            container.innerHTML = '';
-            
-            if (totalPages <= 1) return;
-            
-            // Previous button
-            if (currentPage > 1) {
-                const prevButton = document.createElement('button');
-                prevButton.innerHTML = '<i class="fas fa-chevron-left"></i>';
-                prevButton.className = 'px-3 py-1 rounded-lg bg-gray-200 hover:bg-gray-300 transition';
-                prevButton.addEventListener('click', () => callback(currentPage - 1));
-                container.appendChild(prevButton);
-            }
-            
-            // Page numbers
-            for (let i = 1; i <= totalPages; i++) {
-                if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
-                    const button = document.createElement('button');
-                    button.textContent = i;
-                    button.className = `px-3 py-1 rounded-lg transition ${i === currentPage ? 'bg-amber-600 text-white' : 'bg-gray-200 hover:bg-gray-300'}`;
-                    button.addEventListener('click', () => callback(i));
-                    container.appendChild(button);
-                } else if (i === currentPage - 2 || i === currentPage + 2) {
-                    const span = document.createElement('span');
-                    span.textContent = '...';
-                    span.className = 'px-2 flex items-center';
-                    container.appendChild(span);
-                }
-            }
-            
-            // Next button
-            if (currentPage < totalPages) {
-                const nextButton = document.createElement('button');
-                nextButton.innerHTML = '<i class="fas fa-chevron-right"></i>';
-                nextButton.className = 'px-3 py-1 rounded-lg bg-gray-200 hover:bg-gray-300 transition';
-                nextButton.addEventListener('click', () => callback(currentPage + 1));
-                container.appendChild(nextButton);
-            }
-        }
-
-        // View Order Details
-        async function viewOrderDetails(orderId) {
-            const data = await apiRequest(`/orders/${orderId}`);
-            
-            if (data && data.success) {
-                const content = document.getElementById('orderDetailsContent');
-                content.innerHTML = `
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <h4 class="font-bold mb-2 text-lg">গ্রাহক তথ্য</h4>
-                            <div class="bg-gray-50 p-4 rounded-lg">
-                                <p class="mb-2"><span class="font-bold">নাম:</span> ${data.customerName}</p>
-                                <p class="mb-2"><span class="font-bold">ফোন:</span> ${data.phone}</p>
-                                <p class="mb-2"><span class="font-bold">ইমেইল:</span> ${data.email || 'N/A'}</p>
-                                <p class="mb-2"><span class="font-bold">ঠিকানা:</span> ${data.address}</p>
-                                ${data.demo ? '<p class="text-amber-600 text-sm mt-2"><i class="fas fa-info-circle mr-1"></i> ডেমো ডেটা</p>' : ''}
                             </div>
-                        </div>
-                        
-                        <div>
-                            <h4 class="font-bold mb-2 text-lg">অর্ডার তথ্য</h4>
-                            <div class="bg-gray-50 p-4 rounded-lg">
-                                <p class="mb-2"><span class="font-bold">অর্ডার আইডি:</span> ${data.orderId || 'N/A'}</p>
-                                <p class="mb-2"><span class="font-bold">পণ্য:</span> ${data.product}</p>
-                                <p class="mb-2"><span class="font-bold">পরিমাণ:</span> ${data.quantity}</p>
-                                <p class="mb-2"><span class="font-bold">মোট মূল্য:</span> ৳ ${data.totalPrice ? data.totalPrice.toLocaleString('bn-BD') : '0'}</p>
-                                <p class="mb-2"><span class="font-bold">পেমেন্ট:</span> ${getPaymentMethodText(data.paymentMethod)}</p>
-                                <p class="mb-2"><span class="font-bold">স্ট্যাটাস:</span> <span class="status-badge status-${data.status ? data.status.toLowerCase() : 'pending'}">${data.status || 'Pending'}</span></p>
-                                <p class="mb-2"><span class="font-bold">অর্ডার তারিখ:</span> ${new Date(data.orderDate).toLocaleString('bn-BD')}</p>
-                                ${data.deliveryDate ? `<p class="mb-2"><span class="font-bold">ডেলিভারি তারিখ:</span> ${new Date(data.deliveryDate).toLocaleDateString('bn-BD')}</p>` : ''}
-                                ${data.notes ? `<p class="mb-2"><span class="font-bold">নোটস:</span> ${data.notes}</p>` : ''}
-                            </div>
-                        </div>
-                    </div>
+                        </td>
+                    </tr>
                 `;
-                
-                document.getElementById('updateOrderStatus').value = data.status || 'Pending';
-                document.getElementById('orderNotes').value = data.notes || '';
-                
-                // Store current order ID
-                document.getElementById('orderModal').dataset.orderId = orderId;
-                
-                // Show modal
-                document.getElementById('orderModal').classList.remove('hidden');
-            }
+            }).join('');
         }
 
-        // Get Payment Method Text
-        function getPaymentMethodText(method) {
-            const methods = {
-                'cod': 'ক্যাশ অন ডেলিভারি',
-                'bkash': 'bKash',
-                'nagad': 'Nagad',
-                'card': 'ক্রেডিট/ডেবিট কার্ড'
-            };
-            return methods[method] || method;
-        }
-
-        // Update Order Status
-        document.getElementById('updateStatusBtn').addEventListener('click', async () => {
-            const orderId = document.getElementById('orderModal').dataset.orderId;
-            const status = document.getElementById('updateOrderStatus').value;
-            const notes = document.getElementById('orderNotes').value;
-            
-            // Show loading
-            const button = document.getElementById('updateStatusBtn');
-            const buttonText = document.getElementById('updateStatusBtnText');
-            const spinner = document.getElementById('updateStatusSpinner');
-            showLoading(button, spinner, buttonText);
-            
-            const data = await apiRequest(`/orders/${orderId}/status`, {
-                method: 'PUT',
-                body: JSON.stringify({ status, notes })
-            });
-            
-            if (data && data.success) {
-                showToast('স্ট্যাটাস আপডেট করা হয়েছে!', 'success');
-                loadOrders();
-                document.getElementById('orderModal').classList.add('hidden');
-            }
-            
-            // Hide loading
-            hideLoading(button, spinner, buttonText);
-        });
-
-        // Delete Order
-        async function deleteOrder(orderId) {
-            if (confirm('আপনি কি নিশ্চিত যে এই অর্ডারটি মুছতে চান?')) {
-                const data = await apiRequest(`/orders/${orderId}`, {
-                    method: 'DELETE'
-                });
-                
-                if (data && data.success) {
-                    showToast('অর্ডার মুছে ফেলা হয়েছে!', 'success');
-                    loadOrders();
-                }
-            }
-        }
-
-        // Toggle Review Approval
+        // রিভিউ অনুমোদন টগল
         async function toggleReviewApproval(reviewId, approve) {
             const data = await apiRequest(`/reviews/${reviewId}/approve`, {
                 method: 'PUT',
@@ -1493,54 +1848,207 @@ const API_BASE_URL = window.location.hostname === 'localhost'
             });
             
             if (data && data.success) {
-                showToast(`পর্যালোচনা ${approve ? 'অনুমোদন' : 'অননুমোদন'} করা হয়েছে!`, 'success');
+                showToast(`পর্যালোচনা ${approve ? 'অনুমোদন' : 'অননুমোদন'} করা হয়েছে!`, 'success');
                 loadReviews();
+                loadDashboardData();
             }
         }
 
-        // Delete Review
+        // রিভিউ ডিলিট
         async function deleteReview(reviewId) {
-            if (confirm('আপনি কি নিশ্চিত যে এই পর্যালোচনাটি মুছতে চান?')) {
-                const data = await apiRequest(`/reviews/${reviewId}`, {
-                    method: 'DELETE'
+            if (!confirm('আপনি কি নিশ্চিত যে এই পর্যালোচনাটি মুছতে চান?')) return;
+            
+            const data = await apiRequest(`/reviews/${reviewId}`, {
+                method: 'DELETE'
+            });
+            
+            if (data && data.success) {
+                showToast('পর্যালোচনা মুছে ফেলা হয়েছে!', 'success');
+                loadReviews();
+                loadDashboardData();
+            }
+        }
+
+        // =============================================
+        // PRODUCTS MANAGEMENT
+        // =============================================
+        
+        // পণ্য লোড
+        async function loadProducts() {
+            const data = await apiRequest('/products');
+            
+            if (data) {
+                updateProductsTable(Array.isArray(data) ? data : []);
+            }
+        }
+
+        // পণ্য টেবিল আপডেট
+        function updateProductsTable(products) {
+            const tbody = document.getElementById('productsTableBody');
+            
+            if (products.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="p-8 text-center">
+                            <i class="fas fa-wine-bottle text-3xl text-gray-300 mb-3"></i>
+                            <p class="text-gray-500 mb-4">কোনো পণ্য পাওয়া যায়নি</p>
+                            <button id="addFirstProduct" class="btn-primary py-2 px-4">
+                                <i class="fas fa-plus mr-2"></i> প্রথম পণ্য যোগ করুন
+                            </button>
+                        </td>
+                    </tr>
+                `;
+                
+                document.getElementById('addFirstProduct').addEventListener('click', () => {
+                    document.getElementById('addProductBtn').click();
                 });
                 
-                if (data && data.success) {
-                    showToast('পর্যালোচনা মুছে ফেলা হয়েছে!', 'success');
-                    loadReviews();
-                }
+                return;
+            }
+            
+            tbody.innerHTML = products.map(product => {
+                const stockClass = product.stock > 10 ? 'bg-green-100 text-green-800' :
+                                 product.stock > 0 ? 'bg-yellow-100 text-yellow-800' :
+                                 'bg-red-100 text-red-800';
+                
+                return `
+                    <tr class="hover:bg-gray-50 transition">
+                        <td class="p-4">
+                            <p class="font-bold text-gray-800">${product.name}</p>
+                            ${product.featured ? '<span class="inline-block mt-1 px-2 py-1 bg-amber-100 text-amber-800 text-xs rounded">ফিচার্ড</span>' : ''}
+                        </td>
+                        <td class="p-4">
+                            <p class="line-clamp-2 text-gray-700">${product.description}</p>
+                        </td>
+                        <td class="p-4">
+                            <p class="font-bold text-gray-800">৳ ${product.price.toLocaleString('bn-BD')}</p>
+                            ${product.originalPrice ? `
+                                <div class="flex items-center mt-1">
+                                    <span class="text-sm text-gray-500 line-through mr-2">৳ ${product.originalPrice.toLocaleString('bn-BD')}</span>
+                                    <span class="text-xs bg-red-100 text-red-800 px-2 py-1 rounded">
+                                        ${Math.round((1 - product.price / product.originalPrice) * 100)}% ছাড়
+                                    </span>
+                                </div>
+                            ` : ''}
+                        </td>
+                        <td class="p-4">
+                            <span class="px-3 py-1 rounded-full ${stockClass} font-medium">
+                                ${product.stock} টি
+                            </span>
+                        </td>
+                        <td class="p-4">
+                            <span class="font-medium">${product.sold || 0}</span>
+                        </td>
+                        <td class="p-4">
+                            <div class="flex items-center space-x-2">
+                                <button onclick="editProduct('${product._id}')" 
+                                        class="text-blue-600 hover:text-blue-800 transition p-2 rounded-full hover:bg-blue-50"
+                                        title="সম্পাদনা">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button onclick="deleteProduct('${product._id}')" 
+                                        class="text-red-600 hover:text-red-800 transition p-2 rounded-full hover:bg-red-50"
+                                        title="মুছুন">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // নতুন পণ্য যোগ বাটন
+        document.getElementById('addProductBtn').addEventListener('click', () => {
+            openProductModal();
+        });
+
+        // পণ্য মডাল খুলুন
+        function openProductModal(productId = null) {
+            const modal = document.getElementById('productModal');
+            const title = document.getElementById('productModalTitle');
+            const form = document.getElementById('productForm');
+            
+            // Reset form
+            form.reset();
+            document.getElementById('productId').value = '';
+            document.getElementById('productFormError').classList.add('hidden');
+            
+            if (productId) {
+                title.innerHTML = '<i class="fas fa-edit mr-2"></i> পণ্য সম্পাদনা করুন';
+                loadProductData(productId);
+            } else {
+                title.innerHTML = '<i class="fas fa-plus mr-2"></i> নতুন পণ্য যোগ করুন';
+                // Set default image
+                document.getElementById('productImageUrl').value = 'https://images.unsplash.com/photo-1541643600914-78b084683601?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80';
+            }
+            
+            modal.classList.remove('hidden');
+        }
+
+        // পণ্য ডেটা লোড
+        async function loadProductData(productId) {
+            const data = await apiRequest(`/products/${productId}`);
+            
+            if (data) {
+                document.getElementById('productId').value = data._id;
+                document.getElementById('productName').value = data.name || '';
+                document.getElementById('productDescription').value = data.description || '';
+                document.getElementById('productPrice').value = data.price || 0;
+                document.getElementById('productOriginalPrice').value = data.originalPrice || '';
+                document.getElementById('productStock').value = data.stock || 0;
+                document.getElementById('productCategory').value = data.category || 'আতর';
+                document.getElementById('productImageUrl').value = data.imageUrl || '';
+                document.getElementById('productFeatured').checked = data.featured || false;
             }
         }
 
-        // Product Management
-        document.getElementById('addProductBtn').addEventListener('click', () => {
-            document.getElementById('productForm').reset();
-            document.getElementById('productId').value = '';
-            document.getElementById('productModalTitle').textContent = 'নতুন পণ্য যোগ করুন';
-            document.getElementById('productModal').classList.remove('hidden');
-            document.getElementById('productFormError').classList.add('hidden');
-        });
-
+        // পণ্য ফর্ম সাবমিশন
         document.getElementById('productForm').addEventListener('submit', async (e) => {
             e.preventDefault();
+            
+            const productId = document.getElementById('productId').value;
+            const formData = {
+                name: document.getElementById('productName').value.trim(),
+                description: document.getElementById('productDescription').value.trim(),
+                price: parseFloat(document.getElementById('productPrice').value) || 0,
+                originalPrice: document.getElementById('productOriginalPrice').value ? 
+                              parseFloat(document.getElementById('productOriginalPrice').value) : null,
+                stock: parseInt(document.getElementById('productStock').value) || 0,
+                category: document.getElementById('productCategory').value,
+                imageUrl: document.getElementById('productImageUrl').value.trim() || 
+                         'https://images.unsplash.com/photo-1541643600914-78b084683601?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80',
+                featured: document.getElementById('productFeatured').checked,
+                sold: 0
+            };
+            
+            // Validation
+            if (!formData.name || !formData.description) {
+                const errorEl = document.getElementById('productFormError');
+                errorEl.textContent = 'পণ্যের নাম ও বর্ণনা প্রয়োজন';
+                errorEl.classList.remove('hidden');
+                return;
+            }
+            
+            if (formData.price <= 0) {
+                const errorEl = document.getElementById('productFormError');
+                errorEl.textContent = 'সঠিক দাম দিন';
+                errorEl.classList.remove('hidden');
+                return;
+            }
+            
+            if (formData.stock < 0) {
+                const errorEl = document.getElementById('productFormError');
+                errorEl.textContent = 'স্টক সংখ্যা সঠিক দিন';
+                errorEl.classList.remove('hidden');
+                return;
+            }
             
             // Show loading
             const button = document.getElementById('saveProductBtn');
             const buttonText = document.getElementById('saveProductBtnText');
             const spinner = document.getElementById('saveProductSpinner');
             showLoading(button, spinner, buttonText);
-            
-            const productId = document.getElementById('productId').value;
-            const productData = {
-                name: document.getElementById('productName').value,
-                description: document.getElementById('productDescription').value,
-                price: parseFloat(document.getElementById('productPrice').value),
-                originalPrice: document.getElementById('productOriginalPrice').value ? parseFloat(document.getElementById('productOriginalPrice').value) : null,
-                stock: parseInt(document.getElementById('productStock').value),
-                category: document.getElementById('productCategory').value,
-                imageUrl: document.getElementById('productImageUrl').value || 'https://images.unsplash.com/photo-1541643600914-78b084683601?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80',
-                featured: document.getElementById('productFeatured').checked
-            };
             
             let endpoint = '/products';
             let method = 'POST';
@@ -1552,61 +2060,189 @@ const API_BASE_URL = window.location.hostname === 'localhost'
             
             const data = await apiRequest(endpoint, {
                 method: method,
-                body: JSON.stringify(productData)
+                body: JSON.stringify(formData)
             });
             
             if (data && data.success) {
-                showToast('পণ্য সংরক্ষণ করা হয়েছে!', 'success');
+                showToast(`পণ্য ${productId ? 'আপডেট' : 'যোগ'} করা হয়েছে!`, 'success');
                 document.getElementById('productModal').classList.add('hidden');
                 loadProducts();
+                loadDashboardData();
             } else if (data && data.error) {
-                document.getElementById('productFormError').textContent = data.error;
-                document.getElementById('productFormError').classList.remove('hidden');
+                const errorEl = document.getElementById('productFormError');
+                errorEl.textContent = data.error;
+                errorEl.classList.remove('hidden');
             }
             
-            // Hide loading
             hideLoading(button, spinner, buttonText);
         });
 
+        // পণ্য সম্পাদনা
         async function editProduct(productId) {
-            const data = await apiRequest(`/products/${productId}`);
-            
-            if (data) {
-                document.getElementById('productId').value = data._id;
-                document.getElementById('productName').value = data.name;
-                document.getElementById('productDescription').value = data.description;
-                document.getElementById('productPrice').value = data.price;
-                document.getElementById('productOriginalPrice').value = data.originalPrice || '';
-                document.getElementById('productStock').value = data.stock;
-                document.getElementById('productCategory').value = data.category || 'আতর';
-                document.getElementById('productImageUrl').value = data.imageUrl || '';
-                document.getElementById('productFeatured').checked = data.featured || false;
-                
-                document.getElementById('productModalTitle').textContent = 'পণ্য সম্পাদনা করুন';
-                document.getElementById('productModal').classList.remove('hidden');
-                document.getElementById('productFormError').classList.add('hidden');
-            }
+            openProductModal(productId);
         }
 
+        // পণ্য ডিলিট
         async function deleteProduct(productId) {
-            if (confirm('আপনি কি নিশ্চিত যে এই পণ্যটি মুছতে চান?')) {
-                const data = await apiRequest(`/products/${productId}`, {
-                    method: 'DELETE'
-                });
-                
-                if (data && data.success) {
-                    showToast('পণ্য মুছে ফেলা হয়েছে!', 'success');
-                    loadProducts();
-                }
+            if (!confirm('আপনি কি নিশ্চিত যে এই পণ্যটি মুছতে চান?')) return;
+            
+            const data = await apiRequest(`/products/${productId}`, {
+                method: 'DELETE'
+            });
+            
+            if (data && data.success) {
+                showToast('পণ্য মুছে ফেলা হয়েছে!', 'success');
+                loadProducts();
+                loadDashboardData();
             }
         }
 
-        // Refresh Buttons
-        document.getElementById('refreshOrders').addEventListener('click', () => loadOrders());
-        document.getElementById('refreshReviews').addEventListener('click', () => loadReviews());
-        document.getElementById('refreshProducts').addEventListener('click', () => loadProducts());
+        // =============================================
+        // SETTINGS
+        // =============================================
+        
+        // সেটিংস লোড
+        function loadSettings() {
+            updateServerTime();
+            updateUptime();
+            checkServerStatus();
+        }
 
-        // Modal Close Buttons
+        // সার্ভার সময় আপডেট
+        function updateServerTime() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('bn-BD', {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false
+            });
+            
+            const dateString = now.toLocaleDateString('bn-BD', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            
+            document.getElementById('serverTime').textContent = `${dateString}, ${timeString}`;
+            
+            // Update every second
+            setTimeout(updateServerTime, 1000);
+        }
+
+        // আপটাইম আপডেট
+        function updateUptime() {
+            const uptimeMs = Date.now() - serverStartTime;
+            const hours = Math.floor(uptimeMs / (1000 * 60 * 60));
+            const minutes = Math.floor((uptimeMs % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((uptimeMs % (1000 * 60)) / 1000);
+            
+            document.getElementById('uptime').textContent = 
+                `${hours} ঘণ্টা ${minutes} মিনিট ${seconds} সেকেন্ড`;
+            
+            // Update every second
+            setTimeout(updateUptime, 1000);
+        }
+
+        // সার্ভার স্ট্যাটাস চেক
+        async function checkServerStatus() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/health`);
+                const data = await response.json();
+                
+                const statusEl = document.getElementById('serverStatus');
+                const apiStatusEl = document.getElementById('apiStatus');
+                
+                if (response.ok && data.status === 'healthy') {
+                    statusEl.textContent = 'চালু';
+                    statusEl.className = 'px-3 py-1 rounded-full bg-green-100 text-green-800 font-medium';
+                    apiStatusEl.textContent = 'API সংযুক্ত';
+                } else {
+                    statusEl.textContent = 'অচল';
+                    statusEl.className = 'px-3 py-1 rounded-full bg-red-100 text-red-800 font-medium';
+                    apiStatusEl.textContent = 'API সংযোগ নেই';
+                }
+            } catch (error) {
+                const statusEl = document.getElementById('serverStatus');
+                statusEl.textContent = 'অচল';
+                statusEl.className = 'px-3 py-1 rounded-full bg-red-100 text-red-800 font-medium';
+            }
+        }
+
+        // সেটিংস সংরক্ষণ
+        document.getElementById('saveSettings').addEventListener('click', () => {
+            // In a real app, this would save to the backend
+            showToast('সেটিংস সংরক্ষণ করা হয়েছে!', 'success');
+        });
+
+        // ডাটাবেজ ব্যাকআপ
+        document.getElementById('backupBtn').addEventListener('click', () => {
+            showToast('ব্যাকআপ প্রক্রিয়া শুরু করা হয়েছে...', 'info');
+            
+            // Simulate backup process
+            setTimeout(() => {
+                showToast('ডাটাবেজ ব্যাকআপ সম্পন্ন হয়েছে!', 'success');
+            }, 2000);
+        });
+
+        // =============================================
+        // PAGINATION
+        // =============================================
+        
+        // পেজিনেশন আপডেট
+        function updatePagination(containerId, totalPages, currentPage, callback) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            
+            if (totalPages <= 1) return;
+            
+            // Previous button
+            if (currentPage > 1) {
+                const prevBtn = createPaginationButton('«', currentPage - 1, callback);
+                prevBtn.classList.add('rounded-l-lg');
+                container.appendChild(prevBtn);
+            }
+            
+            // Page numbers
+            const maxVisible = 5;
+            let startPage = Math.max(1, currentPage - Math.floor(maxVisible / 2));
+            let endPage = Math.min(totalPages, startPage + maxVisible - 1);
+            
+            if (endPage - startPage + 1 < maxVisible) {
+                startPage = Math.max(1, endPage - maxVisible + 1);
+            }
+            
+            for (let i = startPage; i <= endPage; i++) {
+                const btn = createPaginationButton(i, i, callback);
+                if (i === currentPage) {
+                    btn.classList.add('bg-amber-600', 'text-white');
+                }
+                container.appendChild(btn);
+            }
+            
+            // Next button
+            if (currentPage < totalPages) {
+                const nextBtn = createPaginationButton('»', currentPage + 1, callback);
+                nextBtn.classList.add('rounded-r-lg');
+                container.appendChild(nextBtn);
+            }
+        }
+
+        // পেজিনেশন বাটন ক্রিয়েট
+        function createPaginationButton(text, page, callback) {
+            const button = document.createElement('button');
+            button.textContent = text;
+            button.className = 'px-3 py-2 border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 transition';
+            button.addEventListener('click', () => callback(page));
+            return button;
+        }
+
+        // =============================================
+        // MODAL MANAGEMENT
+        // =============================================
+        
+        // মডাল বন্ধ
         document.getElementById('closeProductModal').addEventListener('click', () => {
             document.getElementById('productModal').classList.add('hidden');
         });
@@ -1615,59 +2251,72 @@ const API_BASE_URL = window.location.hostname === 'localhost'
             document.getElementById('orderModal').classList.add('hidden');
         });
 
-        // Settings
-        document.getElementById('saveSettings').addEventListener('click', () => {
-            showToast('সেটিংস সংরক্ষণ করা হয়েছে!', 'success');
+        // Escape key to close modals
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                document.getElementById('productModal').classList.add('hidden');
+                document.getElementById('orderModal').classList.add('hidden');
+            }
         });
 
-        document.getElementById('backupBtn').addEventListener('click', () => {
-            showToast('ব্যাকআপ প্রক্রিয়া শুরু করা হয়েছে!', 'success');
-        });
+        // =============================================
+        // REFRESH BUTTONS
+        // =============================================
+        
+        document.getElementById('refreshOrders').addEventListener('click', () => loadOrders());
+        document.getElementById('refreshReviews').addEventListener('click', () => loadReviews());
+        document.getElementById('refreshProducts').addEventListener('click', () => loadProducts());
 
-        // Initialize on page load
+        // =============================================
+        // INITIALIZATION
+        // =============================================
+        
         document.addEventListener('DOMContentLoaded', () => {
-            // Check for saved token
+            // Check for saved session
             const savedToken = localStorage.getItem('adminToken');
             const savedEmail = localStorage.getItem('adminEmail');
-            const savedDemoMode = localStorage.getItem('isDemoMode') === 'true';
+            const savedDemo = localStorage.getItem('isDemoMode') === 'true';
             
             if (savedToken && savedEmail) {
                 authToken = savedToken;
                 currentAdmin = { email: savedEmail };
-                isDemoMode = savedDemoMode;
+                isDemoMode = savedDemo;
                 
-                loginPage.classList.add('hidden');
-                dashboard.classList.remove('hidden');
-                
+                // Update UI
                 adminEmail.textContent = savedEmail;
                 if (isDemoMode) {
                     demoMode.classList.remove('hidden');
-                    document.getElementById('dbStatusText').textContent = 'ডেমো মোড';
-                    document.getElementById('dbStatusIndicator').className = 'w-2 h-2 rounded-full bg-yellow-500 mr-2';
+                    updateDBStatus('ডেমো মোড', 'yellow');
                 }
                 
-                updateCurrentDate();
+                // Show dashboard
+                loginPage.classList.add('hidden');
+                dashboard.classList.remove('hidden');
+                
+                // Initialize
+                updateDateTime();
                 loadDashboardData();
                 
-                showToast('স্বয়ংক্রিয় লগইন সফল!', 'success');
+                showToast('স্বয়ংক্রিয় লগইন সফল!', 'success');
             }
             
-            // Event Listeners for search
+            // Search functionality
             document.getElementById('orderSearch').addEventListener('keyup', (e) => {
                 if (e.key === 'Enter') {
                     loadOrders();
                 }
             });
             
-            // Update server time
-            updateServerTime();
+            // Filter change events
+            document.getElementById('orderStatusFilter').addEventListener('change', () => loadOrders());
+            document.getElementById('reviewStatusFilter').addEventListener('change', () => loadReviews());
             
-            // Check API connection
-            checkAPIStatus();
+            // Initial API test
+            testAPI();
         });
 
-        // Check API Status
-        async function checkAPIStatus() {
+        // API টেস্ট
+        async function testAPI() {
             try {
                 const response = await fetch(`${API_BASE_URL}/test`);
                 if (response.ok) {
@@ -1675,17 +2324,9 @@ const API_BASE_URL = window.location.hostname === 'localhost'
                 }
             } catch (error) {
                 console.error('❌ API connection error:', error);
-                showToast('API সংযোগ নেই! সার্ভার চেক করুন।', 'error');
+                updateDBStatus('সংযোগ নেই', 'red');
             }
         }
-
-        // Close modals with Escape key
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                document.getElementById('productModal').classList.add('hidden');
-                document.getElementById('orderModal').classList.add('hidden');
-            }
-        });
     </script>
 </body>
 </html>
