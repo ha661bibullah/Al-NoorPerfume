@@ -312,8 +312,40 @@
         
         .shadow-custom {
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-        }
-    </style>
+        };
+        /* Responsive header adjustments */
+@media (max-width: 768px) {
+    .mobile-header-content {
+        width: 100%;
+    }
+}
+
+/* Ensure proper spacing on mobile */
+@media (max-width: 768px) {
+    header {
+        position: sticky;
+        top: 0;
+        z-index: 30;
+        background: white;
+    }
+}
+
+/* Improved sidebar for desktop */
+@media (min-width: 769px) {
+    .sidebar {
+        height: 100vh;
+        position: fixed;
+        left: 0;
+        top: 0;
+        overflow-y: auto;
+    }
+    
+    main {
+        margin-left: 260px;
+        width: calc(100% - 260px);
+    }
+}
+    </style> 
 </head>
 <body class="bg-gray-50">
     <!-- লগইন পেজ -->
