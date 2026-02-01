@@ -9,9 +9,24 @@ const fs = require('fs');
 
 const app = express();
 
-// CORS configuration
+// পরিবর্তন করুন (আপনার নেটলিফাই ডোমেইন যোগ করুন):
+const allowedOrigins = [
+    'https://playful-rugelach-33592e.netlify.app',
+    'http://localhost:3000',
+    'http://localhost:5000'
+];
+
 app.use(cors({
-    origin: '*',
+    origin: function (origin, callback) {
+        // allow requests with no origin (like mobile apps or curl requests)
+        if (!origin) return callback(null, true);
+        
+        if (allowedOrigins.indexOf(origin) === -1) {
+            const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+            return callback(new Error(msg), false);
+        }
+        return callback(null, true);
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
@@ -31,8 +46,19 @@ directories.forEach(dir => {
 });
 
 // Serve static files from correct paths (one level up from backend)
-app.use('/admin', express.static(path.join(__dirname, '..', 'admin-panel')));
-app.use('/', express.static(path.join(__dirname, '..', 'frontend')));
+// পরিবর্তন করুন (রেন্ডারের জন্য):
+app.use('/admin', express.static(path.join(__dirname, 'admin-panel')));
+app.use('/', express.static(path.join(__dirname, 'frontend')));
+
+// এবং রুট হ্যান্ডলার:
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'frontend', 'index.html'));
+});
+
+app.get('/admin', (req, res) => {
+    res.sendFile(path.join(__dirname, 'admin-panel', 'admin.html'));
+});
+
 
 // MongoDB Connection
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/alnoor-perfume';
@@ -287,7 +313,7 @@ const authenticateToken = (req, res, next) => {
             });
         }
 
-        jwt.verify(token, process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-this-in-production', (err, user) => {
+        jwt.verify(token, process.env.JWT_SECRET || 'AlNoor@Attar#JWT$9fK2Lx8Pq', (err, user) => {
             if (err) {
                 return res.status(403).json({ 
                     success: false, 
@@ -415,7 +441,7 @@ app.post('/api/admin/login', async (req, res) => {
                         email: email,
                         demo: true 
                     },
-                    process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-this-in-production',
+                    process.env.JWT_SECRET || 'AlNoor@Attar#JWT$9fK2Lx8Pq',
                     { expiresIn: '24h' }
                 );
                 
@@ -463,7 +489,7 @@ app.post('/api/admin/login', async (req, res) => {
                 id: admin._id, 
                 email: admin.email 
             },
-            process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-this-in-production',
+            process.env.JWT_SECRET || 'AlNoor@Attar#JWT$9fK2Lx8Pq',
             { expiresIn: '24h' }
         );
 
