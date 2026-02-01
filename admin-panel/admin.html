@@ -27,20 +27,21 @@
             width: 260px;
             transition: transform 0.3s ease;
             box-shadow: 2px 0 10px rgba(0,0,0,0.1);
-            position: fixed;
-            left: 0;
-            top: 0;
-            bottom: 0;
-            z-index: 50;
         }
         
         @media (max-width: 768px) {
             .sidebar {
+                position: fixed;
+                left: -100%;
+                top: 0;
+                bottom: 0;
+                z-index: 50;
                 transform: translateX(-100%);
             }
             
             .sidebar.active {
                 transform: translateX(0);
+                left: 0;
             }
             
             .overlay {
@@ -51,29 +52,11 @@
                 right: 0;
                 bottom: 0;
                 background: rgba(0,0,0,0.5);
-                z-index: 45;
+                z-index: 40;
             }
             
             .overlay.active {
                 display: block;
-            }
-        }
-        
-        /* Main content area */
-        .main-content {
-            margin-left: 0;
-            transition: margin-left 0.3s ease;
-            width: 100%;
-        }
-        
-        @media (min-width: 769px) {
-            .main-content {
-                margin-left: 260px;
-                width: calc(100% - 260px);
-            }
-            
-            .sidebar {
-                transform: translateX(0) !important;
             }
         }
         
@@ -329,14 +312,20 @@
         
         .shadow-custom {
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-        }
-        
-        /* Mobile header */
-        .mobile-header {
-            position: sticky;
-            top: 0;
-            z-index: 40;
-        }
+        };
+        /* Main content area margin fix */
+.main-content {
+    margin-left: 260px;
+    width: calc(100% - 260px);
+    transition: margin-left 0.3s ease;
+}
+
+@media (max-width: 768px) {
+    .main-content {
+        margin-left: 0;
+        width: 100%;
+    }
+}
     </style>
 </head>
 <body class="bg-gray-50">
@@ -395,12 +384,23 @@
     </div>
 
     <!-- মূল ড্যাশবোর্ড -->
-    <div id="dashboard" class="hidden">
+    <div id="dashboard" class="hidden min-h-screen">
+        <!-- মোবাইল হেডার -->
+        <div class="md:hidden bg-gradient-to-r from-amber-800 to-amber-900 text-white p-4 flex justify-between items-center sticky top-0 z-30 shadow-lg">
+            <div class="flex items-center space-x-3">
+                <i class="fas fa-wine-bottle text-2xl text-amber-300"></i>
+                <span class="font-bold">আল-নূর এডমিন</span>
+            </div>
+            <button id="mobileMenuBtn" class="text-2xl hover:text-amber-300 transition">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+
         <!-- ওভারলে -->
         <div id="overlay" class="overlay"></div>
 
         <!-- সাইডবার -->
-        <div class="sidebar bg-gradient-to-b from-amber-900 to-amber-800 text-white">
+        <div class="sidebar bg-gradient-to-b from-amber-900 to-amber-800 text-white fixed md:relative z-40">
             <div class="p-6 border-b border-amber-800">
                 <div class="flex items-center space-x-3 mb-4">
                     <div class="w-12 h-12 bg-amber-600 rounded-full flex items-center justify-center">
@@ -458,18 +458,7 @@
         </div>
 
         <!-- প্রধান কন্টেন্ট -->
-        <div class="main-content min-h-screen bg-gray-50">
-            <!-- মোবাইল হেডার -->
-            <div class="mobile-header md:hidden bg-gradient-to-r from-amber-800 to-amber-900 text-white p-4 flex justify-between items-center shadow-lg">
-                <div class="flex items-center space-x-3">
-                    <i class="fas fa-wine-bottle text-2xl text-amber-300"></i>
-                    <span class="font-bold">আল-নূর এডমিন</span>
-                </div>
-                <button id="mobileMenuBtn" class="text-2xl hover:text-amber-300 transition">
-                    <i class="fas fa-bars"></i>
-                </button>
-            </div>
-
+        <div class="md:ml-64 min-h-screen bg-gray-50">
             <!-- ডেস্কটপ হেডার -->
             <header class="hidden md:block bg-white shadow-sm p-6 border-b border-gray-200">
                 <div class="flex justify-between items-center">
@@ -1020,8 +1009,8 @@
         // GLOBAL CONFIGURATION
         // =============================================
         const API_BASE_URL = window.location.hostname === 'localhost' 
-            ? 'http://localhost:5000/api' 
-            : 'https://al-noorperfume.onrender.com/api';
+    ? 'http://localhost:5000/api' 
+    : 'https://al-noorperfume.onrender.com/api';
 
         let authToken = null;
         let currentAdmin = null;
@@ -1284,13 +1273,15 @@
         // =============================================
         
         // মোবাইল মেনু টগল
-        function toggleMobileMenu() {
+        mobileMenuBtn.addEventListener('click', () => {
             sidebar.classList.toggle('active');
             overlay.classList.toggle('active');
-        }
+        });
 
-        mobileMenuBtn.addEventListener('click', toggleMobileMenu);
-        overlay.addEventListener('click', toggleMobileMenu);
+        overlay.addEventListener('click', () => {
+            sidebar.classList.remove('active');
+            overlay.classList.remove('active');
+        });
 
         // নেভিগেশন লিঙ্ক ক্লিক
         navLinks.forEach(link => {
