@@ -447,26 +447,38 @@
         <!-- প্রধান কন্টেন্ট -->
         <div class="md:ml-64 min-h-screen bg-gray-50">
             <!-- ডেস্কটপ হেডার -->
-            <header class="hidden md:block bg-white shadow-sm p-6 border-b border-gray-200">
-                <div class="flex justify-between items-center">
-                    <div>
-                        <h1 id="pageTitle" class="text-2xl font-bold text-amber-900">ড্যাশবোর্ড</h1>
-                        <p id="pageSubtitle" class="text-gray-600">সর্বশেষ আপডেট: <span id="lastUpdate">লোড হচ্ছে...</span></p>
-                    </div>
-                    <div class="flex items-center space-x-6">
-                        <div class="text-right">
-                            <p id="currentDate" class="text-gray-800 font-medium"></p>
-                            <p id="currentTime" class="text-gray-600 text-sm"></p>
-                        </div>
-                        <div class="relative">
-                            <button id="notificationBell" class="text-amber-600 hover:text-amber-700 text-xl transition relative">
-                                <i class="fas fa-bell"></i>
-                                <span id="notificationBadge" class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center hidden">0</span>
-                            </button>
-                        </div>
-                    </div>
+            <!-- ডেস্কটপ হেডার - পরিবর্তিত অংশ -->
+<header class="bg-white shadow-sm p-4 md:p-6 border-b border-gray-200">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div class="order-2 md:order-1">
+            <h1 id="pageTitle" class="text-xl md:text-2xl font-bold text-amber-900">ড্যাশবোর্ড</h1>
+            <p id="pageSubtitle" class="text-gray-600 text-sm md:text-base">
+                সর্বশেষ আপডেট: <span id="lastUpdate">লোড হচ্ছে...</span>
+            </p>
+        </div>
+        <div class="order-1 md:order-2 flex items-center justify-between w-full md:w-auto">
+            <!-- মোবাইলে তারিখ -->
+            <div class="md:hidden text-right">
+                <p id="mobileCurrentDate" class="text-gray-800 font-medium text-sm"></p>
+                <p id="mobileCurrentTime" class="text-gray-600 text-xs"></p>
+            </div>
+            
+            <div class="flex items-center space-x-4 md:space-x-6">
+                <!-- ডেস্কটপ তারিখ -->
+                <div class="hidden md:block text-right">
+                    <p id="currentDate" class="text-gray-800 font-medium"></p>
+                    <p id="currentTime" class="text-gray-600 text-sm"></p>
                 </div>
-            </header>
+                <div class="relative">
+                    <button id="notificationBell" class="text-amber-600 hover:text-amber-700 text-xl transition relative">
+                        <i class="fas fa-bell"></i>
+                        <span id="notificationBadge" class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center hidden">0</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
 
             <!-- কন্টেন্ট এরিয়া -->
             <main class="p-4 md:p-6">
