@@ -9,17 +9,23 @@ const fs = require('fs');
 
 const app = express();
 
-// পরিবর্তন করুন (আপনার নেটলিফাই ডোমেইন যোগ করুন):
+// CORS configuration for production
 const allowedOrigins = [
-    'https://playful-rugelach-33592e.netlify.app',
+    'https://playful-rugelach-33592e.netlify.app', // আপনার ফ্রন্টএন্ড URL
+    'https://lively-kataifi-011ede.netlify.app', // যদি অন্য ফ্রন্টএন্ড থাকে
     'http://localhost:3000',
     'http://localhost:5000'
 ];
 
 app.use(cors({
     origin: function (origin, callback) {
-        // allow requests with no origin (like mobile apps or curl requests)
+        // Allow requests with no origin (like mobile apps or curl requests)
         if (!origin) return callback(null, true);
+        
+        // Allow all origins in development
+        if (process.env.NODE_ENV !== 'production') {
+            return callback(null, true);
+        }
         
         if (allowedOrigins.indexOf(origin) === -1) {
             const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
@@ -31,6 +37,7 @@ app.use(cors({
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
+
 
 // Middleware
 app.use(express.json());
