@@ -8,9 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        * {
-            font-family: 'Hind Siliguri', sans-serif;
-        }
+        * { font-family: 'Hind Siliguri', sans-serif; }
         
         .hero-bg {
             background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://images.unsplash.com/photo-1541643600914-78b084683601?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1740&q=80');
@@ -24,13 +22,9 @@
             transition: transform 0.3s ease;
         }
         
-        .perfume-bottle:hover {
-            transform: scale(1.05);
-        }
+        .perfume-bottle:hover { transform: scale(1.05); }
         
-        .floating {
-            animation: floating 3s ease-in-out infinite;
-        }
+        .floating { animation: floating 3s ease-in-out infinite; }
         
         @keyframes floating {
             0%, 100% { transform: translateY(0); }
@@ -44,9 +38,7 @@
             color: transparent;
         }
         
-        .star-rating {
-            color: #fbbf24;
-        }
+        .star-rating { color: #fbbf24; }
         
         .review-card {
             transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -56,19 +48,6 @@
             transform: translateY(-5px);
             box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
         }
-        
-        .status-badge {
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-            display: inline-block;
-        }
-        
-        .status-pending { background-color: #fef3c7; color: #92400e; }
-        .status-processing { background-color: #dbeafe; color: #1e40af; }
-        .status-shipped { background-color: #f0f9ff; color: #0369a1; }
-        .status-delivered { background-color: #dcfce7; color: #166534; }
         
         .loader {
             border: 3px solid #f3f3f3;
@@ -85,10 +64,7 @@
             100% { transform: rotate(360deg); }
         }
         
-        .product-card {
-            transition: all 0.3s ease;
-        }
-        
+        .product-card { transition: all 0.3s ease; }
         .product-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
@@ -154,17 +130,9 @@
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         }
         
-        .toast.success {
-            background-color: #10b981;
-        }
-        
-        .toast.error {
-            background-color: #ef4444;
-        }
-        
-        .toast.warning {
-            background-color: #f59e0b;
-        }
+        .toast.success { background-color: #10b981; }
+        .toast.error { background-color: #ef4444; }
+        .toast.warning { background-color: #f59e0b; }
         
         @keyframes slideIn {
             from { transform: translateX(100%); opacity: 0; }
@@ -198,10 +166,7 @@
             color: #4b5563;
         }
         
-        .quantity-control {
-            display: flex;
-            align-items: center;
-        }
+        .quantity-control { display: flex; align-items: center; }
         
         .quantity-btn {
             width: 40px;
@@ -218,9 +183,7 @@
             color: #4b5563;
         }
         
-        .quantity-btn:hover {
-            background-color: #e5e7eb;
-        }
+        .quantity-btn:hover { background-color: #e5e7eb; }
         
         .quantity-btn:first-child {
             border-radius: 8px 0 0 8px;
@@ -314,35 +277,11 @@
             background-color: rgba(146, 64, 14, 0.95);
         }
         
-        .text-shadow {
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-        };
-.modal-content {
-    max-width: 500px;
-    width: 90%;
-    margin: 20px auto;
-    transform: scale(0.95);
-    transition: transform 0.3s ease;
-}
-
-@media (max-width: 640px) {
-    .modal-content {
-        width: 95%;
-        margin: 10px auto;
-        max-height: 90vh;
-        overflow-y: auto;
-    }
-    
-    #confirmationModal {
-        padding: 10px;
-        align-items: flex-start;
-        padding-top: 20vh;
-    }
-}
+        .text-shadow { text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3); }
     </style> 
 </head>
 <body class="bg-amber-50 text-gray-800">
-    <!-- API Configuration -->
+    <!-- API কনফিগারেশন -->
     <script>
         const API_BASE_URL = window.location.origin + '/api';
         let productsData = [];
@@ -401,7 +340,6 @@
                 <a href="#contact" class="text-white hover:text-amber-300 transition py-1 flex items-center" onclick="closeMobileMenu()">
                     <i class="fas fa-phone mr-3"></i> যোগাযোগ
                 </a>
-                
             </div>
         </div>
     </header>
@@ -469,19 +407,6 @@
             <h2 class="text-3xl font-bold text-center mb-4 text-amber-900 section-title">আমাদের <span class="gradient-text">আতর</span> সংগ্রহ</h2>
             <p class="text-center text-gray-600 mb-12 max-w-2xl mx-auto">প্রতিটি আতর তৈরি করা হয় সযত্নে নির্বাচিত প্রাকৃতিক উপাদান দিয়ে। সরাসরি উৎপাদনকারী থেকে আপনার দোরগোড়ায়।</p>
             
-            <!-- স্ট্যাটাস বার -->
-            <div id="statusBar" class="mb-8 p-4 bg-amber-50 rounded-lg border border-amber-200 hidden">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center">
-                        <div class="loader mr-3" style="width: 20px; height: 20px; border-width: 2px;"></div>
-                        <span id="statusText" class="text-amber-700"></span>
-                    </div>
-                    <button onclick="hideStatusBar()" class="text-gray-500 hover:text-gray-700">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-            </div>
-            
             <!-- লোডিং স্টেট -->
             <div id="productsLoading" class="text-center py-12">
                 <div class="loader mx-auto mb-4"></div>
@@ -500,7 +425,6 @@
                 <button onclick="loadProducts()" class="bg-amber-600 text-white px-6 py-3 rounded-lg hover:bg-amber-700 transition">
                     <i class="fas fa-redo mr-2"></i> আবার চেষ্টা করুন
                 </button>
-                <p class="mt-4 text-sm text-gray-500">অথবা সরাসরি অর্ডার ফর্ম ব্যবহার করুন</p>
             </div>
         </div>
     </section>
@@ -545,7 +469,6 @@
                             <label for="reviewProduct" class="form-label">পণ্য নির্বাচন করুন *</label>
                             <select id="reviewProduct" required class="form-input">
                                 <option value="">পণ্য বাছাই করুন</option>
-                                <!-- পণ্য অপশনগুলি JavaScript এর মাধ্যমে লোড হবে -->
                             </select>
                         </div>
                     </div>
@@ -626,7 +549,6 @@
                                         <label for="product" class="form-label">পণ্য নির্বাচন করুন *</label>
                                         <select id="product" required class="form-input">
                                             <option value="">পণ্য বাছাই করুন</option>
-                                            <!-- পণ্য অপশনগুলি JavaScript এর মাধ্যমে লোড হবে -->
                                         </select>
                                     </div>
                                     
@@ -771,7 +693,7 @@
 
     <!-- কনফার্মেশন মডাল -->
     <div id="confirmationModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full transform transition-all duration-300 scale-95" id="modalContent">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full">
             <div class="bg-gradient-to-r from-amber-600 to-amber-700 text-white p-5 rounded-t-2xl flex justify-between items-center">
                 <h3 class="text-xl font-bold flex items-center">
                     <i class="fas fa-check-circle mr-2"></i> অর্ডার সফল!
@@ -780,11 +702,11 @@
             </div>
             
             <div class="p-6 text-center">
-                <div class="text-green-500 text-6xl mb-4 animate-bounce">
+                <div class="text-green-500 text-6xl mb-4">
                     <i class="fas fa-check-circle"></i>
                 </div>
                 <h4 class="text-2xl font-bold mb-2 text-amber-800">ধন্যবাদ!</h4>
-                <p id="confirmationMessage" class="text-gray-600 mb-6">আপনার অর্ডারটি সফলভাবে গ্রহণ করা হয়েছে। আমরা শীঘ্রই আপনার সাথে যোগাযোগ করব।</p>
+                <p id="confirmationMessage" class="text-gray-600 mb-6"></p>
                 
                 <div class="bg-gradient-to-r from-amber-50 to-amber-100 p-5 rounded-xl mb-6 text-left border border-amber-200">
                     <h5 class="font-bold mb-3 text-amber-900 flex items-center">
@@ -803,10 +725,6 @@
                     <button onclick="window.location.href='#home'" class="w-full bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold py-3 px-6 rounded-lg transition">
                         <i class="fas fa-home mr-2"></i> হোম পেজে ফিরে যান
                     </button>
-                </div>
-                
-                <div class="mt-6 text-xs text-gray-500">
-                    <p>অর্ডার নম্বরটি সংরক্ষণ করুন ভবিষ্যত রেফারেন্সের জন্য</p>
                 </div>
             </div>
         </div>
@@ -886,7 +804,6 @@
                         </span>
                     </div>
                 </div>
-                <p class="text-amber-300 text-sm mt-2">সিস্টেম সংস্করণ: ২.০ | সর্বশেষ আপডেট: ২০২৩-১০-১৫</p>
             </div>
         </div>
     </footer>
@@ -906,7 +823,6 @@
         const totalPrice = document.getElementById('totalPrice');
         const stockInfo = document.getElementById('stockInfo');
         const confirmationModal = document.getElementById('confirmationModal');
-        const modalContent = document.getElementById('modalContent');
         const closeModalBtn = document.getElementById('closeModalBtn');
         const continueShoppingBtn = document.getElementById('continueShoppingBtn');
         const downloadReceiptBtn = document.getElementById('downloadReceiptBtn');
@@ -922,8 +838,6 @@
         const orderFormStatus = document.getElementById('orderFormStatus');
         const reviewFormStatus = document.getElementById('reviewFormStatus');
         const scrollToTopBtn = document.getElementById('scrollToTop');
-        const statusBar = document.getElementById('statusBar');
-        const statusText = document.getElementById('statusText');
         const phoneError = document.getElementById('phoneError');
         const ratingError = document.getElementById('ratingError');
         
@@ -947,17 +861,6 @@
             }, 3000);
         }
 
-        // স্ট্যাটাস বার ফাংশন
-        function showStatusBar(message, type = 'info') {
-            statusText.textContent = message;
-            statusBar.className = `mb-8 p-4 rounded-lg border ${type === 'error' ? 'bg-red-50 border-red-200' : 'bg-amber-50 border-amber-200'}`;
-            statusBar.classList.remove('hidden');
-        }
-
-        function hideStatusBar() {
-            statusBar.classList.add('hidden');
-        }
-
         // লোডিং স্টেট ফাংশন
         function showLoading(button, spinner, text) {
             button.disabled = true;
@@ -977,23 +880,7 @@
             loadReviews();
             setupEventListeners();
             setupScrollToTop();
-            
-            // API টেস্ট
-            testAPI();
         });
-
-        // API টেস্ট
-        async function testAPI() {
-            try {
-                const response = await fetch(`${API_BASE_URL}/test`);
-                if (!response.ok) throw new Error('API not responding');
-                const data = await response.json();
-                console.log('✅ API is working:', data);
-            } catch (error) {
-                console.warn('⚠️ API test failed, using fallback mode');
-                showStatusBar('ডেমো মোডে চলছে - API সংযোগ নেই', 'error');
-            }
-        }
 
         // ইভেন্ট লিসেনার সেটআপ
         function setupEventListeners() {
@@ -1085,7 +972,6 @@
 
         // স্ক্রল হ্যান্ডলার
         function handleScroll() {
-            // Header shadow on scroll
             const header = document.querySelector('header');
             if (window.scrollY > 50) {
                 header.classList.add('shadow-xl');
@@ -1110,7 +996,6 @@
                             behavior: 'smooth'
                         });
                         
-                        // Close mobile menu if open
                         closeMobileMenu();
                     }
                 });
@@ -1129,7 +1014,7 @@
             
             try {
                 const response = await fetch(`${API_BASE_URL}/products/public`);
-                if (!response.ok) throw new Error('Network response was not ok');
+                if (!response.ok) throw new Error('নেটওয়ার্ক রেস্পন্স ঠিক নেই');
                 
                 productsData = await response.json();
                 
@@ -1158,11 +1043,9 @@
                             <div class="mb-4">
                                 <div class="flex items-center">
                                     <div class="star-rating text-lg">
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star-half-alt"></i>
+                                        ${Array(5).fill().map((_, i) => 
+                                            i < 4 ? '<i class="fas fa-star"></i>' : '<i class="fas fa-star-half-alt"></i>'
+                                        ).join('')}
                                     </div>
                                     <span class="text-gray-600 ml-2 text-sm">(${product.sold || 0} বিক্রিত)</span>
                                 </div>
@@ -1210,121 +1093,8 @@
                 console.error('Products load error:', error);
                 loadingEl.classList.add('hidden');
                 errorEl.classList.remove('hidden');
-                
-                // ফ্যালব্যাক: ডিফল্ট পণ্য দেখান
-                showDefaultProducts();
-                showToast('ডেমো পণ্য দেখানো হচ্ছে', 'warning');
+                showToast('পণ্য লোড করতে সমস্যা হয়েছে', 'error');
             }
-        }
-
-        // ডিফল্ট পণ্য দেখান
-        function showDefaultProducts() {
-            const containerEl = document.getElementById('productsContainer');
-            const defaultProducts = [
-                {
-                    _id: 'demo-1',
-                    name: 'গোলাপ আতর',
-                    description: '১০০% খাঁটি গোলাপ পাপড়ি থেকে তৈরি, মিষ্টি ও টেকসই সুগন্ধি। প্রকৃতির বিশুদ্ধতা নিয়ে আসুন আপনার দৈনন্দিন জীবনে।',
-                    price: 1299,
-                    originalPrice: 1599,
-                    sold: 234,
-                    stock: 50,
-                    category: 'আতর',
-                    imageUrl: 'https://images.unsplash.com/photo-1541643600914-78b084683601?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1460&q=80',
-                    tags: ['বেস্টসেলার', 'প্রিমিয়াম', 'দীর্ঘস্থায়ী']
-                },
-                {
-                    _id: 'demo-2',
-                    name: 'কস্তুরী আতর',
-                    description: 'উচ্চমানের কস্তুরী থেকে তৈরি, গভীর ও আকর্ষণীয় সুগন্ধি। আধ্যাত্মিকতা ও প্রশান্তির অনুভূতি দেয়।',
-                    price: 2499,
-                    originalPrice: 2999,
-                    sold: 189,
-                    stock: 25,
-                    category: 'আতর',
-                    imageUrl: 'https://images.unsplash.com/photo-1601042879364-f3947d1f9fc9?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1468&q=80',
-                    tags: ['লাক্সারি', 'আধ্যাত্মিক', 'দীর্ঘস্থায়ী']
-                },
-                {
-                    _id: 'demo-3',
-                    name: 'জসমিন আতর',
-                    description: 'তাজা জসমিন ফুল থেকে নিষ্কাশিত, হালকা ও সতেজ সুগন্ধি। দৈনন্দিন ব্যবহারের জন্য পারফেক্ট।',
-                    price: 999,
-                    originalPrice: 1299,
-                    sold: 97,
-                    stock: 100,
-                    category: 'আতর',
-                    imageUrl: 'https://images.unsplash.com/photo-1590736969955-0126f7e1e88d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1468&q=80',
-                    tags: ['ফ্রেশ', 'হালকা', 'দৈনন্দিন']
-                }
-            ];
-            
-            productsData = defaultProducts;
-            
-            containerEl.innerHTML = defaultProducts.map(product => `
-                <div class="product-card bg-white rounded-xl shadow-lg overflow-hidden border border-amber-200 relative">
-                    ${product.stock < 30 ? '<span class="featured-badge"><i class="fas fa-bolt mr-1"></i> পপুলার</span>' : ''}
-                    
-                    <div class="h-56 overflow-hidden">
-                        <img src="${product.imageUrl}" 
-                             alt="${product.name}" 
-                             class="w-full h-full object-cover transition-transform duration-300 hover:scale-110">
-                    </div>
-                    <div class="p-5">
-                        <div class="flex justify-between items-start mb-2">
-                            <h3 class="text-xl font-bold text-amber-900">${product.name}</h3>
-                            ${product.tags && product.tags.length > 0 ? `
-                                <div class="flex flex-wrap gap-1">
-                                    ${product.tags.map(tag => `<span class="bg-amber-100 text-amber-800 text-xs px-2 py-1 rounded">${tag}</span>`).join('')}
-                                </div>
-                            ` : ''}
-                        </div>
-                        <p class="text-gray-600 mb-4 line-clamp-2">${product.description}</p>
-                        
-                        <div class="mb-4">
-                            <div class="flex items-center">
-                                <div class="star-rating text-lg">
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star-half-alt"></i>
-                                </div>
-                                <span class="text-gray-600 ml-2 text-sm">(${product.sold} বিক্রিত)</span>
-                            </div>
-                        </div>
-                        
-                        <div class="flex justify-between items-center">
-                            <div>
-                                <span class="text-2xl font-bold text-amber-800">৳ ${product.price.toLocaleString('bn-BD')}</span>
-                                <div class="flex items-center">
-                                    <span class="text-sm text-gray-500 line-through ml-2">৳ ${product.originalPrice.toLocaleString('bn-BD')}</span>
-                                    <span class="ml-2 bg-red-100 text-red-800 text-xs font-bold px-2 py-1 rounded">
-                                        ${Math.round((1 - product.price / product.originalPrice) * 100)}% ছাড়
-                                    </span>
-                                </div>
-                            </div>
-                            <button onclick="orderProduct('${product._id}', '${product.name}', ${product.price}, ${product.stock})" 
-                                    class="bg-amber-600 hover:bg-amber-700 text-white py-2 px-4 rounded-lg transition flex items-center">
-                                <i class="fas fa-shopping-cart mr-2"></i> কিনুন
-                            </button>
-                        </div>
-                        <div class="mt-3 flex justify-between items-center text-sm">
-                            <span class="text-gray-600">
-                                <i class="fas fa-box mr-1"></i> স্টক: ${product.stock} টি
-                            </span>
-                            <span class="text-gray-600">
-                                <i class="fas fa-tag mr-1"></i> ${product.category || 'আতর'}
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
-            
-            containerEl.classList.remove('hidden');
-            
-            // সিলেক্ট অপশন আপডেট
-            updateProductSelectOptions();
         }
 
         // রিভিউ লোড ফাংশন
@@ -1339,7 +1109,7 @@
             
             try {
                 const response = await fetch(`${API_BASE_URL}/reviews/public`);
-                if (!response.ok) throw new Error('Network response was not ok');
+                if (!response.ok) throw new Error('নেটওয়ার্ক রেস্পন্স ঠিক নেই');
                 
                 const data = await response.json();
                 reviewsData = data.reviews || [];
@@ -1347,7 +1117,7 @@
                 // সর্বোচ্চ ৬টি রিভিউ দেখান
                 const reviewsToShow = reviewsData.slice(0, 6);
                 
-                containerEl.innerHTML = reviewsToShow.map((review, index) => {
+                containerEl.innerHTML = reviewsToShow.map((review) => {
                     const initials = review.customerName.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
                     const date = new Date(review.date).toLocaleDateString('bn-BD');
                     
@@ -1385,94 +1155,8 @@
                 console.error('Reviews load error:', error);
                 loadingEl.classList.add('hidden');
                 errorEl.classList.remove('hidden');
-                
-                // ফ্যালব্যাক: ডিফল্ট রিভিউ দেখান
-                showDefaultReviews();
-                showToast('ডেমো পর্যালোচনা দেখানো হচ্ছে', 'warning');
+                showToast('রিভিউ লোড করতে সমস্যা হয়েছে', 'error');
             }
-        }
-
-        // ডিফল্ট রিভিউ দেখান
-        function showDefaultReviews() {
-            const containerEl = document.getElementById('reviewsContainer');
-            const defaultReviews = [
-                {
-                    customerName: 'রাফিদ আহমেদ',
-                    product: 'গোলাপ আতর',
-                    rating: 5,
-                    reviewText: 'গোলাপ আতরটি অত্যন্ত উৎকৃষ্ট মানের। সুগন্ধটি টেকসই এবং প্রকৃত গোলাপের ঘ্রাণ নিয়ে আসে। ডেলিভারিও খুব দ্রুত পেয়েছি। সত্যিই অসাধারণ পণ্য।',
-                    date: '২০২৩-১০-১০'
-                },
-                {
-                    customerName: 'সাবরিনা ইসলাম',
-                    product: 'কস্তুরী আতর',
-                    rating: 4,
-                    reviewText: 'কস্তুরী আতরটি অসাধারণ! গভীর ও মিষ্টি ঘ্রাণ সারাদিন স্থায়ী হয়। দামের তুলনায় মান অনেক ভালো। নিশ্চিতভাবে আবার কিনব। সবাইকে সুপারিশ করছি।',
-                    date: '২০২৩-১০-০৫'
-                },
-                {
-                    customerName: 'ইমরান হোসেন',
-                    product: 'জসমিন আতর',
-                    rating: 5,
-                    reviewText: 'জসমিন আতরটি হালকা ও সতেজ ঘ্রাণের জন্য পারফেক্ট। অফিসে ব্যবহারের জন্য আদর্শ। বোতলের ডিজাইনও খুব সুন্দর। প্যাকেজিং অত্যন্ত আকর্ষণীয়।',
-                    date: '২০২৩-০৯-২৮'
-                },
-                {
-                    customerName: 'আহসান হাবীব',
-                    product: 'গোলাপ আতর',
-                    rating: 5,
-                    reviewText: 'তিনটি ভ্যারাইটিই ট্রাই করেছি। সবকটিই অসাধারণ। আল-নূর আতরের প্রতিই এখন আমার পূর্ণ আদ্ধা। প্রাকৃতিকতার জন্য ধন্যবাদ। সেরা সার্ভিস।',
-                    date: '২০২৩-০৯-২০'
-                },
-                {
-                    customerName: 'নুসরাত জাহান',
-                    product: 'কস্তুরী আতর',
-                    rating: 4,
-                    reviewText: 'আমার ত্বক সংবেদনশীল, কিন্তু এই আতরে কোন সমস্যা হয়নি। প্রাকৃতিক উপাদানে তৈরি বলে কোনো র্যাশ বা এলার্জি হয়নি। খুবই সন্তুষ্ট।',
-                    date: '২০২৩-০৯-১৫'
-                },
-                {
-                    customerName: 'কামরুল হাসান',
-                    product: 'জসমিন আতর',
-                    rating: 5,
-                    reviewText: 'উপহার হিসেবে কস্তুরী আতর পাঠিয়েছিলাম বন্ধুকে। তিনি অত্যন্ত খুশি হয়েছেন। দ্রুত ডেলিভারি এবং সুন্দর প্যাকেজিং। নিঃসন্দেহে আবার অর্ডার করব।',
-                    date: '২০২৩-০৯-১০'
-                }
-            ];
-            
-            reviewsData = defaultReviews;
-            
-            containerEl.innerHTML = defaultReviews.map((review, index) => {
-                const initials = review.customerName.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
-                
-                return `
-                    <div class="review-card bg-white p-6 rounded-xl shadow-md border border-amber-100">
-                        <div class="flex items-center mb-4">
-                            <div class="w-12 h-12 bg-gradient-to-r from-amber-200 to-amber-300 rounded-full flex items-center justify-center text-amber-800 font-bold text-xl mr-4">
-                                ${initials}
-                            </div>
-                            <div>
-                                <h4 class="font-bold text-lg">${review.customerName}</h4>
-                                <div class="star-rating">
-                                    ${'<i class="fas fa-star"></i>'.repeat(review.rating)}
-                                    ${review.rating < 5 ? '<i class="far fa-star"></i>'.repeat(5 - review.rating) : ''}
-                                    <span class="ml-2 text-gray-600 text-sm">(${review.rating}.0)</span>
-                                </div>
-                            </div>
-                        </div>
-                        <p class="text-gray-600 mb-4 line-clamp-3">"${review.reviewText}"</p>
-                        <div class="flex justify-between items-center pt-4 border-t border-gray-100">
-                            <span class="text-sm font-medium text-amber-700 bg-amber-100 px-3 py-1 rounded-full">${review.product}</span>
-                            <div class="text-sm text-gray-500">${review.date}</div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-            
-            containerEl.classList.remove('hidden');
-            
-            // রিভিউ পণ্য সিলেক্ট আপডেট
-            updateReviewProductSelect();
         }
 
         // পণ্য সিলেক্ট অপশন আপডেট
@@ -1492,7 +1176,6 @@
                 }
             });
             
-            // প্রথম লোডে মূল্য আপডেট করুন
             updateTotalPrice();
         }
 
@@ -1501,7 +1184,6 @@
             const reviewProductSelect = document.getElementById('reviewProduct');
             reviewProductSelect.innerHTML = '<option value="">পণ্য বাছাই করুন</option>';
             
-            // শুধু অনন্য পণ্যের নাম যোগ করুন
             const uniqueProducts = [...new Set(productsData.map(p => p.name))];
             uniqueProducts.forEach(productName => {
                 const option = document.createElement('option');
@@ -1515,7 +1197,6 @@
         function orderProduct(productId, productName, price, stock) {
             const productSelect = document.getElementById('product');
             
-            // পণ্য নির্বাচন করুন
             for (let option of productSelect.options) {
                 if (option.value === productId) {
                     productSelect.value = productId;
@@ -1523,13 +1204,9 @@
                 }
             }
             
-            // অর্ডার সেকশনে স্ক্রল করুন
             document.getElementById('order').scrollIntoView({ behavior: 'smooth' });
-            
-            // মূল্য আপডেট করুন
             updateTotalPrice();
             
-            // ফোকাস দিন
             setTimeout(() => {
                 document.getElementById('name').focus();
             }, 500);
@@ -1546,12 +1223,10 @@
                 const price = parseFloat(selectedOption.dataset.price) || 0;
                 const quantity = parseInt(quantityInput.value) || 1;
                 const stock = parseInt(selectedOption.dataset.stock) || 0;
-                const productName = selectedOption.dataset.name || 'পণ্য';
                 const total = price * quantity;
                 
                 totalPrice.textContent = `৳ ${total.toLocaleString('bn-BD')}`;
                 
-                // স্টক ইনফো আপডেট
                 if (stock > 0) {
                     if (quantity > stock) {
                         stockInfo.innerHTML = `<span class="text-red-600 font-semibold"><i class="fas fa-exclamation-triangle mr-1"></i> স্টক পর্যাপ্ত নেই। সর্বোচ্চ ${stock} টি অর্ডার করা যাবে।</span>`;
@@ -1583,7 +1258,6 @@
                     ratingValue.value = rating;
                     ratingError.classList.add('hidden');
                     
-                    // স্টার আপডেট করুন
                     stars.forEach((s, index) => {
                         if (index < rating) {
                             s.classList.remove('far');
@@ -1598,7 +1272,6 @@
                     });
                 });
                 
-                // হোভার ইফেক্ট
                 star.addEventListener('mouseover', () => {
                     const rating = parseInt(star.getAttribute('data-rating'));
                     
@@ -1611,7 +1284,6 @@
                     });
                 });
                 
-                // হোভার রিমুভ
                 star.addEventListener('mouseout', () => {
                     const currentRating = parseInt(ratingValue.value);
                     
@@ -1658,7 +1330,6 @@
             const quantity = parseInt(quantityInput.value);
             const payment = document.getElementById('payment').value;
             
-            // ভ্যালিডেশন
             if (!selectedOption || !selectedOption.value) {
                 showFormStatus(orderFormStatus, 'দয়া করে পণ্য নির্বাচন করুন', 'error');
                 showToast('পণ্য নির্বাচন করুন', 'error');
@@ -1692,7 +1363,6 @@
             
             isLoading = true;
             
-            // Show loading
             const button = document.getElementById('orderSubmitBtn');
             const buttonText = document.getElementById('orderSubmitText');
             const spinner = document.getElementById('orderSubmitSpinner');
@@ -1701,9 +1371,7 @@
             try {
                 const response = await fetch(`${API_BASE_URL}/orders/new`, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         customerName: name,
                         phone: phone,
@@ -1717,12 +1385,11 @@
                     })
                 });
                 
-                if (!response.ok) throw new Error('Network response was not ok');
+                if (!response.ok) throw new Error('নেটওয়ার্ক রেস্পন্স ঠিক নেই');
                 
                 const data = await response.json();
                 
                 if (data.success) {
-                    // অর্ডার ডেটা সংরক্ষণ
                     lastOrderData = {
                         orderId: data.orderId,
                         customerName: name,
@@ -1736,15 +1403,12 @@
                         date: new Date().toLocaleString('bn-BD')
                     };
                     
-                    // কনফার্মেশন মেসেজ দেখান
                     showConfirmationModal(data.orderId);
                     
-                    // ফর্ম রিসেট
                     orderForm.reset();
                     quantityInput.value = 1;
                     updateTotalPrice();
                     
-                    // পণ্য লোড করুন (স্টক আপডেট করার জন্য)
                     loadProducts();
                     
                     showToast('অর্ডার সফলভাবে জমা হয়েছে!', 'success');
@@ -1756,50 +1420,11 @@
                 
             } catch (error) {
                 console.error('Order submission error:', error);
-                
-                // ফ্যালব্যাক: লোকাল স্টোরেজে সংরক্ষণ
-                const orderId = 'ATT' + Date.now().toString().slice(-8);
-                saveOrderToLocalStorage({
-                    customerName: name,
-                    phone: phone,
-                    email: email,
-                    address: address,
-                    productName: productName,
-                    productId: productId,
-                    quantity: quantity,
-                    totalPrice: total,
-                    paymentMethod: payment,
-                    orderId: orderId,
-                    date: new Date().toISOString(),
-                    local: true
-                });
-                
-                lastOrderData = {
-                    orderId: orderId,
-                    customerName: name,
-                    phone: phone,
-                    product: productName,
-                    quantity: quantity,
-                    totalPrice: total,
-                    paymentMethod: payment,
-                    address: address,
-                    email: email,
-                    date: new Date().toLocaleString('bn-BD'),
-                    local: true
-                };
-                
-                showConfirmationModal(orderId);
-                
-                // ফর্ম রিসেট
-                orderForm.reset();
-                quantityInput.value = 1;
-                updateTotalPrice();
-                
-                showToast('অর্ডার স্থানীয়ভাবে সংরক্ষণ করা হয়েছে', 'warning');
+                showFormStatus(orderFormStatus, 'সার্ভার সংযোগ সমস্যা। দয়া করে আবার চেষ্টা করুন।', 'error');
+                showToast('নেটওয়ার্ক এরর!', 'error');
                 
             } finally {
                 isLoading = false;
-                // Hide loading
                 hideLoading(button, spinner, buttonText);
             }
         }
@@ -1815,7 +1440,6 @@
             const rating = ratingValue.value;
             const reviewText = document.getElementById('reviewText').value.trim();
             
-            // ভ্যালিডেশন
             if (!name || !product || rating === "0" || !reviewText) {
                 showFormStatus(reviewFormStatus, 'দয়া করে সকল প্রয়োজনীয় তথ্য প্রদান করুন', 'error');
                 ratingError.classList.remove('hidden');
@@ -1831,7 +1455,6 @@
             
             isLoading = true;
             
-            // Show loading
             const button = document.getElementById('reviewSubmitBtn');
             const buttonText = document.getElementById('reviewSubmitText');
             const spinner = document.getElementById('reviewSubmitSpinner');
@@ -1840,9 +1463,7 @@
             try {
                 const response = await fetch(`${API_BASE_URL}/reviews/new`, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         customerName: name,
                         product: product,
@@ -1851,17 +1472,15 @@
                     })
                 });
                 
-                if (!response.ok) throw new Error('Network response was not ok');
+                if (!response.ok) throw new Error('নেটওয়ার্ক রেস্পন্স ঠিক নেই');
                 
                 const data = await response.json();
                 
                 if (data.success) {
                     showFormStatus(reviewFormStatus, 'ধন্যবাদ! আপনার পর্যালোচনা জমা দেওয়া হয়েছে। অনুমোদনের পর এটি ওয়েবসাইটে প্রদর্শিত হবে।', 'success');
                     
-                    // ফর্ম রিসেট
                     reviewForm.reset();
                     
-                    // রেটিং রিসেট
                     ratingValue.value = "0";
                     stars.forEach(star => {
                         star.classList.remove('fas');
@@ -1871,7 +1490,6 @@
                     });
                     ratingError.classList.add('hidden');
                     
-                    // রিভিউ লোড করুন
                     setTimeout(() => loadReviews(), 2000);
                     
                     showToast('পর্যালোচনা সফলভাবে জমা হয়েছে!', 'success');
@@ -1883,87 +1501,41 @@
                 
             } catch (error) {
                 console.error('Review submission error:', error);
-                
-                // ফ্যালব্যাক: লোকাল স্টোরেজে সংরক্ষণ
-                saveReviewToLocalStorage({
-                    customerName: name,
-                    product: product,
-                    rating: parseInt(rating),
-                    reviewText: reviewText,
-                    date: new Date().toISOString(),
-                    approved: false,
-                    local: true
-                });
-                
-                showFormStatus(reviewFormStatus, 'ধন্যবাদ! আপনার পর্যালোচনা স্থানীয়ভাবে সংরক্ষণ করা হয়েছে। ইন্টারনেট সংযোগ থাকলে এটি সার্ভারে পাঠানো হবে।', 'warning');
-                
-                // ফর্ম রিসেট
-                reviewForm.reset();
-                    
-                // রেটিং রিসেট
-                ratingValue.value = "0";
-                stars.forEach(star => {
-                    star.classList.remove('fas');
-                    star.classList.add('far');
-                    star.classList.remove('text-amber-500');
-                    star.classList.add('text-amber-400');
-                });
-                ratingError.classList.add('hidden');
-                
-                showToast('পর্যালোচনা স্থানীয়ভাবে সংরক্ষণ করা হয়েছে', 'warning');
+                showFormStatus(reviewFormStatus, 'সার্ভার সংযোগ সমস্যা। দয়া করে আবার চেষ্টা করুন।', 'error');
+                showToast('নেটওয়ার্ক এরর!', 'error');
                 
             } finally {
                 isLoading = false;
-                // Hide loading
                 hideLoading(button, spinner, buttonText);
             }
         }
 
         // কনফার্মেশন মডাল দেখান
-        // কনফার্মেশন মেসেজ ফাংশন আপডেট (লাইন 2100-2150)
-function showConfirmationModal(orderId) {
-    if (!lastOrderData) return;
-    
-    // মডাল এনিমেশন
-    modalContent.classList.remove('scale-95');
-    modalContent.classList.add('scale-100');
-    
-    const paymentText = getPaymentMethodText(lastOrderData.paymentMethod);
-    
-    // বাংলায় কনফার্মেশন মেসেজ
-    confirmationMessage.textContent = `${lastOrderData.customerName} সাহেব/আপু, আপনার অর্ডারটি সফলভাবে গ্রহণ করা হয়েছে। অর্ডার নং: ${orderId}। আমরা শীঘ্রই আপনার সাথে যোগাযোগ করব (${lastOrderData.phone})।`;
-    
-    // বাংলায় অর্ডার ডিটেইলস
-    orderDetails.innerHTML = `
-        <p><span class="font-bold">অর্ডার নং:</span> ${orderId}</p>
-        <p><span class="font-bold">গ্রাহক:</span> ${lastOrderData.customerName}</p>
-        <p><span class="font-bold">পণ্য:</span> ${lastOrderData.product}</p>
-        <p><span class="font-bold">পরিমাণ:</span> ${lastOrderData.quantity} টি</p>
-        <p><span class="font-bold">মোট মূল্য:</span> ৳ ${lastOrderData.totalPrice.toLocaleString('bn-BD')}</p>
-        <p><span class="font-bold">পেমেন্ট:</span> ${paymentText}</p>
-        <p><span class="font-bold">ঠিকানা:</span> ${lastOrderData.address}</p>
-        ${lastOrderData.email ? `<p><span class="font-bold">ইমেইল:</span> ${lastOrderData.email}</p>` : ''}
-        <p><span class="font-bold">তারিখ:</span> ${lastOrderData.date}</p>
-        ${lastOrderData.local ? '<p class="text-amber-600 text-sm mt-2"><i class="fas fa-info-circle mr-1"></i> স্থানীয়ভাবে সংরক্ষিত</p>' : ''}
-    `;
-    
-    confirmationModal.classList.remove('hidden');
-    
-    // মোবাইল ডিভাইসের জন্য স্ক্রল পজিশন
-    if (window.innerWidth < 768) {
-        document.body.style.overflow = 'hidden';
-        confirmationModal.scrollTop = 0;
-    }
-}
+        function showConfirmationModal(orderId) {
+            if (!lastOrderData) return;
+            
+            const paymentText = getPaymentMethodText(lastOrderData.paymentMethod);
+            
+            confirmationMessage.textContent = `${lastOrderData.customerName} সাহেব/আপু, আপনার অর্ডারটি সফলভাবে গ্রহণ করা হয়েছে। অর্ডার নং: ${orderId}। আমরা শীঘ্রই আপনার সাথে যোগাযোগ করব (${lastOrderData.phone})।`;
+            
+            orderDetails.innerHTML = `
+                <p><span class="font-bold">অর্ডার নং:</span> ${orderId}</p>
+                <p><span class="font-bold">গ্রাহক:</span> ${lastOrderData.customerName}</p>
+                <p><span class="font-bold">পণ্য:</span> ${lastOrderData.product}</p>
+                <p><span class="font-bold">পরিমাণ:</span> ${lastOrderData.quantity} টি</p>
+                <p><span class="font-bold">মোট মূল্য:</span> ৳ ${lastOrderData.totalPrice.toLocaleString('bn-BD')}</p>
+                <p><span class="font-bold">পেমেন্ট:</span> ${paymentText}</p>
+                <p><span class="font-bold">ঠিকানা:</span> ${lastOrderData.address}</p>
+                ${lastOrderData.email ? `<p><span class="font-bold">ইমেইল:</span> ${lastOrderData.email}</p>` : ''}
+                <p><span class="font-bold">তারিখ:</span> ${lastOrderData.date}</p>
+            `;
+            
+            confirmationModal.classList.remove('hidden');
+        }
 
         // কনফার্মেশন মডাল বন্ধ করুন
         function closeConfirmationModal() {
-            modalContent.classList.remove('scale-100');
-            modalContent.classList.add('scale-95');
-            
-            setTimeout(() => {
-                confirmationModal.classList.add('hidden');
-            }, 300);
+            confirmationModal.classList.add('hidden');
         }
 
         // রিসিপ্ট ডাউনলোড
@@ -2048,100 +1620,8 @@ function showConfirmationModal(orderId) {
             }, 5000);
         }
 
-        // লোকাল স্টোরেজে অর্ডার সংরক্ষণ
-        function saveOrderToLocalStorage(orderData) {
-            try {
-                const orders = JSON.parse(localStorage.getItem('pendingOrders')) || [];
-                orders.push(orderData);
-                localStorage.setItem('pendingOrders', JSON.stringify(orders));
-                localStorage.setItem('needsSync', 'true');
-            } catch (error) {
-                console.error('Error saving to local storage:', error);
-            }
-        }
-
-        // লোকাল স্টোরেজে রিভিউ সংরক্ষণ
-        function saveReviewToLocalStorage(reviewData) {
-            try {
-                const reviews = JSON.parse(localStorage.getItem('pendingReviews')) || [];
-                reviews.push(reviewData);
-                localStorage.setItem('pendingReviews', JSON.stringify(reviews));
-                localStorage.setItem('needsSync', 'true');
-            } catch (error) {
-                console.error('Error saving to local storage:', error);
-            }
-        }
-
-        // লোকাল স্টোরেজ থেকে পেন্ডিং ডেটা সিঙ্ক
-        async function syncPendingData() {
-            try {
-                // পেন্ডিং অর্ডার সিঙ্ক
-                const pendingOrders = JSON.parse(localStorage.getItem('pendingOrders')) || [];
-                if (pendingOrders.length > 0) {
-                    for (const order of pendingOrders) {
-                        try {
-                            await fetch(`${API_BASE_URL}/orders/new`, {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify(order)
-                            });
-                        } catch (error) {
-                            console.error('Failed to sync order:', error);
-                        }
-                    }
-                    localStorage.removeItem('pendingOrders');
-                }
-                
-                // পেন্ডিং রিভিউ সিঙ্ক
-                const pendingReviews = JSON.parse(localStorage.getItem('pendingReviews')) || [];
-                if (pendingReviews.length > 0) {
-                    for (const review of pendingReviews) {
-                        try {
-                            await fetch(`${API_BASE_URL}/reviews/new`, {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify(review)
-                            });
-                        } catch (error) {
-                            console.error('Failed to sync review:', error);
-                        }
-                    }
-                    localStorage.removeItem('pendingReviews');
-                }
-                
-                localStorage.removeItem('needsSync');
-                
-                // ডেটা রিলোড
-                loadProducts();
-                loadReviews();
-                
-            } catch (error) {
-                console.error('Sync error:', error);
-            }
-        }
-
-        // অনলাইন হলে সিঙ্ক করুন
-        window.addEventListener('online', () => {
-            if (localStorage.getItem('needsSync') === 'true') {
-                showStatusBar('স্থানীয় ডেটা সিঙ্ক করা হচ্ছে...', 'info');
-                setTimeout(syncPendingData, 2000);
-            }
-        });
-
         // প্রথম লোডে মূল্য আপডেট করুন
         updateTotalPrice();
-
-        // অনলাইন হলে সিঙ্ক করুন
-        if (navigator.onLine && localStorage.getItem('needsSync') === 'true') {
-            setTimeout(() => {
-                syncPendingData();
-                showToast('স্থানীয় ডেটা সিঙ্ক করা হচ্ছে', 'info');
-            }, 3000);
-        }
     </script>
 </body>
 </html>
-
-
-
-

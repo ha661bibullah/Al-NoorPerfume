@@ -9,56 +9,34 @@ const fs = require('fs');
 
 const app = express();
 
-// CORS configuration
+// CORS কনফিগারেশন
 app.use(cors({
-    origin: function (origin, callback) {
-        if (!origin) return callback(null, true);
-        if (process.env.NODE_ENV !== 'production') return callback(null, true);
-        const allowedOrigins = [
-            'https://playful-rugelach-33592e.netlify.app',
-            'https://lively-kataifi-011ede.netlify.app',
-            'http://localhost:3000',
-            'http://localhost:5000'
-        ];
-        if (allowedOrigins.indexOf(origin) === -1) {
-            const msg = 'The CORS policy does not allow access from this Origin.';
-            return callback(new Error(msg), false);
-        }
-        return callback(null, true);
-    },
+    origin: true, // সকল ডোমেইন থেকে অনুমতি
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
-// Middleware
+// মিডলওয়্যার
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Create directories if they don't exist (for development)
-const directories = ['frontend', 'admin-panel'];
-directories.forEach(dir => {
-    const dirPath = path.join(__dirname, '..', dir);
-    if (!fs.existsSync(dirPath)) {
-        fs.mkdirSync(dirPath, { recursive: true });
-    }
-});
+// স্ট্যাটিক ফাইল সার্ভ করা
+app.use(express.static(path.join(__dirname, '../frontend')));
+app.use('/admin', express.static(path.join(__dirname, '../admin-panel')));
 
-// Serve static files from correct paths
-app.use(express.static(path.join(__dirname, '..', 'frontend')));
-app.use('/admin', express.static(path.join(__dirname, '..', 'admin-panel')));
-
-// Routes for serving HTML
+// HTML ফাইল সার্ভ করা
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, '..', 'frontend', 'index.html'));
+    res.sendFile(path.join(__dirname, '../frontend/index.html'));
 });
 
 app.get('/admin', (req, res) => {
-    res.sendFile(path.join(__dirname, '..', 'admin-panel', 'admin.html'));
+    res.sendFile(path.join(__dirname, '../admin-panel/admin.html'));
 });
 
-// MongoDB Connection
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/alnoor-perfume';
+// মঙ্গোডিবি কানেকশন
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/alnoor_attar';
+
 let isMongoConnected = false;
 
 mongoose.connect(MONGODB_URI, {
@@ -68,25 +46,24 @@ mongoose.connect(MONGODB_URI, {
     socketTimeoutMS: 45000,
 })
 .then(() => {
-    console.log('✅ MongoDB Connected Successfully');
+    console.log('✅ MongoDB সংযুক্ত হয়েছে');
     isMongoConnected = true;
     initializeData();
 })
 .catch(err => {
-    console.error('❌ MongoDB Connection Error:', err.message);
-    console.log('⚠️ Running in demo mode...');
-    isMongoConnected = false;
+    console.error('❌ MongoDB কানেকশন এরর:', err.message);
+    process.exit(1); // ডেমো মোড নয় - সরাসরি বন্ধ করুন
 });
 
-// Database Schemas
+// ডাটাবেজ স্কিমা
 const orderSchema = new mongoose.Schema({
-    orderId: { type: String, unique: true, required: true },
+    orderId: { type: String, required: true, unique: true },
     customerName: { type: String, required: true },
     phone: { type: String, required: true },
     email: { type: String },
     address: { type: String, required: true },
     product: { type: String, required: true },
-    productId: { type: String },
+    productId: { type: String, required: true },
     quantity: { type: Number, required: true, min: 1 },
     totalPrice: { type: Number, required: true, min: 0 },
     paymentMethod: { type: String, required: true },
@@ -97,8 +74,7 @@ const orderSchema = new mongoose.Schema({
     },
     orderDate: { type: Date, default: Date.now },
     deliveryDate: Date,
-    notes: String,
-    isDemo: { type: Boolean, default: false }
+    notes: String
 }, { timestamps: true });
 
 const reviewSchema = new mongoose.Schema({
@@ -112,8 +88,7 @@ const reviewSchema = new mongoose.Schema({
     },
     reviewText: { type: String, required: true },
     date: { type: Date, default: Date.now },
-    approved: { type: Boolean, default: false },
-    isDemo: { type: Boolean, default: false }
+    approved: { type: Boolean, default: false }
 }, { timestamps: true });
 
 const productSchema = new mongoose.Schema({
@@ -130,8 +105,7 @@ const productSchema = new mongoose.Schema({
     stock: { type: Number, required: true, min: 0 },
     sold: { type: Number, default: 0 },
     imageUrl: { type: String },
-    featured: { type: Boolean, default: false },
-    isDemo: { type: Boolean, default: false }
+    featured: { type: Boolean, default: false }
 }, { timestamps: true });
 
 const adminSchema = new mongoose.Schema({
@@ -142,24 +116,21 @@ const adminSchema = new mongoose.Schema({
     },
     password: { type: String, required: true },
     name: { type: String, default: 'এডমিন' },
-    lastLogin: Date,
-    isDemo: { type: Boolean, default: false }
+    lastLogin: Date
 }, { timestamps: true });
 
-// Models
+// মডেল
 const Order = mongoose.models.Order || mongoose.model('Order', orderSchema);
 const Review = mongoose.models.Review || mongoose.model('Review', reviewSchema);
 const Product = mongoose.models.Product || mongoose.model('Product', productSchema);
 const Admin = mongoose.models.Admin || mongoose.model('Admin', adminSchema);
 
-// Initialize Data Function
+// ডাটা ইনিশিয়ালাইজেশন
 const initializeData = async () => {
     try {
-        if (!isMongoConnected) return;
-
-        // Initialize Admin
-        const adminEmail = process.env.ADMIN_EMAIL || 'admin@alnoor.com';
-        const adminPassword = process.env.ADMIN_PASSWORD || 'admin123';
+        // এডমিন একাউন্ট তৈরি
+        const adminEmail = 'admin@alnoor.com';
+        const adminPassword = 'admin123';
         
         let admin = await Admin.findOne({ email: adminEmail });
         if (!admin) {
@@ -171,16 +142,16 @@ const initializeData = async () => {
                 lastLogin: new Date()
             });
             await admin.save();
-            console.log('✅ Admin account created');
+            console.log('✅ এডমিন একাউন্ট তৈরি করা হয়েছে');
         }
 
-        // Initialize Products
+        // প্রোডাক্ট তৈরি
         const productCount = await Product.countDocuments();
         if (productCount === 0) {
             const sampleProducts = [
                 {
                     name: 'গোলাপ আতর',
-                    description: '১০০% খাঁটি গোলাপ পাপড়ি থেকে তৈরি, মিষ্টি ও টেকসই সুগন্ধি',
+                    description: '১০০% খাঁটি গোলাপ পাপড়ি থেকে তৈরি, মিষ্টি ও টেকসই সুগন্ধি। প্রকৃতির বিশুদ্ধতা নিয়ে আসুন আপনার দৈনন্দিন জীবনে।',
                     price: 1299,
                     originalPrice: 1599,
                     category: 'আতর',
@@ -188,11 +159,11 @@ const initializeData = async () => {
                     sold: 234,
                     imageUrl: 'https://images.unsplash.com/photo-1541643600914-78b084683601?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80',
                     featured: true,
-                    tags: ['বেস্টসেলার', 'প্রিমিয়াম']
+                    tags: ['বেস্টসেলার', 'প্রিমিয়াম', 'দীর্ঘস্থায়ী']
                 },
                 {
                     name: 'কস্তুরী আতর',
-                    description: 'উচ্চমানের কস্তুরী থেকে তৈরি, গভীর ও আকর্ষণীয় সুগন্ধি',
+                    description: 'উচ্চমানের কস্তুরী থেকে তৈরি, গভীর ও আকর্ষণীয় সুগন্ধি। আধ্যাত্মিকতা ও প্রশান্তির অনুভূতি দেয়।',
                     price: 2499,
                     originalPrice: 2999,
                     category: 'আতর',
@@ -200,11 +171,11 @@ const initializeData = async () => {
                     sold: 189,
                     imageUrl: 'https://images.unsplash.com/photo-1601042879364-f3947d1f9fc9?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80',
                     featured: true,
-                    tags: ['লাক্সারি', 'দীর্ঘস্থায়ী']
+                    tags: ['লাক্সারি', 'আধ্যাত্মিক', 'দীর্ঘস্থায়ী']
                 },
                 {
                     name: 'জসমিন আতর',
-                    description: 'তাজা জসমিন ফুল থেকে নিষ্কাশিত, হালকা ও তাজা সুগন্ধি',
+                    description: 'তাজা জসমিন ফুল থেকে নিষ্কাশিত, হালকা ও সতেজ সুগন্ধি। দৈনন্দিন ব্যবহারের জন্য পারফেক্ট।',
                     price: 999,
                     originalPrice: 1299,
                     category: 'আতর',
@@ -212,15 +183,15 @@ const initializeData = async () => {
                     sold: 97,
                     imageUrl: 'https://images.unsplash.com/photo-1590736969955-0126f7e1e88d?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80',
                     featured: false,
-                    tags: ['ফ্রেশ', 'হালকা']
+                    tags: ['ফ্রেশ', 'হালকা', 'দৈনন্দিন']
                 }
             ];
             
             await Product.insertMany(sampleProducts);
-            console.log('✅ Sample products created');
+            console.log('✅ স্যাম্পল প্রোডাক্ট তৈরি করা হয়েছে');
         }
 
-        // Initialize Reviews
+        // রিভিউ তৈরি
         const reviewCount = await Review.countDocuments();
         if (reviewCount === 0) {
             const sampleReviews = [
@@ -228,7 +199,7 @@ const initializeData = async () => {
                     customerName: 'রাফিদ আহমেদ',
                     product: 'গোলাপ আতর',
                     rating: 5,
-                    reviewText: 'গোলাপ আতরটি অত্যন্ত উৎকৃষ্ট মানের। সুগন্ধটি টেকসই এবং প্রকৃত গোলাপের ঘ্রাণ নিয়ে আসে। ডেলিভারিও খুব দ্রুত পেয়েছি।',
+                    reviewText: 'গোলাপ আতরটি অত্যন্ত উৎকৃষ্ট মানের। সুগন্ধটি টেকসই এবং প্রকৃত গোলাপের ঘ্রাণ নিয়ে আসে। ডেলিভারিও খুব দ্রুত পেয়েছি। সত্যিই অসাধারণ পণ্য।',
                     date: new Date('2023-10-10'),
                     approved: true
                 },
@@ -236,7 +207,7 @@ const initializeData = async () => {
                     customerName: 'সাবরিনা ইসলাম',
                     product: 'কস্তুরী আতর',
                     rating: 4,
-                    reviewText: 'কস্তুরী আতরটি অসাধারণ! গভীর ও মিষ্টি ঘ্রাণ সারাদিন স্থায়ী হয়। দামের তুলনায় মান অনেক ভালো। নিশ্চিতভাবে আবার কিনব।',
+                    reviewText: 'কস্তুরী আতরটি অসাধারণ! গভীর ও মিষ্টি ঘ্রাণ সারাদিন স্থায়ী হয়। দামের তুলনায় মান অনেক ভালো। নিশ্চিতভাবে আবার কিনব। সবাইকে সুপারিশ করছি।',
                     date: new Date('2023-10-05'),
                     approved: true
                 },
@@ -244,165 +215,68 @@ const initializeData = async () => {
                     customerName: 'ইমরান হোসেন',
                     product: 'জসমিন আতর',
                     rating: 5,
-                    reviewText: 'জসমিন আতরটি হালকা ও সতেজ ঘ্রাণের জন্য পারফেক্ট। অফিসে ব্যবহারের জন্য আদর্শ। বোতলের ডিজাইনও খুব সুন্দর।',
+                    reviewText: 'জসমিন আতরটি হালকা ও সতেজ ঘ্রাণের জন্য পারফেক্ট। অফিসে ব্যবহারের জন্য আদর্শ। বোতলের ডিজাইনও খুব সুন্দর। প্যাকেজিং অত্যন্ত আকর্ষণীয়।',
                     date: new Date('2023-09-28'),
                     approved: true
                 }
             ];
             
             await Review.insertMany(sampleReviews);
-            console.log('✅ Sample reviews created');
-        }
-
-        // Initialize Orders
-        const orderCount = await Order.countDocuments();
-        if (orderCount === 0) {
-            const sampleOrders = [
-                {
-                    orderId: 'ALP' + Date.now().toString().slice(-8),
-                    customerName: 'রাফিদ আহমেদ',
-                    phone: '01712345678',
-                    email: 'rafid@example.com',
-                    address: 'মিরপুর, ঢাকা',
-                    product: 'গোলাপ আতর',
-                    quantity: 2,
-                    totalPrice: 2598,
-                    paymentMethod: 'cod',
-                    status: 'Delivered',
-                    orderDate: new Date(Date.now() - 86400000 * 7),
-                    deliveryDate: new Date(Date.now() - 86400000 * 6)
-                },
-                {
-                    orderId: 'ALP' + (Date.now() + 1000).toString().slice(-8),
-                    customerName: 'সাবরিনা ইসলাম',
-                    phone: '01787654321',
-                    email: 'sabrina@example.com',
-                    address: 'ধানমন্ডি, ঢাকা',
-                    product: 'কস্তুরী আতর',
-                    quantity: 1,
-                    totalPrice: 2499,
-                    paymentMethod: 'bkash',
-                    status: 'Processing',
-                    orderDate: new Date(Date.now() - 86400000 * 2)
-                }
-            ];
-            
-            await Order.insertMany(sampleOrders);
-            console.log('✅ Sample orders created');
+            console.log('✅ স্যাম্পল রিভিউ তৈরি করা হয়েছে');
         }
 
     } catch (error) {
-        console.error('❌ Error initializing data:', error.message);
+        console.error('❌ ডাটা ইনিশিয়ালাইজেশন এরর:', error.message);
     }
 };
 
-// Auth Middleware
+// অথেন্টিকেশন মিডলওয়্যার
 const authenticateToken = (req, res, next) => {
-    try {
-        const authHeader = req.headers['authorization'];
-        const token = authHeader && authHeader.split(' ')[1];
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
 
-        if (!token) {
-            return res.status(401).json({ 
+    if (!token) {
+        return res.status(401).json({ 
+            success: false, 
+            error: 'অ্যাক্সেস টোকেন প্রয়োজন' 
+        });
+    }
+
+    jwt.verify(token, process.env.JWT_SECRET || 'AlNoor@Attar#JWT$Secret2023', (err, user) => {
+        if (err) {
+            return res.status(403).json({ 
                 success: false, 
-                error: 'Access token required' 
+                error: 'ভুল বা মেয়াদোত্তীর্ণ টোকেন' 
             });
         }
-
-        jwt.verify(token, process.env.JWT_SECRET || 'AlNoor@Attar#JWT$9fK2Lx8Pq', (err, user) => {
-            if (err) {
-                return res.status(403).json({ 
-                    success: false, 
-                    error: 'Invalid or expired token' 
-                });
-            }
-            req.user = user;
-            next();
-        });
-    } catch (error) {
-        console.error('Auth middleware error:', error);
-        return res.status(500).json({ 
-            success: false, 
-            error: 'Authentication error' 
-        });
-    }
+        req.user = user;
+        next();
+    });
 };
 
-// Generate Demo Data
-const getDemoData = () => {
-    return {
-        totalOrders: 156,
-        totalRevenue: 254890,
-        pendingOrders: 23,
-        totalReviews: 89,
-        pendingReviews: 12,
-        totalProducts: 15,
-        recentOrders: [
-            {
-                customerName: 'রাফিদ আহমেদ',
-                product: 'গোলাপ আতর',
-                quantity: 2,
-                totalPrice: 2598,
-                status: 'Pending'
-            },
-            {
-                customerName: 'সাবরিনা ইসলাম',
-                product: 'কস্তুরী আতর',
-                quantity: 1,
-                totalPrice: 2499,
-                status: 'Delivered'
-            },
-            {
-                customerName: 'ইমরান হোসেন',
-                product: 'জসমিন আতর',
-                quantity: 3,
-                totalPrice: 2997,
-                status: 'Processing'
-            }
-        ],
-        monthlyRevenue: [
-            { _id: 1, revenue: 45000 },
-            { _id: 2, revenue: 52000 },
-            { _id: 3, revenue: 48000 },
-            { _id: 4, revenue: 61000 },
-            { _id: 5, revenue: 58000 },
-            { _id: 6, revenue: 72000 },
-            { _id: 7, revenue: 68000 },
-            { _id: 8, revenue: 75000 },
-            { _id: 9, revenue: 82000 },
-            { _id: 10, revenue: 78000 },
-            { _id: 11, revenue: 90000 },
-            { _id: 12, revenue: 95000 }
-        ]
-    };
-};
+// ==================== এপিআই রাউটস ====================
 
-// ==================== ROUTES ====================
-
-// Test route
+// টেস্ট রাউট
 app.get('/api/test', (req, res) => {
     res.json({ 
         success: true, 
-        message: 'Al-NoorPerfume API is working! 🚀',
+        message: 'আল-নূর আতর এপিআই কাজ করছে!',
         mongoConnected: isMongoConnected,
-        timestamp: new Date().toISOString(),
-        version: '2.0.0'
+        timestamp: new Date().toISOString()
     });
 });
 
-// Health check
+// হেলথ চেক
 app.get('/api/health', (req, res) => {
     res.json({ 
-        status: 'healthy',
-        timestamp: new Date().toISOString(),
-        database: isMongoConnected ? 'connected' : 'disconnected',
-        uptime: process.uptime()
+        status: isMongoConnected ? 'healthy' : 'unhealthy',
+        database: isMongoConnected ? 'connected' : 'disconnected'
     });
 });
 
-// ==================== AUTHENTICATION ====================
+// ==================== অথেন্টিকেশন ====================
 
-// Admin Login
+// এডমিন লগইন
 app.post('/api/admin/login', async (req, res) => {
     try {
         const { email, password } = req.body;
@@ -410,71 +284,39 @@ app.post('/api/admin/login', async (req, res) => {
         if (!email || !password) {
             return res.status(400).json({ 
                 success: false, 
-                error: 'Email and password are required' 
+                error: 'ইমেইল ও পাসওয়ার্ড প্রয়োজন' 
             });
         }
         
-        // Demo mode if MongoDB not connected
-        if (!isMongoConnected) {
-            const demoAdminEmail = 'admin@alnoor.com';
-            const demoAdminPassword = 'admin123';
-            
-            if (email === demoAdminEmail && password === demoAdminPassword) {
-                const token = jwt.sign(
-                    { 
-                        id: 'demo-admin-id', 
-                        email: email,
-                        demo: true 
-                    },
-                    process.env.JWT_SECRET || 'AlNoor@Attar#JWT$9fK2Lx8Pq',
-                    { expiresIn: '24h' }
-                );
-                
-                return res.json({ 
-                    success: true, 
-                    token, 
-                    admin: { 
-                        email: email,
-                        demo: true
-                    },
-                    message: 'Logged in with demo account (MongoDB not connected)'
-                });
-            } else {
-                return res.status(401).json({ 
-                    success: false, 
-                    error: 'Invalid credentials' 
-                });
-            }
-        }
-        
-        // MongoDB is connected
+        // এডমিন খুঁজুন
         const admin = await Admin.findOne({ email });
         if (!admin) {
             return res.status(401).json({ 
                 success: false, 
-                error: 'Invalid credentials' 
+                error: 'ভুল লগইন তথ্য' 
             });
         }
 
+        // পাসওয়ার্ড চেক করুন
         const validPassword = await bcrypt.compare(password, admin.password);
         if (!validPassword) {
             return res.status(401).json({ 
                 success: false, 
-                error: 'Invalid credentials' 
+                error: 'ভুল লগইন তথ্য' 
             });
         }
 
-        // Update last login
+        // শেষ লগইন আপডেট করুন
         admin.lastLogin = new Date();
         await admin.save();
 
-        // Create token
+        // জেডব্লিউটি টোকেন তৈরি করুন
         const token = jwt.sign(
             { 
                 id: admin._id, 
                 email: admin.email 
             },
-            process.env.JWT_SECRET || 'AlNoor@Attar#JWT$9fK2Lx8Pq',
+            process.env.JWT_SECRET || 'AlNoor@Attar#JWT$Secret2023',
             { expiresIn: '24h' }
         );
 
@@ -483,34 +325,24 @@ app.post('/api/admin/login', async (req, res) => {
             token, 
             admin: { 
                 email: admin.email,
-                lastLogin: admin.lastLogin,
-                demo: false
+                name: admin.name,
+                lastLogin: admin.lastLogin
             } 
         });
     } catch (error) {
-        console.error('❌ Login error:', error);
+        console.error('❌ লগইন এরর:', error);
         res.status(500).json({ 
             success: false, 
-            error: 'Server error during login' 
+            error: 'লগইনে সমস্যা হয়েছে' 
         });
     }
 });
 
-// ==================== DASHBOARD ====================
+// ==================== ড্যাশবোর্ড ====================
 
-// Dashboard Stats
+// ড্যাশবোর্ড স্ট্যাটস
 app.get('/api/dashboard/stats', authenticateToken, async (req, res) => {
     try {
-        if (!isMongoConnected) {
-            const demoData = getDemoData();
-            return res.json({
-                success: true,
-                ...demoData,
-                demo: true,
-                message: 'Showing demo data (MongoDB not connected)'
-            });
-        }
-        
         const totalOrders = await Order.countDocuments();
         
         const totalRevenueAgg = await Order.aggregate([
@@ -546,69 +378,34 @@ app.get('/api/dashboard/stats', authenticateToken, async (req, res) => {
             pendingReviews,
             totalProducts,
             recentOrders,
-            monthlyRevenue,
-            demo: false
+            monthlyRevenue
         });
     } catch (error) {
-        console.error('❌ Dashboard stats error:', error);
+        console.error('❌ ড্যাশবোর্ড স্ট্যাটস এরর:', error);
         res.status(500).json({ 
             success: false, 
-            error: 'Error fetching dashboard stats' 
+            error: 'ড্যাশবোর্ড স্ট্যাটস লোড করতে সমস্যা হয়েছে' 
         });
     }
 });
 
-// ==================== PRODUCTS API ====================
+// ==================== প্রোডাক্টস এপিআই ====================
 
-// Get all products (Admin)
+// সকল প্রোডাক্ট পান (এডমিন)
 app.get('/api/products', authenticateToken, async (req, res) => {
     try {
-        if (!isMongoConnected) {
-            const demoProducts = [
-                {
-                    _id: '1',
-                    name: 'গোলাপ আতর',
-                    description: '১০০% খাঁটি গোলাপ পাপড়ি থেকে তৈরি, মিষ্টি ও টেকসই সুগন্ধি',
-                    price: 1299,
-                    originalPrice: 1599,
-                    category: 'আতর',
-                    stock: 50,
-                    sold: 234,
-                    imageUrl: 'https://images.unsplash.com/photo-1541643600914-78b084683601?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80',
-                    featured: true,
-                    tags: ['বেস্টসেলার', 'প্রিমিয়াম'],
-                    demo: true
-                },
-                {
-                    _id: '2',
-                    name: 'কস্তুরী আতর',
-                    description: 'উচ্চমানের কস্তুরী থেকে তৈরি, গভীর ও আকর্ষণীয় সুগন্ধি',
-                    price: 2499,
-                    originalPrice: 2999,
-                    category: 'আতর',
-                    stock: 25,
-                    sold: 189,
-                    imageUrl: 'https://images.unsplash.com/photo-1601042879364-f3947d1f9fc9?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80',
-                    featured: true,
-                    tags: ['লাক্সারি', 'দীর্ঘস্থায়ী'],
-                    demo: true
-                }
-            ];
-            return res.json(demoProducts);
-        }
-        
         const products = await Product.find().sort({ createdAt: -1 });
         res.json(products);
     } catch (error) {
-        console.error('❌ Get products error:', error);
+        console.error('❌ প্রোডাক্টস লোড এরর:', error);
         res.status(500).json({ 
             success: false, 
-            error: 'Error fetching products' 
+            error: 'প্রোডাক্টস লোড করতে সমস্যা হয়েছে' 
         });
     }
 });
 
-// Create product
+// নতুন প্রোডাক্ট তৈরি করুন
 app.post('/api/products', authenticateToken, async (req, res) => {
     try {
         const productData = req.body;
@@ -616,20 +413,7 @@ app.post('/api/products', authenticateToken, async (req, res) => {
         if (!productData.name || !productData.description || !productData.price || !productData.stock) {
             return res.status(400).json({ 
                 success: false, 
-                error: 'Missing required fields' 
-            });
-        }
-        
-        if (!isMongoConnected) {
-            return res.json({ 
-                success: true, 
-                message: 'Product saved locally (MongoDB not connected)',
-                product: {
-                    ...productData,
-                    _id: 'demo-' + Date.now(),
-                    sold: 0,
-                    demo: true
-                }
+                error: 'সকল প্রয়োজনীয় ফিল্ড পূরণ করুন' 
             });
         }
         
@@ -638,67 +422,42 @@ app.post('/api/products', authenticateToken, async (req, res) => {
         
         res.json({ 
             success: true, 
-            message: 'Product created successfully',
+            message: 'প্রোডাক্ট তৈরি করা হয়েছে',
             product 
         });
     } catch (error) {
-        console.error('❌ Create product error:', error);
+        console.error('❌ প্রোডাক্ট তৈরি এরর:', error);
         res.status(500).json({ 
             success: false, 
-            error: 'Error creating product' 
+            error: 'প্রোডাক্ট তৈরি করতে সমস্যা হয়েছে' 
         });
     }
 });
 
-// Get single product
+// একক প্রোডাক্ট পান
 app.get('/api/products/:id', authenticateToken, async (req, res) => {
     try {
-        if (!isMongoConnected) {
-            return res.json({
-                _id: req.params.id,
-                name: 'গোলাপ আতর',
-                description: '১০০% খাঁটি গোলাপ পাপড়ি থেকে তৈরি',
-                price: 1299,
-                originalPrice: 1599,
-                category: 'আতর',
-                stock: 50,
-                sold: 234,
-                imageUrl: 'https://images.unsplash.com/photo-1541643600914-78b084683601?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80',
-                featured: true,
-                tags: ['বেস্টসেলার', 'প্রিমিয়াম'],
-                demo: true
-            });
-        }
-        
         const product = await Product.findById(req.params.id);
         if (!product) {
             return res.status(404).json({ 
                 success: false, 
-                error: 'Product not found' 
+                error: 'প্রোডাক্ট পাওয়া যায়নি' 
             });
         }
         res.json(product);
     } catch (error) {
-        console.error('❌ Get product error:', error);
+        console.error('❌ প্রোডাক্ট লোড এরর:', error);
         res.status(500).json({ 
             success: false, 
-            error: 'Error fetching product' 
+            error: 'প্রোডাক্ট লোড করতে সমস্যা হয়েছে' 
         });
     }
 });
 
-// Update product
+// প্রোডাক্ট আপডেট করুন
 app.put('/api/products/:id', authenticateToken, async (req, res) => {
     try {
         const productData = req.body;
-        
-        if (!isMongoConnected) {
-            return res.json({ 
-                success: true, 
-                message: 'Product update simulated (MongoDB not connected)',
-                product: productData
-            });
-        }
         
         const product = await Product.findByIdAndUpdate(
             req.params.id, 
@@ -709,184 +468,69 @@ app.put('/api/products/:id', authenticateToken, async (req, res) => {
         if (!product) {
             return res.status(404).json({ 
                 success: false, 
-                error: 'Product not found' 
+                error: 'প্রোডাক্ট পাওয়া যায়নি' 
             });
         }
         
         res.json({ 
             success: true, 
-            message: 'Product updated successfully',
+            message: 'প্রোডাক্ট আপডেট করা হয়েছে',
             product 
         });
     } catch (error) {
-        console.error('❌ Update product error:', error);
+        console.error('❌ প্রোডাক্ট আপডেট এরর:', error);
         res.status(500).json({ 
             success: false, 
-            error: 'Error updating product' 
+            error: 'প্রোডাক্ট আপডেট করতে সমস্যা হয়েছে' 
         });
     }
 });
 
-// Delete product
+// প্রোডাক্ট ডিলিট করুন
 app.delete('/api/products/:id', authenticateToken, async (req, res) => {
     try {
-        if (!isMongoConnected) {
-            return res.json({ 
-                success: true, 
-                message: 'Product deletion simulated (MongoDB not connected)'
-            });
-        }
-        
         const product = await Product.findByIdAndDelete(req.params.id);
         
         if (!product) {
             return res.status(404).json({ 
                 success: false, 
-                error: 'Product not found' 
+                error: 'প্রোডাক্ট পাওয়া যায়নি' 
             });
         }
         
         res.json({ 
             success: true, 
-            message: 'Product deleted successfully' 
+            message: 'প্রোডাক্ট ডিলিট করা হয়েছে' 
         });
     } catch (error) {
-        console.error('❌ Delete product error:', error);
+        console.error('❌ প্রোডাক্ট ডিলিট এরর:', error);
         res.status(500).json({ 
             success: false, 
-            error: 'Error deleting product' 
+            error: 'প্রোডাক্ট ডিলিট করতে সমস্যা হয়েছে' 
         });
     }
 });
 
-// Public products endpoint
+// পাবলিক প্রোডাক্টস এন্ডপয়েন্ট
 app.get('/api/products/public', async (req, res) => {
     try {
-        if (!isMongoConnected) {
-            const defaultProducts = [
-                {
-                    _id: '1',
-                    name: 'গোলাপ আতর',
-                    description: '১০০% খাঁটি গোলাপ পাপড়ি থেকে তৈরি, মিষ্টি ও টেকসই সুগন্ধি',
-                    price: 1299,
-                    originalPrice: 1599,
-                    stock: 50,
-                    sold: 234,
-                    imageUrl: 'https://images.unsplash.com/photo-1541643600914-78b084683601?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80',
-                    featured: true,
-                    tags: ['বেস্টসেলার', 'প্রিমিয়াম'],
-                    demo: true
-                },
-                {
-                    _id: '2',
-                    name: 'কস্তুরী আতর',
-                    description: 'উচ্চমানের কস্তুরী থেকে তৈরি, গভীর ও আকর্ষণীয় সুগন্ধি',
-                    price: 2499,
-                    originalPrice: 2999,
-                    stock: 25,
-                    sold: 189,
-                    imageUrl: 'https://images.unsplash.com/photo-1601042879364-f3947d1f9fc9?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80',
-                    featured: true,
-                    tags: ['লাক্সারি', 'দীর্ঘস্থায়ী'],
-                    demo: true
-                },
-                {
-                    _id: '3',
-                    name: 'জসমিন আতর',
-                    description: 'তাজা জসমিন ফুল থেকে নিষ্কাশিত, হালকা ও তাজা সুগন্ধি',
-                    price: 999,
-                    originalPrice: 1299,
-                    stock: 100,
-                    sold: 97,
-                    imageUrl: 'https://images.unsplash.com/photo-1590736969955-0126f7e1e88d?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80',
-                    featured: false,
-                    tags: ['ফ্রেশ', 'হালকা'],
-                    demo: true
-                }
-            ];
-            return res.json(defaultProducts);
-        }
-        
         const products = await Product.find({ stock: { $gt: 0 } }).sort({ featured: -1, createdAt: -1 });
         res.json(products);
     } catch (error) {
-        console.error('❌ Public products error:', error);
+        console.error('❌ পাবলিক প্রোডাক্টস এরর:', error);
         res.status(500).json({ 
             success: false, 
-            error: 'Error fetching public products' 
+            error: 'প্রোডাক্টস লোড করতে সমস্যা হয়েছে' 
         });
     }
 });
 
-// ==================== ORDERS API ====================
+// ==================== অর্ডারস এপিআই ====================
 
-// Get all orders (Admin)
+// সকল অর্ডার পান (এডমিন)
 app.get('/api/orders', authenticateToken, async (req, res) => {
     try {
         const { status, page = 1, limit = 10, search } = req.query;
-        
-        if (!isMongoConnected) {
-            const demoOrders = [
-                {
-                    _id: '1',
-                    orderId: 'ALP123456',
-                    customerName: 'রাফিদ আহমেদ',
-                    phone: '01712345678',
-                    email: 'rafid@example.com',
-                    address: 'মিরপুর, ঢাকা',
-                    product: 'গোলাপ আতর',
-                    productId: '1',
-                    quantity: 2,
-                    totalPrice: 2598,
-                    paymentMethod: 'cod',
-                    status: 'Pending',
-                    orderDate: new Date(),
-                    notes: '',
-                    demo: true
-                },
-                {
-                    _id: '2',
-                    orderId: 'ALP123457',
-                    customerName: 'সাবরিনা ইসলাম',
-                    phone: '01787654321',
-                    email: 'sabrina@example.com',
-                    address: 'ধানমন্ডি, ঢাকা',
-                    product: 'কস্তুরী আতর',
-                    productId: '2',
-                    quantity: 1,
-                    totalPrice: 2499,
-                    paymentMethod: 'bkash',
-                    status: 'Delivered',
-                    orderDate: new Date(Date.now() - 86400000),
-                    deliveryDate: new Date(Date.now() - 86400000 + 3600000),
-                    notes: 'গ্রাহক খুশি',
-                    demo: true
-                }
-            ];
-            
-            let filteredOrders = demoOrders;
-            
-            if (status) {
-                filteredOrders = demoOrders.filter(order => order.status === status);
-            }
-            
-            if (search) {
-                const searchLower = search.toLowerCase();
-                filteredOrders = filteredOrders.filter(order => 
-                    order.customerName.toLowerCase().includes(searchLower) ||
-                    order.orderId.toLowerCase().includes(searchLower) ||
-                    order.phone.includes(search)
-                );
-            }
-            
-            return res.json({
-                success: true,
-                orders: filteredOrders,
-                totalPages: 1,
-                currentPage: 1,
-                total: filteredOrders.length
-            });
-        }
         
         let query = {};
         
@@ -919,43 +563,22 @@ app.get('/api/orders', authenticateToken, async (req, res) => {
             total
         });
     } catch (error) {
-        console.error('❌ Get orders error:', error);
+        console.error('❌ অর্ডারস লোড এরর:', error);
         res.status(500).json({ 
             success: false, 
-            error: 'Error fetching orders' 
+            error: 'অর্ডারস লোড করতে সমস্যা হয়েছে' 
         });
     }
 });
 
-// Get single order
+// একক অর্ডার পান
 app.get('/api/orders/:id', authenticateToken, async (req, res) => {
     try {
-        if (!isMongoConnected) {
-            return res.json({
-                success: true,
-                _id: req.params.id,
-                orderId: 'ALP123456',
-                customerName: 'রাফিদ আহমেদ',
-                phone: '01712345678',
-                email: 'rafid@example.com',
-                address: 'মিরপুর, ঢাকা',
-                product: 'গোলাপ আতর',
-                productId: '1',
-                quantity: 2,
-                totalPrice: 2598,
-                paymentMethod: 'cod',
-                status: 'Pending',
-                orderDate: new Date(),
-                notes: '',
-                demo: true
-            });
-        }
-        
         const order = await Order.findById(req.params.id);
         if (!order) {
             return res.status(404).json({ 
                 success: false, 
-                error: 'Order not found' 
+                error: 'অর্ডার পাওয়া যায়নি' 
             });
         }
         
@@ -964,15 +587,15 @@ app.get('/api/orders/:id', authenticateToken, async (req, res) => {
             ...order.toObject()
         });
     } catch (error) {
-        console.error('❌ Get order error:', error);
+        console.error('❌ অর্ডার লোড এরর:', error);
         res.status(500).json({ 
             success: false, 
-            error: 'Error fetching order' 
+            error: 'অর্ডার লোড করতে সমস্যা হয়েছে' 
         });
     }
 });
 
-// Update order status
+// অর্ডার স্ট্যাটাস আপডেট করুন
 app.put('/api/orders/:id/status', authenticateToken, async (req, res) => {
     try {
         const { status, notes } = req.body;
@@ -981,16 +604,7 @@ app.put('/api/orders/:id/status', authenticateToken, async (req, res) => {
         if (!validStatuses.includes(status)) {
             return res.status(400).json({ 
                 success: false, 
-                error: 'Invalid status' 
-            });
-        }
-        
-        if (!isMongoConnected) {
-            return res.json({ 
-                success: true, 
-                message: 'Order status updated locally (MongoDB not connected)',
-                status,
-                notes: notes || ''
+                error: 'ভুল স্ট্যাটাস' 
             });
         }
         
@@ -1011,57 +625,50 @@ app.put('/api/orders/:id/status', authenticateToken, async (req, res) => {
         if (!order) {
             return res.status(404).json({ 
                 success: false, 
-                error: 'Order not found' 
+                error: 'অর্ডার পাওয়া যায়নি' 
             });
         }
         
         res.json({ 
             success: true, 
-            message: 'Order status updated successfully',
+            message: 'অর্ডার স্ট্যাটাস আপডেট করা হয়েছে',
             order 
         });
     } catch (error) {
-        console.error('❌ Update order status error:', error);
+        console.error('❌ অর্ডার স্ট্যাটাস আপডেট এরর:', error);
         res.status(500).json({ 
             success: false, 
-            error: 'Error updating order status' 
+            error: 'অর্ডার স্ট্যাটাস আপডেট করতে সমস্যা হয়েছে' 
         });
     }
 });
 
-// Delete order
+// অর্ডার ডিলিট করুন
 app.delete('/api/orders/:id', authenticateToken, async (req, res) => {
     try {
-        if (!isMongoConnected) {
-            return res.json({ 
-                success: true, 
-                message: 'Order deletion simulated (MongoDB not connected)'
-            });
-        }
-        
         const order = await Order.findByIdAndDelete(req.params.id);
         
         if (!order) {
             return res.status(404).json({ 
                 success: false, 
-                error: 'Order not found' 
+                error: 'অর্ডার পাওয়া যায়নি' 
             });
         }
         
         res.json({ 
             success: true, 
-            message: 'Order deleted successfully' 
+            message: 'অর্ডার ডিলিট করা হয়েছে' 
         });
     } catch (error) {
-        console.error('❌ Delete order error:', error);
+        console.error('❌ অর্ডার ডিলিট এরর:', error);
         res.status(500).json({ 
             success: false, 
-            error: 'Error deleting order' 
+            error: 'অর্ডার ডিলিট করতে সমস্যা হয়েছে' 
         });
     }
 });
 
-// Create new order from frontend
+// ফ্রন্টএন্ড থেকে নতুন অর্ডার তৈরি করুন
 app.post('/api/orders/new', async (req, res) => {
     try {
         const orderData = req.body;
@@ -1071,118 +678,55 @@ app.post('/api/orders/new', async (req, res) => {
             if (!orderData[field]) {
                 return res.status(400).json({ 
                     success: false, 
-                    error: `Missing required field: ${field}` 
+                    error: `প্রয়োজনীয় ফিল্ড ${field} পূরণ করুন` 
                 });
             }
         }
         
-        // Generate order ID
-        const orderId = 'ALP' + Date.now().toString().slice(-8);
+        // অর্ডার আইডি জেনারেট করুন
+        const orderId = 'ALN' + Date.now().toString().slice(-8);
         
-        let savedOrder = null;
-        
-        if (isMongoConnected) {
-            const order = new Order({
-                ...orderData,
-                orderId,
-                status: 'Pending',
-                orderDate: new Date()
-            });
+        const order = new Order({
+            ...orderData,
+            orderId,
+            status: 'Pending',
+            orderDate: new Date()
+        });
 
-            savedOrder = await order.save();
+        const savedOrder = await order.save();
 
-            // Update product stock
-            if (orderData.productId) {
-                const product = await Product.findById(orderData.productId);
-                if (product) {
-                    product.sold = (product.sold || 0) + orderData.quantity;
-                    product.stock = Math.max(0, product.stock - orderData.quantity);
-                    await product.save();
-                }
+        // প্রোডাক্ট স্টক আপডেট করুন
+        if (orderData.productId) {
+            const product = await Product.findById(orderData.productId);
+            if (product) {
+                product.sold = (product.sold || 0) + orderData.quantity;
+                product.stock = Math.max(0, product.stock - orderData.quantity);
+                await product.save();
             }
-        } else {
-            savedOrder = {
-                ...orderData,
-                _id: 'demo-' + Date.now(),
-                orderId,
-                status: 'Pending',
-                orderDate: new Date(),
-                demo: true
-            };
         }
         
         res.json({ 
             success: true, 
-            message: 'Order placed successfully! 🎉', 
+            message: 'অর্ডার সফলভাবে তৈরি হয়েছে!', 
             orderId,
             order: savedOrder
         });
         
     } catch (error) {
-        console.error('❌ Order creation error:', error);
+        console.error('❌ অর্ডার তৈরি এরর:', error);
         res.status(500).json({ 
             success: false, 
-            error: 'Error creating order' 
+            error: 'অর্ডার তৈরি করতে সমস্যা হয়েছে' 
         });
     }
 });
 
-// ==================== REVIEWS API ====================
+// ==================== রিভিউস এপিআই ====================
 
-// Get all reviews (Admin)
+// সকল রিভিউ পান (এডমিন)
 app.get('/api/reviews', authenticateToken, async (req, res) => {
     try {
         const { approved, page = 1, limit = 10 } = req.query;
-        
-        if (!isMongoConnected) {
-            const demoReviews = [
-                {
-                    _id: '1',
-                    customerName: 'রাফিদ আহমেদ',
-                    product: 'গোলাপ আতর',
-                    rating: 5,
-                    reviewText: 'গোলাপ আতরটি অত্যন্ত উৎকৃষ্ট মানের। সুগন্ধটি টেকসই এবং প্রকৃত গোলাপের ঘ্রাণ নিয়ে আসে।',
-                    date: new Date('2023-10-10'),
-                    approved: true,
-                    demo: true
-                },
-                {
-                    _id: '2',
-                    customerName: 'সাবরিনা ইসলাম',
-                    product: 'কস্তুরী আতর',
-                    rating: 4,
-                    reviewText: 'কস্তুরী আতরটি অসাধারণ! গভীর ও মিষ্টি ঘ্রাণ সারাদিন স্থায়ী হয়।',
-                    date: new Date('2023-10-05'),
-                    approved: true,
-                    demo: true
-                },
-                {
-                    _id: '3',
-                    customerName: 'ইমরান হোসেন',
-                    product: 'জসমিন আতর',
-                    rating: 5,
-                    reviewText: 'জসমিন আতরটি হালকা ও সতেজ ঘ্রাণের জন্য পারফেক্ট। অফিসে ব্যবহারের জন্য আদর্শ।',
-                    date: new Date('2023-09-28'),
-                    approved: true,
-                    demo: true
-                }
-            ];
-            
-            let filteredReviews = demoReviews;
-            
-            if (approved !== undefined) {
-                const isApproved = approved === 'true';
-                filteredReviews = demoReviews.filter(review => review.approved === isApproved);
-            }
-            
-            return res.json({
-                success: true,
-                reviews: filteredReviews,
-                totalPages: 1,
-                currentPage: 1,
-                total: filteredReviews.length
-            });
-        }
         
         const query = approved !== undefined ? { approved: approved === 'true' } : {};
         const skip = (page - 1) * limit;
@@ -1202,15 +746,15 @@ app.get('/api/reviews', authenticateToken, async (req, res) => {
             total
         });
     } catch (error) {
-        console.error('❌ Get reviews error:', error);
+        console.error('❌ রিভিউস লোড এরর:', error);
         res.status(500).json({ 
             success: false, 
-            error: 'Error fetching reviews' 
+            error: 'রিভিউস লোড করতে সমস্যা হয়েছে' 
         });
     }
 });
 
-// Update review approval
+// রিভিউ অনুমোদন আপডেট করুন
 app.put('/api/reviews/:id/approve', authenticateToken, async (req, res) => {
     try {
         const { approved } = req.body;
@@ -1218,15 +762,7 @@ app.put('/api/reviews/:id/approve', authenticateToken, async (req, res) => {
         if (typeof approved !== 'boolean') {
             return res.status(400).json({ 
                 success: false, 
-                error: 'Approved must be a boolean value' 
-            });
-        }
-        
-        if (!isMongoConnected) {
-            return res.json({ 
-                success: true, 
-                message: 'Review approval updated locally (MongoDB not connected)',
-                approved
+                error: 'অনুমোদিত অবশ্যই বুলিয়ান মান হতে হবে' 
             });
         }
         
@@ -1239,99 +775,52 @@ app.put('/api/reviews/:id/approve', authenticateToken, async (req, res) => {
         if (!review) {
             return res.status(404).json({ 
                 success: false, 
-                error: 'Review not found' 
+                error: 'রিভিউ পাওয়া যায়নি' 
             });
         }
         
         res.json({ 
             success: true, 
-            message: `Review ${approved ? 'approved' : 'unapproved'} successfully`,
+            message: `রিভিউ ${approved ? 'অনুমোদিত' : 'অননুমোদিত'} করা হয়েছে`,
             review 
         });
     } catch (error) {
-        console.error('❌ Approve review error:', error);
+        console.error('❌ রিভিউ অনুমোদন এরর:', error);
         res.status(500).json({ 
             success: false, 
-            error: 'Error updating review approval' 
+            error: 'রিভিউ অনুমোদন আপডেট করতে সমস্যা হয়েছে' 
         });
     }
 });
 
-// Delete review
+// রিভিউ ডিলিট করুন
 app.delete('/api/reviews/:id', authenticateToken, async (req, res) => {
     try {
-        if (!isMongoConnected) {
-            return res.json({ 
-                success: true, 
-                message: 'Review deletion simulated (MongoDB not connected)'
-            });
-        }
-        
         const review = await Review.findByIdAndDelete(req.params.id);
         
         if (!review) {
             return res.status(404).json({ 
                 success: false, 
-                error: 'Review not found' 
+                error: 'রিভিউ পাওয়া যায়নি' 
             });
         }
         
         res.json({ 
             success: true, 
-            message: 'Review deleted successfully' 
+            message: 'রিভিউ ডিলিট করা হয়েছে' 
         });
     } catch (error) {
-        console.error('❌ Delete review error:', error);
+        console.error('❌ রিভিউ ডিলিট এরর:', error);
         res.status(500).json({ 
             success: false, 
-            error: 'Error deleting review' 
+            error: 'রিভিউ ডিলিট করতে সমস্যা হয়েছে' 
         });
     }
 });
 
-// Public reviews endpoint (approved only)
+// পাবলিক রিভিউস এন্ডপয়েন্ট (শুধু অনুমোদিত)
 app.get('/api/reviews/public', async (req, res) => {
     try {
-        if (!isMongoConnected) {
-            const defaultReviews = [
-                {
-                    _id: '1',
-                    customerName: 'রাফিদ আহমেদ',
-                    product: 'গোলাপ আতর',
-                    rating: 5,
-                    reviewText: 'গোলাপ আতরটি অত্যন্ত উৎকৃষ্ট মানের। সুগন্ধটি টেকসই এবং প্রকৃত গোলাপের ঘ্রাণ নিয়ে আসে। ডেলিভারিও খুব দ্রুত পেয়েছি।',
-                    date: new Date('2023-10-10'),
-                    approved: true,
-                    demo: true
-                },
-                {
-                    _id: '2',
-                    customerName: 'সাবরিনা ইসলাম',
-                    product: 'কস্তুরী আতর',
-                    rating: 4,
-                    reviewText: 'কস্তুরী আতরটি অসাধারণ! গভীর ও মিষ্টি ঘ্রাণ সারাদিন স্থায়ী হয়। দামের তুলনায় মান অনেক ভালো। নিশ্চিতভাবে আবার কিনব।',
-                    date: new Date('2023-10-05'),
-                    approved: true,
-                    demo: true
-                },
-                {
-                    _id: '3',
-                    customerName: 'ইমরান হোসেন',
-                    product: 'জসমিন আতর',
-                    rating: 5,
-                    reviewText: 'জসমিন আতরটি হালকা ও সতেজ ঘ্রাণের জন্য পারফেক্ট। অফিসে ব্যবহারের জন্য আদর্শ। বোতলের ডিজাইনও খুব সুন্দর।',
-                    date: new Date('2023-09-28'),
-                    approved: true,
-                    demo: true
-                }
-            ];
-            return res.json({ 
-                success: true,
-                reviews: defaultReviews, 
-                total: defaultReviews.length 
-            });
-        }
-        
         const reviews = await Review.find({ approved: true })
             .sort({ date: -1 })
             .limit(20);
@@ -1342,15 +831,15 @@ app.get('/api/reviews/public', async (req, res) => {
             total: reviews.length 
         });
     } catch (error) {
-        console.error('❌ Public reviews error:', error);
+        console.error('❌ পাবলিক রিভিউস এরর:', error);
         res.status(500).json({ 
             success: false,
-            error: 'Error fetching public reviews' 
+            error: 'রিভিউস লোড করতে সমস্যা হয়েছে' 
         });
     }
 });
 
-// Create new review from frontend
+// ফ্রন্টএন্ড থেকে নতুন রিভিউ তৈরি করুন
 app.post('/api/reviews/new', async (req, res) => {
     try {
         const reviewData = req.body;
@@ -1358,89 +847,77 @@ app.post('/api/reviews/new', async (req, res) => {
         if (!reviewData.customerName || !reviewData.product || !reviewData.reviewText) {
             return res.status(400).json({ 
                 success: false, 
-                error: 'Missing required fields' 
+                error: 'সকল প্রয়োজনীয় ফিল্ড পূরণ করুন' 
             });
         }
         
         if (!reviewData.rating || reviewData.rating < 1 || reviewData.rating > 5) {
             return res.status(400).json({ 
                 success: false, 
-                error: 'Rating must be between 1 and 5' 
+                error: 'রেটিং অবশ্যই ১ থেকে ৫ এর মধ্যে হতে হবে' 
             });
         }
         
-        let savedReview = null;
-        
-        if (isMongoConnected) {
-            const review = new Review({
-                ...reviewData,
-                date: new Date(),
-                approved: false
-            });
+        const review = new Review({
+            ...reviewData,
+            date: new Date(),
+            approved: false
+        });
 
-            savedReview = await review.save();
-        } else {
-            savedReview = {
-                ...reviewData,
-                _id: 'demo-' + Date.now(),
-                date: new Date(),
-                approved: false,
-                demo: true
-            };
-        }
+        const savedReview = await review.save();
         
         res.json({ 
             success: true, 
-            message: 'Review submitted successfully! It will be visible after approval.',
+            message: 'রিভিউ জমা দেওয়া হয়েছে! অনুমোদনের পর এটি দেখা যাবে।',
             review: savedReview
         });
         
     } catch (error) {
-        console.error('❌ Review creation error:', error);
+        console.error('❌ রিভিউ তৈরি এরর:', error);
         res.status(500).json({ 
             success: false, 
-            error: 'Error submitting review' 
+            error: 'রিভিউ তৈরি করতে সমস্যা হয়েছে' 
         });
     }
 });
 
-// ==================== ERROR HANDLING ====================
+// ==================== এরর হ্যান্ডলিং ====================
 
-// 404 handler
+// 404 হ্যান্ডলার
 app.use('*', (req, res) => {
     res.status(404).json({ 
         success: false, 
-        error: 'Route not found' 
+        error: 'রাউট পাওয়া যায়নি' 
     });
 });
 
-// Error handling middleware
+// এরর হ্যান্ডলিং মিডলওয়্যার
 app.use((err, req, res, next) => {
-    console.error('❌ Server error:', err.stack);
+    console.error('❌ সার্ভার এরর:', err.stack);
     res.status(500).json({ 
         success: false, 
-        error: 'Internal server error' 
+        error: 'অভ্যন্তরীণ সার্ভার এরর' 
     });
 });
 
-// Start server
+// সার্ভার শুরু করুন
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
     console.log(`
     ╔══════════════════════════════════════╗
-    ║      Al-NoorPerfume সার্ভার          ║
+    ║      আল-নূর আতর সার্ভার             ║
     ╚══════════════════════════════════════╝
     
-    🚀 Server running on port: ${PORT}
+    🚀 সার্ভার চলছে পোর্ট: ${PORT}
     
-    📍 Access URLs:
-       Frontend:     http://localhost:${PORT}
-       Admin Panel:  http://localhost:${PORT}/admin
-       API Test:     http://localhost:${PORT}/api/test
+    📍 অ্যাক্সেস URLs:
+       ফ্রন্টএন্ড:     http://localhost:${PORT}
+       এডমিন প্যানেল:  http://localhost:${PORT}/admin
+       এপিআই টেস্ট:     http://localhost:${PORT}/api/test
     
-    📊 Database Status: ${isMongoConnected ? '✅ Connected' : '⚠️ Disconnected (Demo Mode)'}
+    📊 ডাটাবেজ স্ট্যাটাস: ${isMongoConnected ? '✅ সংযুক্ত' : '❌ সংযোগ নেই'}
     
-    ⏰ Started at: ${new Date().toLocaleString()}
+    ⏰ শুরু হয়েছে: ${new Date().toLocaleString('bn-BD')}
     `);
 });
