@@ -1584,23 +1584,30 @@
         // =============================================
         
         // অর্ডার লোড
-        async function loadOrders(page = 1) {
-            const statusFilter = document.getElementById('orderStatusFilter').value;
-            const searchQuery = document.getElementById('orderSearch').value;
-            
-            let endpoint = `/orders?page=${page}&limit=10`;
-            if (statusFilter) {
-                endpoint += `&status=${statusFilter}`;
-            }
-            
-            const data = await apiRequest(endpoint);
-            
-            if (data && data.success) {
-                updateOrdersTable(data.orders || []);
-                updatePagination('ordersPagination', data.totalPages, page, loadOrders);
-                document.getElementById('ordersCount').textContent = data.total || 0;
-            }
-        }
+        // অর্ডার ম্যানেজমেন্ট সিস্টেম (লাইন 1000-1050)
+async function loadOrders(page = 1) {
+    const statusFilter = document.getElementById('orderStatusFilter').value;
+    const searchQuery = document.getElementById('orderSearch').value;
+    
+    let endpoint = `/orders?page=${page}&limit=10`;
+    if (statusFilter) {
+        endpoint += `&status=${statusFilter}`;
+    }
+    if (searchQuery) {
+        endpoint += `&search=${encodeURIComponent(searchQuery)}`;
+    }
+    
+    const data = await apiRequest(endpoint);
+    
+    if (data && data.success) {
+        updateOrdersTable(data.orders || []);
+        updatePagination('ordersPagination', data.totalPages, page, loadOrders);
+        document.getElementById('ordersCount').textContent = data.total || 0;
+        
+        // পেন্ডিং অর্ডার ব্যাজ আপডেট
+        updateBadge('pendingOrdersBadge', data.pendingOrders || 0);
+    }
+}
 
         // অর্ডার টেবিল আপডেট
         function updateOrdersTable(orders) {
@@ -1769,23 +1776,26 @@
         // =============================================
         
         // রিভিউ লোড
-        async function loadReviews(page = 1) {
-            const statusFilter = document.getElementById('reviewStatusFilter').value;
-            
-            let endpoint = `/reviews?page=${page}&limit=10`;
-            if (statusFilter) {
-                endpoint += `&approved=${statusFilter}`;
-            }
-            
-            const data = await apiRequest(endpoint);
-            
-            if (data && data.success) {
-                updateReviewsTable(data.reviews || []);
-                updatePagination('reviewsPagination', data.totalPages, page, loadReviews);
-                document.getElementById('reviewsCount').textContent = data.total || 0;
-            }
-        }
-
+        // রিভিউ ব্যবস্থাপনা সিস্টেম (লাইন 1200-1250)
+async function loadReviews(page = 1) {
+    const statusFilter = document.getElementById('reviewStatusFilter').value;
+    
+    let endpoint = `/reviews?page=${page}&limit=10`;
+    if (statusFilter) {
+        endpoint += `&approved=${statusFilter}`;
+    }
+    
+    const data = await apiRequest(endpoint);
+    
+    if (data && data.success) {
+        updateReviewsTable(data.reviews || []);
+        updatePagination('reviewsPagination', data.totalPages, page, loadReviews);
+        document.getElementById('reviewsCount').textContent = data.total || 0;
+        
+        // পেন্ডিং রিভিউ ব্যাজ আপডেট
+        updateBadge('pendingReviewsBadge', data.pendingReviews || 0);
+    }
+}
         // রিভিউ টেবিল আপডেট
         function updateReviewsTable(reviews) {
             const tbody = document.getElementById('reviewsTableBody');
@@ -1854,19 +1864,19 @@
         }
 
         // রিভিউ অনুমোদন টগল
-        async function toggleReviewApproval(reviewId, approve) {
-            const data = await apiRequest(`/reviews/${reviewId}/approve`, {
-                method: 'PUT',
-                body: JSON.stringify({ approved: approve })
-            });
-            
-            if (data && data.success) {
-                showToast(`পর্যালোচনা ${approve ? 'অনুমোদন' : 'অননুমোদন'} করা হয়েছে!`, 'success');
-                loadReviews();
-                loadDashboardData();
-            }
-        }
-
+        // রিভিউ অনুমোদন/অননুমোদন ফাংশন (লাইন 1300-1350)
+async function toggleReviewApproval(reviewId, approve) {
+    const data = await apiRequest(`/reviews/${reviewId}/approve`, {
+        method: 'PUT',
+        body: JSON.stringify({ approved: approve })
+    });
+    
+    if (data && data.success) {
+        showToast(`পর্যালোচনা ${approve ? 'অনুমোদন' : 'অননুমোদন'} করা হয়েছে!`, 'success');
+        loadReviews();
+        loadDashboardData(); // ড্যাশবোর্ড স্ট্যাটস আপডেট
+    }
+}
         // রিভিউ ডিলিট
         async function deleteReview(reviewId) {
             if (!confirm('আপনি কি নিশ্চিত যে এই পর্যালোচনাটি মুছতে চান?')) return;
