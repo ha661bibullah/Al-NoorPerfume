@@ -994,18 +994,34 @@
         });
 
         // API টেস্ট
-        async function testAPI() {
-            try {
-                const response = await fetch(`${API_BASE_URL}/test`);
-                if (!response.ok) throw new Error('API not responding');
-                const data = await response.json();
-                console.log('✅ API is working:', data);
-            } catch (error) {
-                console.error('❌ API test failed:', error);
-                showStatusBar('API সংযোগ সমস্যা', 'error');
-            }
+      // API টেস্ট ফাংশন আপডেট করুন
+async function testAPI() {
+  try {
+    const response = await fetch(`${API_BASE_URL}/test`);
+    if (!response.ok) throw new Error('API not responding');
+    const data = await response.json();
+    console.log('✅ API is working:', data);
+    
+    // অ্যাডমিন অটো ইনিশিয়ালাইজ চেক
+    try {
+      const initResponse = await fetch(`${API_BASE_URL}/admin/init`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
         }
-
+      });
+      const initData = await initResponse.json();
+      console.log('Admin init response:', initData);
+    } catch (initError) {
+      console.log('Admin init check:', initError.message);
+    }
+    
+    return true;
+  } catch (error) {
+    console.error('❌ API test failed:', error);
+    return false;
+  }
+}
         // ইভেন্ট লিসেনার সেটআপ
         function setupEventListeners() {
             // মোবাইল মেনু টগল

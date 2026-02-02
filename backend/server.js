@@ -15,13 +15,18 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // MongoDB Connection
+// Server start এর আগে অ্যাডমিন ইনিশিয়ালাইজ করুন
 mongoose.connect(process.env.MONGODB_URI)
-  .then(() => console.log('✅ MongoDB Connected Successfully'))
+  .then(() => {
+    console.log('✅ MongoDB Connected Successfully');
+    // MongoDB কানেক্ট হওয়ার পর অ্যাডমিন ইনিশিয়ালাইজ করুন
+    initializeAdmin();
+  })
   .catch(err => {
     console.error('❌ MongoDB Connection Error:', err);
     process.exit(1);
   });
-
+  
 // Models
 const ProductSchema = new mongoose.Schema({
   name: { type: String, required: true },
@@ -121,22 +126,33 @@ app.get('/api/test', (req, res) => {
 });
 
 // Admin Auth Routes
+// server.js এর Admin Auth অংশ আপডেট করুন
 app.post('/api/admin/login', async (req, res) => {
   try {
     const { email, password } = req.body;
     
+    console.log('Login attempt for:', email);
+    
     // Find admin by email
     const admin = await Admin.findOne({ email });
+    
     if (!admin) {
+      console.log('Admin not found for email:', email);
       return res.status(401).json({ 
         success: false, 
         message: 'Invalid credentials' 
       });
     }
     
-    // In production, use bcrypt.compare
-    // For demo, we're comparing directly
+    console.log('Admin found:', admin.email);
+    console.log('Stored password:', admin.password);
+    console.log('Input password:', password);
+    
+    // সরাসরি পাসওয়ার্ড চেক (ডেমো জন্য)
+    // Note: Production এ bcrypt ব্যবহার করুন
     const isValidPassword = password === admin.password;
+    
+    console.log('Password valid:', isValidPassword);
     
     if (!isValidPassword) {
       return res.status(401).json({ 
@@ -166,10 +182,12 @@ app.post('/api/admin/login', async (req, res) => {
     console.error('Admin login error:', error);
     res.status(500).json({ 
       success: false, 
-      message: 'Server error' 
+      message: 'Server error',
+      error: error.message 
     });
   }
 });
+
 
 // Initialize admin (run once)
 app.post('/api/admin/init', async (req, res) => {

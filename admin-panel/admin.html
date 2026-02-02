@@ -1075,76 +1075,106 @@
             }
         }
         
-        // Handle login
-        async function handleLogin(e) {
-            e.preventDefault();
-            
-            const email = document.getElementById('loginEmail').value;
-            const password = document.getElementById('loginPassword').value;
-            const loginStatus = document.getElementById('loginStatus');
-            const submitBtn = document.getElementById('loginSubmitBtn');
-            const submitText = document.getElementById('loginSubmitText');
-            const spinner = document.getElementById('loginSubmitSpinner');
-            
-            if (!email || !password) {
-                loginStatus.innerHTML = `
-                    <div class="bg-red-100 text-red-800 p-3 rounded-lg">
-                        দয়া করে ইমেইল ও পাসওয়ার্ড প্রদান করুন
-                    </div>
-                `;
-                loginStatus.classList.remove('hidden');
-                return;
-            }
-            
-            showLoading(submitBtn, spinner, submitText);
-            
-            try {
-                const response = await fetch(`${API_BASE_URL}/admin/login`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ email, password })
-                });
-                
-                const data = await response.json();
-                
-                if (data.success) {
-                    authToken = data.token;
-                    currentAdmin = data.admin;
-                    
-                    // Save to localStorage
-                    localStorage.setItem('adminToken', data.token);
-                    localStorage.setItem('adminData', JSON.stringify(data.admin));
-                    
-                    // Update UI
-                    updateAdminUI();
-                    hideLoginModal();
-                    
-                    // Load dashboard data
-                    loadDashboardData();
-                    
-                    showToast('সফলভাবে লগইন করা হয়েছে!', 'success');
-                } else {
-                    loginStatus.innerHTML = `
-                        <div class="bg-red-100 text-red-800 p-3 rounded-lg">
-                            ${data.message || 'লগইন ব্যর্থ হয়েছে'}
-                        </div>
-                    `;
-                    loginStatus.classList.remove('hidden');
-                }
-            } catch (error) {
-                console.error('Login error:', error);
-                loginStatus.innerHTML = `
-                    <div class="bg-red-100 text-red-800 p-3 rounded-lg">
-                        সার্ভারে সংযোগ সমস্যা। দয়া করে আবার চেষ্টা করুন।
-                    </div>
-                `;
-                loginStatus.classList.remove('hidden');
-            } finally {
-                hideLoading(submitBtn, spinner, submitText);
-            }
-        }
+        // Handle login ফাংশন আপডেট করুন
+async function handleLogin(e) {
+  e.preventDefault();
+  
+  const email = document.getElementById('loginEmail').value;
+  const password = document.getElementById('loginPassword').value;
+  const loginStatus = document.getElementById('loginStatus');
+  const submitBtn = document.getElementById('loginSubmitBtn');
+  const submitText = document.getElementById('loginSubmitText');
+  const spinner = document.getElementById('loginSubmitSpinner');
+  
+  if (!email || !password) {
+    loginStatus.innerHTML = `
+      <div class="bg-red-100 text-red-800 p-3 rounded-lg">
+        দয়া করে ইমেইল ও পাসওয়ার্ড প্রদান করুন
+      </div>
+    `;
+    loginStatus.classList.remove('hidden');
+    return;
+  }
+  
+  showLoading(submitBtn, spinner, submitText);
+  
+  try {
+    console.log('Attempting login with:', { email, password });
+    
+    const response = await fetch(`${API_BASE_URL}/admin/login`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ 
+        email, 
+        password,
+        // ডিবাগিং এর জন্য অতিরিক্ত তথ্য
+        _debug: true 
+      })
+    });
+    
+    console.log('Login response status:', response.status);
+    
+    const data = await response.json();
+    console.log('Login response data:', data);
+    
+    if (data.success) {
+      authToken = data.token;
+      currentAdmin = data.admin;
+      
+      // Save to localStorage
+      localStorage.setItem('adminToken', data.token);
+      localStorage.setItem('adminData', JSON.stringify(data.admin));
+      
+      // Update UI
+      updateAdminUI();
+      hideLoginModal();
+      
+      // Load dashboard data
+      loadDashboardData();
+      
+      showToast('সফলভাবে লগইন করা হয়েছে!', 'success');
+    } else {
+      loginStatus.innerHTML = `
+        <div class="bg-red-100 text-red-800 p-3 rounded-lg">
+          ${data.message || 'লগইন ব্যর্থ হয়েছে'}
+          <br><small>দয়া করে অ্যাডমিন ক্রিডেনশিয়াল চেক করুন</small>
+        </div>
+      `;
+      loginStatus.classList.remove('hidden');
+      
+      // ডেমো ক্রিডেনশিয়াল সহায়তা
+      if (response.status === 401) {
+        console.log('Showing debug info...');
+        setTimeout(() => {
+          const debugInfo = document.createElement('div');
+          debugInfo.className = 'mt-3 p-3 bg-yellow-100 border border-yellow-300 rounded';
+          debugInfo.innerHTML = `
+            <p class="text-yellow-800 text-sm">
+              <strong>ডিবাগ তথ্য:</strong><br>
+              ডিফল্ট অ্যাডমিন: admin@alnoor.com<br>
+              ডিফল্ট পাসওয়ার্ড: admin123<br>
+              API URL: ${API_BASE_URL}
+            </p>
+          `;
+          loginStatus.appendChild(debugInfo);
+        }, 500);
+      }
+    }
+  } catch (error) {
+    console.error('Login error:', error);
+    loginStatus.innerHTML = `
+      <div class="bg-red-100 text-red-800 p-3 rounded-lg">
+        সার্ভারে সংযোগ সমস্যা। দয়া করে আবার চেষ্টা করুন।
+        <br><small>${error.message}</small>
+      </div>
+    `;
+    loginStatus.classList.remove('hidden');
+  } finally {
+    hideLoading(submitBtn, spinner, submitText);
+  }
+}
         
         // Handle logout
         function handleLogout() {
@@ -2091,6 +2121,31 @@
             }
         }
         
+        // অটোমেটিক অ্যাডমিন ইনিশিয়ালাইজেশন যোগ করুন
+async function initializeAdmin() {
+  try {
+    // Check if admin already exists
+    const existingAdmin = await Admin.findOne({ email: process.env.ADMIN_EMAIL });
+    
+    if (existingAdmin) {
+      console.log('✅ Admin already exists:', process.env.ADMIN_EMAIL);
+      return;
+    }
+    
+    // Create new admin
+    const admin = new Admin({
+      email: process.env.ADMIN_EMAIL || 'admin@alnoor.com',
+      password: process.env.ADMIN_PASSWORD || 'admin123',
+      name: 'Super Admin'
+    });
+    
+    await admin.save();
+    console.log('✅ Admin created successfully:', admin.email);
+    
+  } catch (error) {
+    console.error('❌ Admin initialization error:', error);
+  }
+}
         // Clear all data
         async function clearAllData() {
             if (!authToken) return;
