@@ -9,18 +9,17 @@ const fs = require('fs');
 
 const app = express();
 
-// CORS configuration for production
-const allowedOrigins = [
-    'https://playful-rugelach-33592e.netlify.app',
-    'https://lively-kataifi-011ede.netlify.app',
-    'http://localhost:3000',
-    'http://localhost:5000'
-];
-
+// CORS configuration
 app.use(cors({
     origin: function (origin, callback) {
         if (!origin) return callback(null, true);
         if (process.env.NODE_ENV !== 'production') return callback(null, true);
+        const allowedOrigins = [
+            'https://playful-rugelach-33592e.netlify.app',
+            'https://lively-kataifi-011ede.netlify.app',
+            'http://localhost:3000',
+            'http://localhost:5000'
+        ];
         if (allowedOrigins.indexOf(origin) === -1) {
             const msg = 'The CORS policy does not allow access from this Origin.';
             return callback(new Error(msg), false);
@@ -36,9 +35,18 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Create directories if they don't exist
+const directories = ['frontend', 'admin-panel'];
+directories.forEach(dir => {
+    const dirPath = path.join(__dirname, dir);
+    if (!fs.existsSync(dirPath)) {
+        fs.mkdirSync(dirPath, { recursive: true });
+    }
+});
+
 // Serve static files
-app.use('/admin', express.static(path.join(__dirname, 'admin-panel')));
-app.use('/', express.static(path.join(__dirname, 'frontend')));
+app.use(express.static('frontend'));
+app.use('/admin', express.static('admin-panel'));
 
 // Routes for serving HTML
 app.get('/', (req, res) => {
@@ -139,10 +147,10 @@ const adminSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 // Models
-const Order = mongoose.model('Order', orderSchema);
-const Review = mongoose.model('Review', reviewSchema);
-const Product = mongoose.model('Product', productSchema);
-const Admin = mongoose.model('Admin', adminSchema);
+const Order = mongoose.models.Order || mongoose.model('Order', orderSchema);
+const Review = mongoose.models.Review || mongoose.model('Review', reviewSchema);
+const Product = mongoose.models.Product || mongoose.model('Product', productSchema);
+const Admin = mongoose.models.Admin || mongoose.model('Admin', adminSchema);
 
 // Initialize Data Function
 const initializeData = async () => {
@@ -472,7 +480,7 @@ app.post('/api/admin/login', async (req, res) => {
             } 
         });
     } catch (error) {
-        console.error('❌ Login error:', error.message);
+        console.error('❌ Login error:', error);
         res.status(500).json({ 
             success: false, 
             error: 'Server error during login' 
@@ -534,7 +542,7 @@ app.get('/api/dashboard/stats', authenticateToken, async (req, res) => {
             demo: false
         });
     } catch (error) {
-        console.error('❌ Dashboard stats error:', error.message);
+        console.error('❌ Dashboard stats error:', error);
         res.status(500).json({ 
             success: false, 
             error: 'Error fetching dashboard stats' 
@@ -584,7 +592,7 @@ app.get('/api/products', authenticateToken, async (req, res) => {
         const products = await Product.find().sort({ createdAt: -1 });
         res.json(products);
     } catch (error) {
-        console.error('❌ Get products error:', error.message);
+        console.error('❌ Get products error:', error);
         res.status(500).json({ 
             success: false, 
             error: 'Error fetching products' 
@@ -626,7 +634,7 @@ app.post('/api/products', authenticateToken, async (req, res) => {
             product 
         });
     } catch (error) {
-        console.error('❌ Create product error:', error.message);
+        console.error('❌ Create product error:', error);
         res.status(500).json({ 
             success: false, 
             error: 'Error creating product' 
@@ -663,7 +671,7 @@ app.get('/api/products/:id', authenticateToken, async (req, res) => {
         }
         res.json(product);
     } catch (error) {
-        console.error('❌ Get product error:', error.message);
+        console.error('❌ Get product error:', error);
         res.status(500).json({ 
             success: false, 
             error: 'Error fetching product' 
@@ -703,7 +711,7 @@ app.put('/api/products/:id', authenticateToken, async (req, res) => {
             product 
         });
     } catch (error) {
-        console.error('❌ Update product error:', error.message);
+        console.error('❌ Update product error:', error);
         res.status(500).json({ 
             success: false, 
             error: 'Error updating product' 
@@ -735,7 +743,7 @@ app.delete('/api/products/:id', authenticateToken, async (req, res) => {
             message: 'Product deleted successfully' 
         });
     } catch (error) {
-        console.error('❌ Delete product error:', error.message);
+        console.error('❌ Delete product error:', error);
         res.status(500).json({ 
             success: false, 
             error: 'Error deleting product' 
@@ -794,7 +802,7 @@ app.get('/api/products/public', async (req, res) => {
         const products = await Product.find({ stock: { $gt: 0 } }).sort({ featured: -1, createdAt: -1 });
         res.json(products);
     } catch (error) {
-        console.error('❌ Public products error:', error.message);
+        console.error('❌ Public products error:', error);
         res.status(500).json({ 
             success: false, 
             error: 'Error fetching public products' 
@@ -903,7 +911,7 @@ app.get('/api/orders', authenticateToken, async (req, res) => {
             total
         });
     } catch (error) {
-        console.error('❌ Get orders error:', error.message);
+        console.error('❌ Get orders error:', error);
         res.status(500).json({ 
             success: false, 
             error: 'Error fetching orders' 
@@ -948,7 +956,7 @@ app.get('/api/orders/:id', authenticateToken, async (req, res) => {
             ...order.toObject()
         });
     } catch (error) {
-        console.error('❌ Get order error:', error.message);
+        console.error('❌ Get order error:', error);
         res.status(500).json({ 
             success: false, 
             error: 'Error fetching order' 
@@ -1005,7 +1013,7 @@ app.put('/api/orders/:id/status', authenticateToken, async (req, res) => {
             order 
         });
     } catch (error) {
-        console.error('❌ Update order status error:', error.message);
+        console.error('❌ Update order status error:', error);
         res.status(500).json({ 
             success: false, 
             error: 'Error updating order status' 
@@ -1037,7 +1045,7 @@ app.delete('/api/orders/:id', authenticateToken, async (req, res) => {
             message: 'Order deleted successfully' 
         });
     } catch (error) {
-        console.error('❌ Delete order error:', error.message);
+        console.error('❌ Delete order error:', error);
         res.status(500).json({ 
             success: false, 
             error: 'Error deleting order' 
@@ -1103,7 +1111,7 @@ app.post('/api/orders/new', async (req, res) => {
         });
         
     } catch (error) {
-        console.error('❌ Order creation error:', error.message);
+        console.error('❌ Order creation error:', error);
         res.status(500).json({ 
             success: false, 
             error: 'Error creating order' 
@@ -1186,7 +1194,7 @@ app.get('/api/reviews', authenticateToken, async (req, res) => {
             total
         });
     } catch (error) {
-        console.error('❌ Get reviews error:', error.message);
+        console.error('❌ Get reviews error:', error);
         res.status(500).json({ 
             success: false, 
             error: 'Error fetching reviews' 
@@ -1233,7 +1241,7 @@ app.put('/api/reviews/:id/approve', authenticateToken, async (req, res) => {
             review 
         });
     } catch (error) {
-        console.error('❌ Approve review error:', error.message);
+        console.error('❌ Approve review error:', error);
         res.status(500).json({ 
             success: false, 
             error: 'Error updating review approval' 
@@ -1265,7 +1273,7 @@ app.delete('/api/reviews/:id', authenticateToken, async (req, res) => {
             message: 'Review deleted successfully' 
         });
     } catch (error) {
-        console.error('❌ Delete review error:', error.message);
+        console.error('❌ Delete review error:', error);
         res.status(500).json({ 
             success: false, 
             error: 'Error deleting review' 
@@ -1315,7 +1323,8 @@ app.get('/api/reviews/public', async (req, res) => {
             reviews, 
             total: reviews.length 
         });
-    } catch (Error.message);
+    } catch (error) {
+        console.error('❌ Public reviews error:', error);
         res.status(500).json({ 
             success: false,
             error: 'Error fetching public reviews' 
@@ -1369,7 +1378,7 @@ app.post('/api/reviews/new', async (req, res) => {
         });
         
     } catch (error) {
-        console.error('❌ Review creation error:', error.message);
+        console.error('❌ Review creation error:', error);
         res.status(500).json({ 
             success: false, 
             error: 'Error submitting review' 
