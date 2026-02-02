@@ -257,7 +257,7 @@ const authenticateToken = (req, res, next) => {
         });
     }
 
-    jwt.verify(token, process.env.JWT_SECRET || 'AlNoor@Attar#JWT$Secret2023', (err, user) => {
+    jwt.verify(token, process.env.JWT_SECRET || 'JwtSecret9fK2Lx8Pq', (err, user) => {
         if (err) {
             return res.status(403).json({ 
                 success: false, 
@@ -334,7 +334,7 @@ app.post('/api/admin/login', async (req, res) => {
                 id: admin._id, 
                 email: admin.email 
             },
-            process.env.JWT_SECRET || 'AlNoor@Attar#JWT$Secret2023',
+            process.env.JWT_SECRET || 'JwtSecret9fK2Lx8Pq',
             { expiresIn: '24h' }
         );
 
