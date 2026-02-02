@@ -1062,7 +1062,6 @@ app.delete('/api/orders/:id', authenticateToken, async (req, res) => {
 });
 
 // Create new order from frontend
-// অর্ডার তৈরি API (লাইন 1026)
 app.post('/api/orders/new', async (req, res) => {
     try {
         const orderData = req.body;
@@ -1127,7 +1126,6 @@ app.post('/api/orders/new', async (req, res) => {
         });
     }
 });
-
 
 // ==================== REVIEWS API ====================
 
@@ -1353,7 +1351,6 @@ app.get('/api/reviews/public', async (req, res) => {
 });
 
 // Create new review from frontend
-// রিভিউ তৈরি API (লাইন 1190)
 app.post('/api/reviews/new', async (req, res) => {
     try {
         const reviewData = req.body;
