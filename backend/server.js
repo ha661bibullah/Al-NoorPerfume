@@ -5,16 +5,31 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const path = require('path');
-const fs = require('fs');
 
 const app = express();
 
-// CORS কনফিগারেশন
+// CORS কনফিগারেশন - Netlify এবং লোকালহোস্ট উভয়ের জন্য
+const allowedOrigins = [
+    'https://playful-rugelach-33592e.netlify.app',
+    'https://lively-kataifi-011ede.netlify.app',
+    'http://localhost:3000',
+    'http://localhost:5000'
+];
+
 app.use(cors({
-    origin: true, // সকল ডোমেইন থেকে অনুমতি
+    origin: function (origin, callback) {
+        // Allow requests with no origin (like mobile apps or curl requests)
+        if (!origin) return callback(null, true);
+        
+        if (allowedOrigins.indexOf(origin) === -1) {
+            const msg = 'CORS policy does not allow access from this origin.';
+            return callback(new Error(msg), false);
+        }
+        return callback(null, true);
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization']
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }));
 
 // মিডলওয়্যার
@@ -35,14 +50,13 @@ app.get('/admin', (req, res) => {
 });
 
 // মঙ্গোডিবি কানেকশন
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/alnoor_attar';
-
+const MONGODB_URI = process.env.MONGODB_URI;
 let isMongoConnected = false;
 
 mongoose.connect(MONGODB_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
-    serverSelectionTimeoutMS: 5000,
+    serverSelectionTimeoutMS: 30000,
     socketTimeoutMS: 45000,
 })
 .then(() => {
@@ -52,7 +66,8 @@ mongoose.connect(MONGODB_URI, {
 })
 .catch(err => {
     console.error('❌ MongoDB কানেকশন এরর:', err.message);
-    process.exit(1); // ডেমো মোড নয় - সরাসরি বন্ধ করুন
+    console.log('MongoDB URI:', MONGODB_URI ? 'URI আছে কিন্তু সংযোগ ব্যর্থ' : 'URI পাওয়া যায়নি');
+    isMongoConnected = false;
 });
 
 // ডাটাবেজ স্কিমা
@@ -129,8 +144,8 @@ const Admin = mongoose.models.Admin || mongoose.model('Admin', adminSchema);
 const initializeData = async () => {
     try {
         // এডমিন একাউন্ট তৈরি
-        const adminEmail = 'admin@alnoor.com';
-        const adminPassword = 'admin123';
+        const adminEmail = process.env.ADMIN_EMAIL || 'admin@alnoor.com';
+        const adminPassword = process.env.ADMIN_PASSWORD || 'admin123';
         
         let admin = await Admin.findOne({ email: adminEmail });
         if (!admin) {
@@ -262,7 +277,8 @@ app.get('/api/test', (req, res) => {
         success: true, 
         message: 'আল-নূর আতর এপিআই কাজ করছে!',
         mongoConnected: isMongoConnected,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        environment: process.env.NODE_ENV || 'development'
     });
 });
 
@@ -270,7 +286,9 @@ app.get('/api/test', (req, res) => {
 app.get('/api/health', (req, res) => {
     res.json({ 
         status: isMongoConnected ? 'healthy' : 'unhealthy',
-        database: isMongoConnected ? 'connected' : 'disconnected'
+        database: isMongoConnected ? 'connected' : 'disconnected',
+        timestamp: new Date().toISOString(),
+        message: 'Al-Noor Attar API is running'
     });
 });
 
@@ -359,16 +377,6 @@ app.get('/api/dashboard/stats', authenticateToken, async (req, res) => {
             .limit(5)
             .select('customerName product quantity totalPrice status orderDate');
 
-        const monthlyRevenue = await Order.aggregate([
-            {
-                $group: {
-                    _id: { $month: '$orderDate' },
-                    revenue: { $sum: '$totalPrice' }
-                }
-            },
-            { $sort: { '_id': 1 } }
-        ]);
-
         res.json({
             success: true,
             totalOrders,
@@ -377,8 +385,7 @@ app.get('/api/dashboard/stats', authenticateToken, async (req, res) => {
             totalReviews,
             pendingReviews,
             totalProducts,
-            recentOrders,
-            monthlyRevenue
+            recentOrders
         });
     } catch (error) {
         console.error('❌ ড্যাশবোর্ড স্ট্যাটস এরর:', error);
