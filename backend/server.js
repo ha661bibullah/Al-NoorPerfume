@@ -15,18 +15,25 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // MongoDB Connection
-// Server start এর আগে অ্যাডমিন ইনিশিয়ালাইজ করুন
-mongoose.connect(process.env.MONGODB_URI)
-  .then(() => {
+const connectDB = async () => {
+  try {
+    await mongoose.connect(process.env.MONGODB_URI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
     console.log('✅ MongoDB Connected Successfully');
-    // MongoDB কানেক্ট হওয়ার পর অ্যাডমিন ইনিশিয়ালাইজ করুন
-    initializeAdmin();
-  })
-  .catch(err => {
+    
+    // অটোমেটিক অ্যাডমিন ইনিশিয়ালাইজেশন
+    await initializeAdmin();
+    
+  } catch (err) {
     console.error('❌ MongoDB Connection Error:', err);
     process.exit(1);
-  });
-  
+  }
+};
+
+connectDB();
+
 // Models
 const ProductSchema = new mongoose.Schema({
   name: { type: String, required: true },
@@ -90,6 +97,43 @@ function generateOrderId() {
   return `ATT${timestamp}${random}`;
 }
 
+// অটোমেটিক অ্যাডমিন ইনিশিয়ালাইজেশন ফাংশন
+async function initializeAdmin() {
+  try {
+    const adminEmail = process.env.ADMIN_EMAIL || 'admin@alnoor.com';
+    const adminPassword = process.env.ADMIN_PASSWORD || 'admin123';
+    
+    console.log('🔍 Checking for admin with email:', adminEmail);
+    
+    // Check if admin already exists
+    const existingAdmin = await Admin.findOne({ email: adminEmail });
+    
+    if (existingAdmin) {
+      console.log('✅ Admin already exists:', adminEmail);
+      console.log('🔑 Admin password in DB:', existingAdmin.password);
+      return existingAdmin;
+    }
+    
+    // Create new admin
+    console.log('🔄 Creating new admin...');
+    const admin = new Admin({
+      email: adminEmail,
+      password: adminPassword,
+      name: 'Super Admin'
+    });
+    
+    await admin.save();
+    console.log('✅ Admin created successfully:', adminEmail);
+    console.log('🔑 Admin password set to:', adminPassword);
+    
+    return admin;
+    
+  } catch (error) {
+    console.error('❌ Admin initialization error:', error);
+    return null;
+  }
+}
+
 // Middleware to verify admin token
 const verifyAdminToken = async (req, res, next) => {
   try {
@@ -121,38 +165,49 @@ app.get('/api/test', (req, res) => {
   res.json({ 
     success: true, 
     message: 'API is working!',
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
+    adminEmail: process.env.ADMIN_EMAIL || 'Not set'
   });
 });
 
-// Admin Auth Routes
-// server.js এর Admin Auth অংশ আপডেট করুন
+// Admin Login Route - ফিক্সড ভার্শন
 app.post('/api/admin/login', async (req, res) => {
   try {
     const { email, password } = req.body;
     
-    console.log('Login attempt for:', email);
+    console.log('🔑 Login attempt for email:', email);
+    console.log('📝 Input password:', password);
+    
+    if (!email || !password) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Email and password required' 
+      });
+    }
     
     // Find admin by email
     const admin = await Admin.findOne({ email });
     
     if (!admin) {
-      console.log('Admin not found for email:', email);
+      console.log('❌ Admin not found for email:', email);
+      console.log('🔍 Available admins:');
+      const allAdmins = await Admin.find({});
+      console.log(allAdmins.map(a => ({ email: a.email, password: a.password })));
+      
       return res.status(401).json({ 
         success: false, 
         message: 'Invalid credentials' 
       });
     }
     
-    console.log('Admin found:', admin.email);
-    console.log('Stored password:', admin.password);
-    console.log('Input password:', password);
+    console.log('✅ Admin found:', admin.email);
+    console.log('🔑 Stored password:', admin.password);
     
     // সরাসরি পাসওয়ার্ড চেক (ডেমো জন্য)
-    // Note: Production এ bcrypt ব্যবহার করুন
+    // Note: Production এ bcrypt.compare ব্যবহার করুন
     const isValidPassword = password === admin.password;
     
-    console.log('Password valid:', isValidPassword);
+    console.log('🔐 Password valid:', isValidPassword);
     
     if (!isValidPassword) {
       return res.status(401).json({ 
@@ -164,9 +219,11 @@ app.post('/api/admin/login', async (req, res) => {
     // Generate JWT token
     const token = jwt.sign(
       { id: admin._id, email: admin.email },
-      process.env.JWT_SECRET,
+      process.env.JWT_SECRET || 'fallback_secret',
       { expiresIn: '7d' }
     );
+    
+    console.log('🎉 Login successful for:', admin.email);
     
     res.json({
       success: true,
@@ -188,39 +245,96 @@ app.post('/api/admin/login', async (req, res) => {
   }
 });
 
-
-// Initialize admin (run once)
-app.post('/api/admin/init', async (req, res) => {
+// Emergency Admin Creation Route
+app.post('/api/admin/create-emergency', async (req, res) => {
   try {
-    // Check if admin already exists
-    const existingAdmin = await Admin.findOne({ email: process.env.ADMIN_EMAIL });
+    const { email, password, secret } = req.body;
     
+    // Simple secret check
+    const emergencySecret = process.env.EMERGENCY_SECRET || 'emergency123';
+    if (secret !== emergencySecret) {
+      return res.status(401).json({ 
+        success: false, 
+        message: 'Unauthorized: Invalid secret' 
+      });
+    }
+    
+    if (!email || !password) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Email and password required' 
+      });
+    }
+    
+    console.log('🚨 Emergency admin creation requested for:', email);
+    
+    // Check if admin exists
+    const existingAdmin = await Admin.findOne({ email });
     if (existingAdmin) {
+      console.log('ℹ️ Admin already exists, updating password...');
+      existingAdmin.password = password;
+      await existingAdmin.save();
+      
       return res.json({ 
         success: true, 
-        message: 'Admin already exists' 
+        message: 'Admin password updated successfully',
+        admin: {
+          email: existingAdmin.email,
+          password: existingAdmin.password
+        }
       });
     }
     
     // Create new admin
     const admin = new Admin({
-      email: process.env.ADMIN_EMAIL,
-      password: process.env.ADMIN_PASSWORD,
-      name: 'Super Admin'
+      email: email,
+      password: password,
+      name: 'Emergency Admin'
     });
     
     await admin.save();
     
+    console.log('✅ Emergency admin created successfully:', email);
+    
     res.json({ 
       success: true, 
-      message: 'Admin created successfully' 
+      message: 'Emergency admin created successfully',
+      admin: {
+        email: admin.email,
+        password: admin.password
+      }
     });
     
   } catch (error) {
-    console.error('Admin init error:', error);
+    console.error('Emergency admin creation error:', error);
     res.status(500).json({ 
       success: false, 
-      message: 'Server error' 
+      message: 'Failed to create admin',
+      error: error.message 
+    });
+  }
+});
+
+// Get All Admins (for debugging)
+app.get('/api/admin/list', async (req, res) => {
+  try {
+    const admins = await Admin.find({}).select('-__v');
+    res.json({
+      success: true,
+      count: admins.length,
+      admins: admins.map(admin => ({
+        email: admin.email,
+        password: admin.password,
+        name: admin.name,
+        createdAt: admin.createdAt
+      }))
+    });
+  } catch (error) {
+    console.error('List admins error:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Failed to list admins',
+      error: error.message 
     });
   }
 });
@@ -615,8 +729,50 @@ app.post('/api/init-sample-data', verifyAdminToken, async (req, res) => {
   }
 });
 
+// Health Check Route
+app.get('/api/health', async (req, res) => {
+  try {
+    const dbStatus = mongoose.connection.readyState === 1 ? 'connected' : 'disconnected';
+    const adminCount = await Admin.countDocuments();
+    const productCount = await Product.countDocuments();
+    const orderCount = await Order.countDocuments();
+    const reviewCount = await Review.countDocuments();
+    
+    res.json({
+      success: true,
+      status: 'healthy',
+      timestamp: new Date().toISOString(),
+      database: {
+        status: dbStatus,
+        connection: mongoose.connection.host
+      },
+      counts: {
+        admins: adminCount,
+        products: productCount,
+        orders: orderCount,
+        reviews: reviewCount
+      },
+      environment: {
+        nodeVersion: process.version,
+        platform: process.platform,
+        adminEmail: process.env.ADMIN_EMAIL || 'Not set'
+      }
+    });
+  } catch (error) {
+    console.error('Health check error:', error);
+    res.status(500).json({
+      success: false,
+      status: 'unhealthy',
+      error: error.message
+    });
+  }
+});
+
 // Start server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`✅ Server is running on port ${PORT}`);
+  console.log(`🔗 API URL: http://localhost:${PORT}/api`);
+  console.log(`🔑 Admin Email: ${process.env.ADMIN_EMAIL || 'admin@alnoor.com'}`);
+  console.log(`🔐 Admin Password: ${process.env.ADMIN_PASSWORD || 'admin123'}`);
 });
