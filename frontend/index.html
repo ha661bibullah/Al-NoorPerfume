@@ -281,15 +281,6 @@
     </style> 
 </head>
 <body class="bg-amber-50 text-gray-800">
-    <!-- API কনফিগারেশন -->
-    <script>
-        const API_BASE_URL = 'https://al-noorperfume.onrender.com/api';
-        let productsData = [];
-        let reviewsData = [];
-        let lastOrderData = null;
-        let isLoading = false;
-    </script>
-
     <!-- টোস্ট কন্টেইনার -->
     <div id="toastContainer"></div>
 
@@ -810,7 +801,18 @@
 
     <!-- JavaScript -->
     <script>
-        // DOM এলিমেন্টস
+        // API Configuration - CHANGE THIS TO YOUR RENDER URL
+        const API_BASE_URL = 'https://al-noorperfume.onrender.com/api';
+        
+        // If you want to test locally, you can use:
+        // const API_BASE_URL = 'http://localhost:5000/api';
+        
+        let productsData = [];
+        let reviewsData = [];
+        let lastOrderData = null;
+        let isLoading = false;
+
+        // DOM Elements
         const mobileMenuBtn = document.getElementById('mobileMenuBtn');
         const mobileMenu = document.getElementById('mobileMenu');
         const orderForm = document.getElementById('orderForm');
@@ -841,7 +843,7 @@
         const phoneError = document.getElementById('phoneError');
         const ratingError = document.getElementById('ratingError');
         
-        // টোস্ট ফাংশন
+        // Toast Function
         function showToast(message, type = 'success') {
             const toastContainer = document.getElementById('toastContainer');
             const toast = document.createElement('div');
@@ -861,7 +863,7 @@
             }, 3000);
         }
 
-        // লোডিং স্টেট ফাংশন
+        // Loading State Functions
         function showLoading(button, spinner, text) {
             button.disabled = true;
             spinner.classList.remove('hidden');
@@ -874,7 +876,7 @@
             text.classList.remove('hidden');
         }
 
-        // পেজ লোড হলে ডেটা লোড করুন
+        // Page Load
         document.addEventListener('DOMContentLoaded', () => {
             loadProducts();
             loadReviews();
@@ -882,20 +884,16 @@
             setupScrollToTop();
         });
 
-        // ইভেন্ট লিসেনার সেটআপ
+        // Event Listeners Setup
         function setupEventListeners() {
-            // মোবাইল মেনু টগল
             mobileMenuBtn.addEventListener('click', toggleMobileMenu);
             
-            // মোবাইল মেনু বন্ধ করুন
             document.querySelectorAll('#mobileMenu a').forEach(link => {
                 link.addEventListener('click', closeMobileMenu);
             });
             
-            // পণ্য নির্বাচন এবং মূল্য আপডেট
             productSelect.addEventListener('change', updateTotalPrice);
             
-            // পরিমাণ কন্ট্রোল
             decreaseQty.addEventListener('click', () => {
                 if (quantityInput.value > 1) {
                     quantityInput.value = parseInt(quantityInput.value) - 1;
@@ -910,16 +908,12 @@
             
             quantityInput.addEventListener('input', updateTotalPrice);
             
-            // অর্ডার ফর্ম সাবমিশন
             orderForm.addEventListener('submit', handleOrderSubmit);
             
-            // রিভিউ ফর্ম সাবমিশন
             reviewForm.addEventListener('submit', handleReviewSubmit);
             
-            // স্টার রেটিং সিস্টেম
             setupStarRating();
             
-            // মডাল বন্ধ করুন
             closeModalBtn.addEventListener('click', closeConfirmationModal);
             confirmationModal.addEventListener('click', (e) => {
                 if (e.target === confirmationModal) {
@@ -927,26 +921,21 @@
                 }
             });
             
-            // নতুন অর্ডার করুন বাটন
             continueShoppingBtn.addEventListener('click', () => {
                 closeConfirmationModal();
                 document.getElementById('products').scrollIntoView({ behavior: 'smooth' });
             });
             
-            // রিসিপ্ট ডাউনলোড
             downloadReceiptBtn.addEventListener('click', downloadReceipt);
             
-            // ফোন ভ্যালিডেশন
             document.getElementById('phone').addEventListener('blur', validatePhone);
             
-            // স্ক্রল ইভেন্ট
             window.addEventListener('scroll', handleScroll);
             
-            // স্মুথ স্ক্রলিং
             setupSmoothScrolling();
         }
 
-        // মোবাইল মেনু ফাংশন
+        // Mobile Menu Functions
         function toggleMobileMenu() {
             mobileMenu.classList.toggle('hidden');
         }
@@ -955,7 +944,7 @@
             mobileMenu.classList.add('hidden');
         }
 
-        // স্ক্রল টু টপ সেটআপ
+        // Scroll to Top Setup
         function setupScrollToTop() {
             window.addEventListener('scroll', () => {
                 if (window.pageYOffset > 300) {
@@ -970,7 +959,7 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        // স্ক্রল হ্যান্ডলার
+        // Scroll Handler
         function handleScroll() {
             const header = document.querySelector('header');
             if (window.scrollY > 50) {
@@ -980,7 +969,7 @@
             }
         }
 
-        // স্মুথ স্ক্রলিং সেটআপ
+        // Smooth Scrolling Setup
         function setupSmoothScrolling() {
             document.querySelectorAll('a[href^="#"]').forEach(anchor => {
                 anchor.addEventListener('click', function(e) {
@@ -1002,7 +991,7 @@
             });
         }
 
-        // পণ্য লোড ফাংশন
+        // Load Products Function
         async function loadProducts() {
             const loadingEl = document.getElementById('productsLoading');
             const errorEl = document.getElementById('productsError');
@@ -1013,12 +1002,15 @@
             errorEl.classList.add('hidden');
             
             try {
+                console.log('Loading products from:', `${API_BASE_URL}/products/public`);
                 const response = await fetch(`${API_BASE_URL}/products/public`);
-                if (!response.ok) throw new Error('নেটওয়ার্ক রেস্পন্স ঠিক নেই');
+                
+                if (!response.ok) {
+                    throw new Error(`Network response not ok: ${response.status}`);
+                }
                 
                 productsData = await response.json();
                 
-                // পণ্য কন্টেইনার আপডেট
                 containerEl.innerHTML = productsData.map(product => `
                     <div class="product-card bg-white rounded-xl shadow-lg overflow-hidden border border-amber-200 relative">
                         ${product.featured ? '<span class="featured-badge"><i class="fas fa-crown mr-1"></i> ফিচার্ড</span>' : ''}
@@ -1081,7 +1073,6 @@
                     </div>
                 `).join('');
                 
-                // সিলেক্ট অপশন আপডেট
                 updateProductSelectOptions();
                 
                 loadingEl.classList.add('hidden');
@@ -1097,7 +1088,7 @@
             }
         }
 
-        // রিভিউ লোড ফাংশন
+        // Load Reviews Function
         async function loadReviews() {
             const loadingEl = document.getElementById('reviewsLoading');
             const errorEl = document.getElementById('reviewsError');
@@ -1108,13 +1099,15 @@
             errorEl.classList.add('hidden');
             
             try {
+                console.log('Loading reviews from:', `${API_BASE_URL}/reviews/public`);
                 const response = await fetch(`${API_BASE_URL}/reviews/public`);
-                if (!response.ok) throw new Error('নেটওয়ার্ক রেস্পন্স ঠিক নেই');
+                if (!response.ok) {
+                    throw new Error(`Network response not ok: ${response.status}`);
+                }
                 
                 const data = await response.json();
                 reviewsData = data.reviews || [];
                 
-                // সর্বোচ্চ ৬টি রিভিউ দেখান
                 const reviewsToShow = reviewsData.slice(0, 6);
                 
                 containerEl.innerHTML = reviewsToShow.map((review) => {
@@ -1145,7 +1138,6 @@
                     `;
                 }).join('');
                 
-                // রিভিউ পণ্য সিলেক্ট আপডেট
                 updateReviewProductSelect();
                 
                 loadingEl.classList.add('hidden');
@@ -1159,7 +1151,7 @@
             }
         }
 
-        // পণ্য সিলেক্ট অপশন আপডেট
+        // Update Product Select Options
         function updateProductSelectOptions() {
             const productSelect = document.getElementById('product');
             productSelect.innerHTML = '<option value="">পণ্য বাছাই করুন</option>';
@@ -1179,7 +1171,7 @@
             updateTotalPrice();
         }
 
-        // রিভিউ পণ্য সিলেক্ট আপডেট
+        // Update Review Product Select
         function updateReviewProductSelect() {
             const reviewProductSelect = document.getElementById('reviewProduct');
             reviewProductSelect.innerHTML = '<option value="">পণ্য বাছাই করুন</option>';
@@ -1193,7 +1185,7 @@
             });
         }
 
-        // পণ্য অর্ডার বাটন ক্লিক
+        // Order Product Button Click
         function orderProduct(productId, productName, price, stock) {
             const productSelect = document.getElementById('product');
             
@@ -1214,7 +1206,7 @@
             showToast(`${productName} নির্বাচন করা হয়েছে!`, 'success');
         }
 
-        // মোট মূল্য আপডেট ফাংশন
+        // Update Total Price Function
         function updateTotalPrice() {
             const productSelect = document.getElementById('product');
             const selectedOption = productSelect.options[productSelect.selectedIndex];
@@ -1250,7 +1242,7 @@
             }
         }
 
-        // স্টার রেটিং সিস্টেম সেটআপ
+        // Star Rating System Setup
         function setupStarRating() {
             stars.forEach(star => {
                 star.addEventListener('click', () => {
@@ -1301,7 +1293,7 @@
             });
         }
 
-        // ফোন ভ্যালিডেশন
+        // Phone Validation
         function validatePhone() {
             const phone = document.getElementById('phone').value.trim();
             const phoneRegex = /^01[3-9]\d{8}$/;
@@ -1315,7 +1307,7 @@
             }
         }
 
-        // অর্ডার সাবমিশন হ্যান্ডলার
+        // Order Submission Handler
         async function handleOrderSubmit(e) {
             e.preventDefault();
             
@@ -1385,7 +1377,10 @@
                     })
                 });
                 
-                if (!response.ok) throw new Error('নেটওয়ার্ক রেস্পন্স ঠিক নেই');
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Network response not ok');
+                }
                 
                 const data = await response.json();
                 
@@ -1420,7 +1415,7 @@
                 
             } catch (error) {
                 console.error('Order submission error:', error);
-                showFormStatus(orderFormStatus, 'সার্ভার সংযোগ সমস্যা। দয়া করে আবার চেষ্টা করুন।', 'error');
+                showFormStatus(orderFormStatus, `সার্ভার সংযোগ সমস্যা: ${error.message}`, 'error');
                 showToast('নেটওয়ার্ক এরর!', 'error');
                 
             } finally {
@@ -1429,7 +1424,7 @@
             }
         }
 
-        // রিভিউ সাবমিশন হ্যান্ডলার
+        // Review Submission Handler
         async function handleReviewSubmit(e) {
             e.preventDefault();
             
@@ -1472,7 +1467,10 @@
                     })
                 });
                 
-                if (!response.ok) throw new Error('নেটওয়ার্ক রেস্পন্স ঠিক নেই');
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Network response not ok');
+                }
                 
                 const data = await response.json();
                 
@@ -1501,7 +1499,7 @@
                 
             } catch (error) {
                 console.error('Review submission error:', error);
-                showFormStatus(reviewFormStatus, 'সার্ভার সংযোগ সমস্যা। দয়া করে আবার চেষ্টা করুন।', 'error');
+                showFormStatus(reviewFormStatus, `সার্ভার সংযোগ সমস্যা: ${error.message}`, 'error');
                 showToast('নেটওয়ার্ক এরর!', 'error');
                 
             } finally {
@@ -1510,7 +1508,7 @@
             }
         }
 
-        // কনফার্মেশন মডাল দেখান
+        // Show Confirmation Modal
         function showConfirmationModal(orderId) {
             if (!lastOrderData) return;
             
@@ -1533,12 +1531,12 @@
             confirmationModal.classList.remove('hidden');
         }
 
-        // কনফার্মেশন মডাল বন্ধ করুন
+        // Close Confirmation Modal
         function closeConfirmationModal() {
             confirmationModal.classList.add('hidden');
         }
 
-        // রিসিপ্ট ডাউনলোড
+        // Download Receipt
         function downloadReceipt() {
             if (!lastOrderData) return;
             
@@ -1591,7 +1589,7 @@
             showToast('রিসিপ্ট ডাউনলোড শুরু হয়েছে!', 'success');
         }
 
-        // পেমেন্ট মেথড টেক্সট
+        // Payment Method Text
         function getPaymentMethodText(value) {
             switch(value) {
                 case 'cod': return 'ক্যাশ অন ডেলিভারি';
@@ -1602,7 +1600,7 @@
             }
         }
 
-        // ফর্ম স্ট্যাটাস দেখান
+        // Show Form Status
         function showFormStatus(element, message, type) {
             element.innerHTML = `
                 <div class="p-3 rounded-lg ${type === 'error' ? 'bg-red-100 text-red-800 border border-red-200' : type === 'success' ? 'bg-green-100 text-green-800 border border-green-200' : 'bg-yellow-100 text-yellow-800 border border-yellow-200'}">
@@ -1620,7 +1618,7 @@
             }, 5000);
         }
 
-        // প্রথম লোডে মূল্য আপডেট করুন
+        // First load update price
         updateTotalPrice();
     </script>
 </body>

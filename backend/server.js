@@ -8,50 +8,23 @@ const path = require('path');
 
 const app = express();
 
-// CORS কনফিগারেশন - Netlify এবং লোকালহোস্ট উভয়ের জন্য
-const allowedOrigins = [
-    'https://playful-rugelach-33592e.netlify.app',
-    'https://lively-kataifi-011ede.netlify.app',
-    'http://localhost:3000',
-    'http://localhost:5000'
-];
-
+// CORS configuration
 app.use(cors({
-    origin: function (origin, callback) {
-        // Allow requests with no origin (like mobile apps or curl requests)
-        if (!origin) return callback(null, true);
-        
-        if (allowedOrigins.indexOf(origin) === -1) {
-            const msg = 'CORS policy does not allow access from this origin.';
-            return callback(new Error(msg), false);
-        }
-        return callback(null, true);
-    },
-    credentials: true,
+    origin: '*', // Allow all origins for now
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+    allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
-// মিডলওয়্যার
+// Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// স্ট্যাটিক ফাইল সার্ভ করা
-app.use(express.static(path.join(__dirname, '../frontend')));
-app.use('/admin', express.static(path.join(__dirname, '../admin-panel')));
-
-// HTML ফাইল সার্ভ করা
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, '../frontend/index.html'));
-});
-
-app.get('/admin', (req, res) => {
-    res.sendFile(path.join(__dirname, '../admin-panel/admin.html'));
-});
-
-// মঙ্গোডিবি কানেকশন
+// MongoDB Connection
 const MONGODB_URI = process.env.MONGODB_URI;
 let isMongoConnected = false;
+
+console.log('Attempting MongoDB connection...');
+console.log('MongoDB URI available:', !!MONGODB_URI);
 
 mongoose.connect(MONGODB_URI, {
     useNewUrlParser: true,
@@ -60,17 +33,17 @@ mongoose.connect(MONGODB_URI, {
     socketTimeoutMS: 45000,
 })
 .then(() => {
-    console.log('✅ MongoDB সংযুক্ত হয়েছে');
+    console.log('✅ MongoDB Connected Successfully!');
     isMongoConnected = true;
     initializeData();
 })
 .catch(err => {
-    console.error('❌ MongoDB কানেকশন এরর:', err.message);
-    console.log('MongoDB URI:', MONGODB_URI ? 'URI আছে কিন্তু সংযোগ ব্যর্থ' : 'URI পাওয়া যায়নি');
+    console.error('❌ MongoDB Connection Error:', err.message);
+    console.log('MongoDB URI length:', MONGODB_URI ? MONGODB_URI.length : 'No URI');
     isMongoConnected = false;
 });
 
-// ডাটাবেজ স্কিমা
+// Database Schemas
 const orderSchema = new mongoose.Schema({
     orderId: { type: String, required: true, unique: true },
     customerName: { type: String, required: true },
@@ -134,16 +107,16 @@ const adminSchema = new mongoose.Schema({
     lastLogin: Date
 }, { timestamps: true });
 
-// মডেল
+// Models
 const Order = mongoose.models.Order || mongoose.model('Order', orderSchema);
 const Review = mongoose.models.Review || mongoose.model('Review', reviewSchema);
 const Product = mongoose.models.Product || mongoose.model('Product', productSchema);
 const Admin = mongoose.models.Admin || mongoose.model('Admin', adminSchema);
 
-// ডাটা ইনিশিয়ালাইজেশন
+// Initialize Data
 const initializeData = async () => {
     try {
-        // এডমিন একাউন্ট তৈরি
+        // Admin Account
         const adminEmail = process.env.ADMIN_EMAIL || 'admin@alnoor.com';
         const adminPassword = process.env.ADMIN_PASSWORD || 'admin123';
         
@@ -157,10 +130,10 @@ const initializeData = async () => {
                 lastLogin: new Date()
             });
             await admin.save();
-            console.log('✅ এডমিন একাউন্ট তৈরি করা হয়েছে');
+            console.log('✅ Admin account created');
         }
 
-        // প্রোডাক্ট তৈরি
+        // Products
         const productCount = await Product.countDocuments();
         if (productCount === 0) {
             const sampleProducts = [
@@ -203,10 +176,10 @@ const initializeData = async () => {
             ];
             
             await Product.insertMany(sampleProducts);
-            console.log('✅ স্যাম্পল প্রোডাক্ট তৈরি করা হয়েছে');
+            console.log('✅ Sample products created');
         }
 
-        // রিভিউ তৈরি
+        // Reviews
         const reviewCount = await Review.countDocuments();
         if (reviewCount === 0) {
             const sampleReviews = [
@@ -237,15 +210,15 @@ const initializeData = async () => {
             ];
             
             await Review.insertMany(sampleReviews);
-            console.log('✅ স্যাম্পল রিভিউ তৈরি করা হয়েছে');
+            console.log('✅ Sample reviews created');
         }
 
     } catch (error) {
-        console.error('❌ ডাটা ইনিশিয়ালাইজেশন এরর:', error.message);
+        console.error('❌ Data initialization error:', error.message);
     }
 };
 
-// অথেন্টিকেশন মিডলওয়্যার
+// Authentication Middleware
 const authenticateToken = (req, res, next) => {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
@@ -253,7 +226,7 @@ const authenticateToken = (req, res, next) => {
     if (!token) {
         return res.status(401).json({ 
             success: false, 
-            error: 'অ্যাক্সেস টোকেন প্রয়োজন' 
+            error: 'Access token required' 
         });
     }
 
@@ -261,7 +234,7 @@ const authenticateToken = (req, res, next) => {
         if (err) {
             return res.status(403).json({ 
                 success: false, 
-                error: 'ভুল বা মেয়াদোত্তীর্ণ টোকেন' 
+                error: 'Invalid or expired token' 
             });
         }
         req.user = user;
@@ -269,32 +242,32 @@ const authenticateToken = (req, res, next) => {
     });
 };
 
-// ==================== এপিআই রাউটস ====================
+// ==================== API ROUTES ====================
 
-// টেস্ট রাউট
+// Test Route
 app.get('/api/test', (req, res) => {
     res.json({ 
         success: true, 
-        message: 'আল-নূর আতর এপিআই কাজ করছে!',
+        message: 'Al-Noor Attar API is working!',
         mongoConnected: isMongoConnected,
         timestamp: new Date().toISOString(),
         environment: process.env.NODE_ENV || 'development'
     });
 });
 
-// হেলথ চেক
+// Health Check
 app.get('/api/health', (req, res) => {
     res.json({ 
         status: isMongoConnected ? 'healthy' : 'unhealthy',
         database: isMongoConnected ? 'connected' : 'disconnected',
         timestamp: new Date().toISOString(),
-        message: 'Al-Noor Attar API is running'
+        message: 'Al-Noor Attar API'
     });
 });
 
-// ==================== অথেন্টিকেশন ====================
+// ==================== AUTHENTICATION ====================
 
-// এডমিন লগইন
+// Admin Login
 app.post('/api/admin/login', async (req, res) => {
     try {
         const { email, password } = req.body;
@@ -302,33 +275,29 @@ app.post('/api/admin/login', async (req, res) => {
         if (!email || !password) {
             return res.status(400).json({ 
                 success: false, 
-                error: 'ইমেইল ও পাসওয়ার্ড প্রয়োজন' 
+                error: 'Email and password required' 
             });
         }
         
-        // এডমিন খুঁজুন
         const admin = await Admin.findOne({ email });
         if (!admin) {
             return res.status(401).json({ 
                 success: false, 
-                error: 'ভুল লগইন তথ্য' 
+                error: 'Invalid login credentials' 
             });
         }
 
-        // পাসওয়ার্ড চেক করুন
         const validPassword = await bcrypt.compare(password, admin.password);
         if (!validPassword) {
             return res.status(401).json({ 
                 success: false, 
-                error: 'ভুল লগইন তথ্য' 
+                error: 'Invalid login credentials' 
             });
         }
 
-        // শেষ লগইন আপডেট করুন
         admin.lastLogin = new Date();
         await admin.save();
 
-        // জেডব্লিউটি টোকেন তৈরি করুন
         const token = jwt.sign(
             { 
                 id: admin._id, 
@@ -348,17 +317,17 @@ app.post('/api/admin/login', async (req, res) => {
             } 
         });
     } catch (error) {
-        console.error('❌ লগইন এরর:', error);
+        console.error('❌ Login error:', error);
         res.status(500).json({ 
             success: false, 
-            error: 'লগইনে সমস্যা হয়েছে' 
+            error: 'Login failed' 
         });
     }
 });
 
-// ==================== ড্যাশবোর্ড ====================
+// ==================== DASHBOARD ====================
 
-// ড্যাশবোর্ড স্ট্যাটস
+// Dashboard Stats
 app.get('/api/dashboard/stats', authenticateToken, async (req, res) => {
     try {
         const totalOrders = await Order.countDocuments();
@@ -388,31 +357,31 @@ app.get('/api/dashboard/stats', authenticateToken, async (req, res) => {
             recentOrders
         });
     } catch (error) {
-        console.error('❌ ড্যাশবোর্ড স্ট্যাটস এরর:', error);
+        console.error('❌ Dashboard stats error:', error);
         res.status(500).json({ 
             success: false, 
-            error: 'ড্যাশবোর্ড স্ট্যাটস লোড করতে সমস্যা হয়েছে' 
+            error: 'Failed to load dashboard stats' 
         });
     }
 });
 
-// ==================== প্রোডাক্টস এপিআই ====================
+// ==================== PRODUCTS API ====================
 
-// সকল প্রোডাক্ট পান (এডমিন)
+// All Products (Admin)
 app.get('/api/products', authenticateToken, async (req, res) => {
     try {
         const products = await Product.find().sort({ createdAt: -1 });
         res.json(products);
     } catch (error) {
-        console.error('❌ প্রোডাক্টস লোড এরর:', error);
+        console.error('❌ Products load error:', error);
         res.status(500).json({ 
             success: false, 
-            error: 'প্রোডাক্টস লোড করতে সমস্যা হয়েছে' 
+            error: 'Failed to load products' 
         });
     }
 });
 
-// নতুন প্রোডাক্ট তৈরি করুন
+// Create Product
 app.post('/api/products', authenticateToken, async (req, res) => {
     try {
         const productData = req.body;
@@ -420,7 +389,7 @@ app.post('/api/products', authenticateToken, async (req, res) => {
         if (!productData.name || !productData.description || !productData.price || !productData.stock) {
             return res.status(400).json({ 
                 success: false, 
-                error: 'সকল প্রয়োজনীয় ফিল্ড পূরণ করুন' 
+                error: 'All required fields must be filled' 
             });
         }
         
@@ -429,39 +398,39 @@ app.post('/api/products', authenticateToken, async (req, res) => {
         
         res.json({ 
             success: true, 
-            message: 'প্রোডাক্ট তৈরি করা হয়েছে',
+            message: 'Product created successfully',
             product 
         });
     } catch (error) {
-        console.error('❌ প্রোডাক্ট তৈরি এরর:', error);
+        console.error('❌ Product creation error:', error);
         res.status(500).json({ 
             success: false, 
-            error: 'প্রোডাক্ট তৈরি করতে সমস্যা হয়েছে' 
+            error: 'Failed to create product' 
         });
     }
 });
 
-// একক প্রোডাক্ট পান
+// Single Product
 app.get('/api/products/:id', authenticateToken, async (req, res) => {
     try {
         const product = await Product.findById(req.params.id);
         if (!product) {
             return res.status(404).json({ 
                 success: false, 
-                error: 'প্রোডাক্ট পাওয়া যায়নি' 
+                error: 'Product not found' 
             });
         }
         res.json(product);
     } catch (error) {
-        console.error('❌ প্রোডাক্ট লোড এরর:', error);
+        console.error('❌ Product load error:', error);
         res.status(500).json({ 
             success: false, 
-            error: 'প্রোডাক্ট লোড করতে সমস্যা হয়েছে' 
+            error: 'Failed to load product' 
         });
     }
 });
 
-// প্রোডাক্ট আপডেট করুন
+// Update Product
 app.put('/api/products/:id', authenticateToken, async (req, res) => {
     try {
         const productData = req.body;
@@ -475,25 +444,25 @@ app.put('/api/products/:id', authenticateToken, async (req, res) => {
         if (!product) {
             return res.status(404).json({ 
                 success: false, 
-                error: 'প্রোডাক্ট পাওয়া যায়নি' 
+                error: 'Product not found' 
             });
         }
         
         res.json({ 
             success: true, 
-            message: 'প্রোডাক্ট আপডেট করা হয়েছে',
+            message: 'Product updated successfully',
             product 
         });
     } catch (error) {
-        console.error('❌ প্রোডাক্ট আপডেট এরর:', error);
+        console.error('❌ Product update error:', error);
         res.status(500).json({ 
             success: false, 
-            error: 'প্রোডাক্ট আপডেট করতে সমস্যা হয়েছে' 
+            error: 'Failed to update product' 
         });
     }
 });
 
-// প্রোডাক্ট ডিলিট করুন
+// Delete Product
 app.delete('/api/products/:id', authenticateToken, async (req, res) => {
     try {
         const product = await Product.findByIdAndDelete(req.params.id);
@@ -501,40 +470,40 @@ app.delete('/api/products/:id', authenticateToken, async (req, res) => {
         if (!product) {
             return res.status(404).json({ 
                 success: false, 
-                error: 'প্রোডাক্ট পাওয়া যায়নি' 
+                error: 'Product not found' 
             });
         }
         
         res.json({ 
             success: true, 
-            message: 'প্রোডাক্ট ডিলিট করা হয়েছে' 
+            message: 'Product deleted successfully' 
         });
     } catch (error) {
-        console.error('❌ প্রোডাক্ট ডিলিট এরর:', error);
+        console.error('❌ Product delete error:', error);
         res.status(500).json({ 
             success: false, 
-            error: 'প্রোডাক্ট ডিলিট করতে সমস্যা হয়েছে' 
+            error: 'Failed to delete product' 
         });
     }
 });
 
-// পাবলিক প্রোডাক্টস এন্ডপয়েন্ট
+// Public Products Endpoint
 app.get('/api/products/public', async (req, res) => {
     try {
         const products = await Product.find({ stock: { $gt: 0 } }).sort({ featured: -1, createdAt: -1 });
         res.json(products);
     } catch (error) {
-        console.error('❌ পাবলিক প্রোডাক্টস এরর:', error);
+        console.error('❌ Public products error:', error);
         res.status(500).json({ 
             success: false, 
-            error: 'প্রোডাক্টস লোড করতে সমস্যা হয়েছে' 
+            error: 'Failed to load products' 
         });
     }
 });
 
-// ==================== অর্ডারস এপিআই ====================
+// ==================== ORDERS API ====================
 
-// সকল অর্ডার পান (এডমিন)
+// All Orders (Admin)
 app.get('/api/orders', authenticateToken, async (req, res) => {
     try {
         const { status, page = 1, limit = 10, search } = req.query;
@@ -570,22 +539,22 @@ app.get('/api/orders', authenticateToken, async (req, res) => {
             total
         });
     } catch (error) {
-        console.error('❌ অর্ডারস লোড এরর:', error);
+        console.error('❌ Orders load error:', error);
         res.status(500).json({ 
             success: false, 
-            error: 'অর্ডারস লোড করতে সমস্যা হয়েছে' 
+            error: 'Failed to load orders' 
         });
     }
 });
 
-// একক অর্ডার পান
+// Single Order
 app.get('/api/orders/:id', authenticateToken, async (req, res) => {
     try {
         const order = await Order.findById(req.params.id);
         if (!order) {
             return res.status(404).json({ 
                 success: false, 
-                error: 'অর্ডার পাওয়া যায়নি' 
+                error: 'Order not found' 
             });
         }
         
@@ -594,15 +563,15 @@ app.get('/api/orders/:id', authenticateToken, async (req, res) => {
             ...order.toObject()
         });
     } catch (error) {
-        console.error('❌ অর্ডার লোড এরর:', error);
+        console.error('❌ Order load error:', error);
         res.status(500).json({ 
             success: false, 
-            error: 'অর্ডার লোড করতে সমস্যা হয়েছে' 
+            error: 'Failed to load order' 
         });
     }
 });
 
-// অর্ডার স্ট্যাটাস আপডেট করুন
+// Update Order Status
 app.put('/api/orders/:id/status', authenticateToken, async (req, res) => {
     try {
         const { status, notes } = req.body;
@@ -611,7 +580,7 @@ app.put('/api/orders/:id/status', authenticateToken, async (req, res) => {
         if (!validStatuses.includes(status)) {
             return res.status(400).json({ 
                 success: false, 
-                error: 'ভুল স্ট্যাটাস' 
+                error: 'Invalid status' 
             });
         }
         
@@ -632,25 +601,25 @@ app.put('/api/orders/:id/status', authenticateToken, async (req, res) => {
         if (!order) {
             return res.status(404).json({ 
                 success: false, 
-                error: 'অর্ডার পাওয়া যায়নি' 
+                error: 'Order not found' 
             });
         }
         
         res.json({ 
             success: true, 
-            message: 'অর্ডার স্ট্যাটাস আপডেট করা হয়েছে',
+            message: 'Order status updated successfully',
             order 
         });
     } catch (error) {
-        console.error('❌ অর্ডার স্ট্যাটাস আপডেট এরর:', error);
+        console.error('❌ Order status update error:', error);
         res.status(500).json({ 
             success: false, 
-            error: 'অর্ডার স্ট্যাটাস আপডেট করতে সমস্যা হয়েছে' 
+            error: 'Failed to update order status' 
         });
     }
 });
 
-// অর্ডার ডিলিট করুন
+// Delete Order
 app.delete('/api/orders/:id', authenticateToken, async (req, res) => {
     try {
         const order = await Order.findByIdAndDelete(req.params.id);
@@ -658,24 +627,24 @@ app.delete('/api/orders/:id', authenticateToken, async (req, res) => {
         if (!order) {
             return res.status(404).json({ 
                 success: false, 
-                error: 'অর্ডার পাওয়া যায়নি' 
+                error: 'Order not found' 
             });
         }
         
         res.json({ 
             success: true, 
-            message: 'অর্ডার ডিলিট করা হয়েছে' 
+            message: 'Order deleted successfully' 
         });
     } catch (error) {
-        console.error('❌ অর্ডার ডিলিট এরর:', error);
+        console.error('❌ Order delete error:', error);
         res.status(500).json({ 
             success: false, 
-            error: 'অর্ডার ডিলিট করতে সমস্যা হয়েছে' 
+            error: 'Failed to delete order' 
         });
     }
 });
 
-// ফ্রন্টএন্ড থেকে নতুন অর্ডার তৈরি করুন
+// New Order from Frontend
 app.post('/api/orders/new', async (req, res) => {
     try {
         const orderData = req.body;
@@ -685,12 +654,11 @@ app.post('/api/orders/new', async (req, res) => {
             if (!orderData[field]) {
                 return res.status(400).json({ 
                     success: false, 
-                    error: `প্রয়োজনীয় ফিল্ড ${field} পূরণ করুন` 
+                    error: `Required field ${field} is missing` 
                 });
             }
         }
         
-        // অর্ডার আইডি জেনারেট করুন
         const orderId = 'ALN' + Date.now().toString().slice(-8);
         
         const order = new Order({
@@ -702,7 +670,6 @@ app.post('/api/orders/new', async (req, res) => {
 
         const savedOrder = await order.save();
 
-        // প্রোডাক্ট স্টক আপডেট করুন
         if (orderData.productId) {
             const product = await Product.findById(orderData.productId);
             if (product) {
@@ -714,23 +681,23 @@ app.post('/api/orders/new', async (req, res) => {
         
         res.json({ 
             success: true, 
-            message: 'অর্ডার সফলভাবে তৈরি হয়েছে!', 
+            message: 'Order created successfully!', 
             orderId,
             order: savedOrder
         });
         
     } catch (error) {
-        console.error('❌ অর্ডার তৈরি এরর:', error);
+        console.error('❌ Order creation error:', error);
         res.status(500).json({ 
             success: false, 
-            error: 'অর্ডার তৈরি করতে সমস্যা হয়েছে' 
+            error: 'Failed to create order' 
         });
     }
 });
 
-// ==================== রিভিউস এপিআই ====================
+// ==================== REVIEWS API ====================
 
-// সকল রিভিউ পান (এডমিন)
+// All Reviews (Admin)
 app.get('/api/reviews', authenticateToken, async (req, res) => {
     try {
         const { approved, page = 1, limit = 10 } = req.query;
@@ -753,15 +720,15 @@ app.get('/api/reviews', authenticateToken, async (req, res) => {
             total
         });
     } catch (error) {
-        console.error('❌ রিভিউস লোড এরর:', error);
+        console.error('❌ Reviews load error:', error);
         res.status(500).json({ 
             success: false, 
-            error: 'রিভিউস লোড করতে সমস্যা হয়েছে' 
+            error: 'Failed to load reviews' 
         });
     }
 });
 
-// রিভিউ অনুমোদন আপডেট করুন
+// Update Review Approval
 app.put('/api/reviews/:id/approve', authenticateToken, async (req, res) => {
     try {
         const { approved } = req.body;
@@ -769,7 +736,7 @@ app.put('/api/reviews/:id/approve', authenticateToken, async (req, res) => {
         if (typeof approved !== 'boolean') {
             return res.status(400).json({ 
                 success: false, 
-                error: 'অনুমোদিত অবশ্যই বুলিয়ান মান হতে হবে' 
+                error: 'Approved must be boolean' 
             });
         }
         
@@ -782,25 +749,25 @@ app.put('/api/reviews/:id/approve', authenticateToken, async (req, res) => {
         if (!review) {
             return res.status(404).json({ 
                 success: false, 
-                error: 'রিভিউ পাওয়া যায়নি' 
+                error: 'Review not found' 
             });
         }
         
         res.json({ 
             success: true, 
-            message: `রিভিউ ${approved ? 'অনুমোদিত' : 'অননুমোদিত'} করা হয়েছে`,
+            message: `Review ${approved ? 'approved' : 'disapproved'} successfully`,
             review 
         });
     } catch (error) {
-        console.error('❌ রিভিউ অনুমোদন এরর:', error);
+        console.error('❌ Review approval error:', error);
         res.status(500).json({ 
             success: false, 
-            error: 'রিভিউ অনুমোদন আপডেট করতে সমস্যা হয়েছে' 
+            error: 'Failed to update review approval' 
         });
     }
 });
 
-// রিভিউ ডিলিট করুন
+// Delete Review
 app.delete('/api/reviews/:id', authenticateToken, async (req, res) => {
     try {
         const review = await Review.findByIdAndDelete(req.params.id);
@@ -808,24 +775,24 @@ app.delete('/api/reviews/:id', authenticateToken, async (req, res) => {
         if (!review) {
             return res.status(404).json({ 
                 success: false, 
-                error: 'রিভিউ পাওয়া যায়নি' 
+                error: 'Review not found' 
             });
         }
         
         res.json({ 
             success: true, 
-            message: 'রিভিউ ডিলিট করা হয়েছে' 
+            message: 'Review deleted successfully' 
         });
     } catch (error) {
-        console.error('❌ রিভিউ ডিলিট এরর:', error);
+        console.error('❌ Review delete error:', error);
         res.status(500).json({ 
             success: false, 
-            error: 'রিভিউ ডিলিট করতে সমস্যা হয়েছে' 
+            error: 'Failed to delete review' 
         });
     }
 });
 
-// পাবলিক রিভিউস এন্ডপয়েন্ট (শুধু অনুমোদিত)
+// Public Reviews Endpoint (only approved)
 app.get('/api/reviews/public', async (req, res) => {
     try {
         const reviews = await Review.find({ approved: true })
@@ -838,15 +805,15 @@ app.get('/api/reviews/public', async (req, res) => {
             total: reviews.length 
         });
     } catch (error) {
-        console.error('❌ পাবলিক রিভিউস এরর:', error);
+        console.error('❌ Public reviews error:', error);
         res.status(500).json({ 
             success: false,
-            error: 'রিভিউস লোড করতে সমস্যা হয়েছে' 
+            error: 'Failed to load reviews' 
         });
     }
 });
 
-// ফ্রন্টএন্ড থেকে নতুন রিভিউ তৈরি করুন
+// New Review from Frontend
 app.post('/api/reviews/new', async (req, res) => {
     try {
         const reviewData = req.body;
@@ -854,14 +821,14 @@ app.post('/api/reviews/new', async (req, res) => {
         if (!reviewData.customerName || !reviewData.product || !reviewData.reviewText) {
             return res.status(400).json({ 
                 success: false, 
-                error: 'সকল প্রয়োজনীয় ফিল্ড পূরণ করুন' 
+                error: 'All required fields must be filled' 
             });
         }
         
         if (!reviewData.rating || reviewData.rating < 1 || reviewData.rating > 5) {
             return res.status(400).json({ 
                 success: false, 
-                error: 'রেটিং অবশ্যই ১ থেকে ৫ এর মধ্যে হতে হবে' 
+                error: 'Rating must be between 1 and 5' 
             });
         }
         
@@ -875,56 +842,55 @@ app.post('/api/reviews/new', async (req, res) => {
         
         res.json({ 
             success: true, 
-            message: 'রিভিউ জমা দেওয়া হয়েছে! অনুমোদনের পর এটি দেখা যাবে।',
+            message: 'Review submitted successfully! It will appear after approval.',
             review: savedReview
         });
         
     } catch (error) {
-        console.error('❌ রিভিউ তৈরি এরর:', error);
+        console.error('❌ Review creation error:', error);
         res.status(500).json({ 
             success: false, 
-            error: 'রিভিউ তৈরি করতে সমস্যা হয়েছে' 
+            error: 'Failed to create review' 
         });
     }
 });
 
-// ==================== এরর হ্যান্ডলিং ====================
+// ==================== ERROR HANDLING ====================
 
-// 404 হ্যান্ডলার
+// 404 Handler
 app.use('*', (req, res) => {
     res.status(404).json({ 
         success: false, 
-        error: 'রাউট পাওয়া যায়নি' 
+        error: 'Route not found' 
     });
 });
 
-// এরর হ্যান্ডলিং মিডলওয়্যার
+// Error Handling Middleware
 app.use((err, req, res, next) => {
-    console.error('❌ সার্ভার এরর:', err.stack);
+    console.error('❌ Server error:', err.stack);
     res.status(500).json({ 
         success: false, 
-        error: 'অভ্যন্তরীণ সার্ভার এরর' 
+        error: 'Internal server error' 
     });
 });
 
-// সার্ভার শুরু করুন
+// Start Server
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
     console.log(`
     ╔══════════════════════════════════════╗
-    ║      আল-নূর আতর সার্ভার             ║
+    ║      Al-Noor Attar Server           ║
     ╚══════════════════════════════════════╝
     
-    🚀 সার্ভার চলছে পোর্ট: ${PORT}
+    🚀 Server running on port: ${PORT}
     
-    📍 অ্যাক্সেস URLs:
-       ফ্রন্টএন্ড:     http://localhost:${PORT}
-       এডমিন প্যানেল:  http://localhost:${PORT}/admin
-       এপিআই টেস্ট:     http://localhost:${PORT}/api/test
+    📍 Access URLs:
+       API Test:     http://localhost:${PORT}/api/test
+       Health Check: http://localhost:${PORT}/api/health
     
-    📊 ডাটাবেজ স্ট্যাটাস: ${isMongoConnected ? '✅ সংযুক্ত' : '❌ সংযোগ নেই'}
+    📊 Database Status: ${isMongoConnected ? '✅ Connected' : '❌ Disconnected'}
     
-    ⏰ শুরু হয়েছে: ${new Date().toLocaleString('bn-BD')}
+    ⏰ Started: ${new Date().toLocaleString('bn-BD')}
     `);
 });
