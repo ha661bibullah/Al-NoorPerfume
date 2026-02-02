@@ -35,26 +35,26 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Create directories if they don't exist
+// Create directories if they don't exist (for development)
 const directories = ['frontend', 'admin-panel'];
 directories.forEach(dir => {
-    const dirPath = path.join(__dirname, dir);
+    const dirPath = path.join(__dirname, '..', dir);
     if (!fs.existsSync(dirPath)) {
         fs.mkdirSync(dirPath, { recursive: true });
     }
 });
 
-// Serve static files
-app.use(express.static('frontend'));
-app.use('/admin', express.static('admin-panel'));
+// Serve static files from correct paths
+app.use(express.static(path.join(__dirname, '..', 'frontend')));
+app.use('/admin', express.static(path.join(__dirname, '..', 'admin-panel')));
 
 // Routes for serving HTML
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'frontend', 'index.html'));
+    res.sendFile(path.join(__dirname, '..', 'frontend', 'index.html'));
 });
 
 app.get('/admin', (req, res) => {
-    res.sendFile(path.join(__dirname, 'admin-panel', 'admin.html'));
+    res.sendFile(path.join(__dirname, '..', 'admin-panel', 'admin.html'));
 });
 
 // MongoDB Connection
@@ -238,6 +238,14 @@ const initializeData = async () => {
                     rating: 4,
                     reviewText: 'কস্তুরী আতরটি অসাধারণ! গভীর ও মিষ্টি ঘ্রাণ সারাদিন স্থায়ী হয়। দামের তুলনায় মান অনেক ভালো। নিশ্চিতভাবে আবার কিনব।',
                     date: new Date('2023-10-05'),
+                    approved: true
+                },
+                {
+                    customerName: 'ইমরান হোসেন',
+                    product: 'জসমিন আতর',
+                    rating: 5,
+                    reviewText: 'জসমিন আতরটি হালকা ও সতেজ ঘ্রাণের জন্য পারফেক্ট। অফিসে ব্যবহারের জন্য আদর্শ। বোতলের ডিজাইনও খুব সুন্দর।',
+                    date: new Date('2023-09-28'),
                     approved: true
                 }
             ];
@@ -1152,10 +1160,10 @@ app.get('/api/reviews', authenticateToken, async (req, res) => {
                     _id: '3',
                     customerName: 'ইমরান হোসেন',
                     product: 'জসমিন আতর',
-                    rating: 3,
-                    reviewText: 'ভালো, কিন্তু আরো উন্নতি করা যেতে পারে।',
-                    date: new Date('2023-10-01'),
-                    approved: false,
+                    rating: 5,
+                    reviewText: 'জসমিন আতরটি হালকা ও সতেজ ঘ্রাণের জন্য পারফেক্ট। অফিসে ব্যবহারের জন্য আদর্শ।',
+                    date: new Date('2023-09-28'),
+                    approved: true,
                     demo: true
                 }
             ];
@@ -1303,6 +1311,16 @@ app.get('/api/reviews/public', async (req, res) => {
                     rating: 4,
                     reviewText: 'কস্তুরী আতরটি অসাধারণ! গভীর ও মিষ্টি ঘ্রাণ সারাদিন স্থায়ী হয়। দামের তুলনায় মান অনেক ভালো। নিশ্চিতভাবে আবার কিনব।',
                     date: new Date('2023-10-05'),
+                    approved: true,
+                    demo: true
+                },
+                {
+                    _id: '3',
+                    customerName: 'ইমরান হোসেন',
+                    product: 'জসমিন আতর',
+                    rating: 5,
+                    reviewText: 'জসমিন আতরটি হালকা ও সতেজ ঘ্রাণের জন্য পারফেক্ট। অফিসে ব্যবহারের জন্য আদর্শ। বোতলের ডিজাইনও খুব সুন্দর।',
+                    date: new Date('2023-09-28'),
                     approved: true,
                     demo: true
                 }
