@@ -27,21 +27,20 @@
             width: 260px;
             transition: transform 0.3s ease;
             box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            z-index: 50;
         }
         
         @media (max-width: 768px) {
             .sidebar {
-                position: fixed;
-                left: -100%;
-                top: 0;
-                bottom: 0;
-                z-index: 50;
                 transform: translateX(-100%);
             }
             
             .sidebar.active {
                 transform: translateX(0);
-                left: 0;
             }
             
             .overlay {
@@ -57,6 +56,20 @@
             
             .overlay.active {
                 display: block;
+            }
+        }
+        
+        /* Main content area - FIXED */
+        .main-content {
+            margin-left: 260px;
+            width: calc(100% - 260px);
+            transition: margin-left 0.3s ease;
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                margin-left: 0;
+                width: 100%;
             }
         }
         
@@ -312,20 +325,7 @@
         
         .shadow-custom {
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-        };
-        /* Main content area margin fix */
-.main-content {
-    margin-left: 260px;
-    width: calc(100% - 260px);
-    transition: margin-left 0.3s ease;
-}
-
-@media (max-width: 768px) {
-    .main-content {
-        margin-left: 0;
-        width: 100%;
-    }
-}
+        }
     </style>
 </head>
 <body class="bg-gray-50">
@@ -400,7 +400,7 @@
         <div id="overlay" class="overlay"></div>
 
         <!-- সাইডবার -->
-        <div class="sidebar bg-gradient-to-b from-amber-900 to-amber-800 text-white fixed md:relative z-40">
+        <div class="sidebar bg-gradient-to-b from-amber-900 to-amber-800 text-white">
             <div class="p-6 border-b border-amber-800">
                 <div class="flex items-center space-x-3 mb-4">
                     <div class="w-12 h-12 bg-amber-600 rounded-full flex items-center justify-center">
@@ -458,9 +458,28 @@
         </div>
 
         <!-- প্রধান কন্টেন্ট -->
-        <div class="md:ml-64 min-h-screen bg-gray-50">
+        <div class="main-content min-h-screen bg-gray-50">
             <!-- ডেস্কটপ হেডার -->
-          
+            <header class="hidden md:block bg-white shadow-sm p-6 border-b border-gray-200">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h1 id="pageTitle" class="text-2xl font-bold text-amber-900">ড্যাশবোর্ড</h1>
+                        <p id="pageSubtitle" class="text-gray-600">সর্বশেষ আপডেট: <span id="lastUpdate">লোড হচ্ছে...</span></p>
+                    </div>
+                    <div class="flex items-center space-x-6">
+                        <div class="text-right">
+                            <p id="currentDate" class="text-gray-800 font-medium"></p>
+                            <p id="currentTime" class="text-gray-600 text-sm"></p>
+                        </div>
+                        <div class="relative">
+                            <button id="notificationBell" class="text-amber-600 hover:text-amber-700 text-xl transition relative">
+                                <i class="fas fa-bell"></i>
+                                <span id="notificationBadge" class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center hidden">0</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </header>
 
             <!-- কন্টেন্ট এরিয়া -->
             <main class="p-4 md:p-6">
