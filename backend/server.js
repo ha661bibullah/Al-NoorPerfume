@@ -11,24 +11,18 @@ const app = express();
 
 // CORS configuration for production
 const allowedOrigins = [
-    'https://playful-rugelach-33592e.netlify.app', // আপনার ফ্রন্টএন্ড URL
-    'https://lively-kataifi-011ede.netlify.app', // যদি অন্য ফ্রন্টএন্ড থাকে
+    'https://playful-rugelach-33592e.netlify.app',
+    'https://lively-kataifi-011ede.netlify.app',
     'http://localhost:3000',
     'http://localhost:5000'
 ];
 
 app.use(cors({
     origin: function (origin, callback) {
-        // Allow requests with no origin (like mobile apps or curl requests)
         if (!origin) return callback(null, true);
-        
-        // Allow all origins in development
-        if (process.env.NODE_ENV !== 'production') {
-            return callback(null, true);
-        }
-        
+        if (process.env.NODE_ENV !== 'production') return callback(null, true);
         if (allowedOrigins.indexOf(origin) === -1) {
-            const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+            const msg = 'The CORS policy does not allow access from this Origin.';
             return callback(new Error(msg), false);
         }
         return callback(null, true);
@@ -38,26 +32,15 @@ app.use(cors({
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
-
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Create directories if they don't exist
-const directories = ['./admin-panel', './frontend'];
-directories.forEach(dir => {
-    const dirPath = path.join(__dirname, '..', dir);
-    if (!fs.existsSync(dirPath)) {
-        fs.mkdirSync(dirPath, { recursive: true });
-    }
-});
-
-// Serve static files from correct paths (one level up from backend)
-// পরিবর্তন করুন (রেন্ডারের জন্য):
+// Serve static files
 app.use('/admin', express.static(path.join(__dirname, 'admin-panel')));
 app.use('/', express.static(path.join(__dirname, 'frontend')));
 
-// এবং রুট হ্যান্ডলার:
+// Routes for serving HTML
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'frontend', 'index.html'));
 });
@@ -66,7 +49,6 @@ app.get('/admin', (req, res) => {
     res.sendFile(path.join(__dirname, 'admin-panel', 'admin.html'));
 });
 
-
 // MongoDB Connection
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/alnoor-perfume';
 let isMongoConnected = false;
@@ -74,20 +56,23 @@ let isMongoConnected = false;
 mongoose.connect(MONGODB_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
+    serverSelectionTimeoutMS: 5000,
+    socketTimeoutMS: 45000,
 })
 .then(() => {
     console.log('✅ MongoDB Connected Successfully');
     isMongoConnected = true;
+    initializeData();
 })
 .catch(err => {
     console.error('❌ MongoDB Connection Error:', err.message);
-    console.log('⚠️ Running in local storage mode...');
+    console.log('⚠️ Running in demo mode...');
     isMongoConnected = false;
 });
 
 // Database Schemas
 const orderSchema = new mongoose.Schema({
-    orderId: { type: String, unique: true },
+    orderId: { type: String, unique: true, required: true },
     customerName: { type: String, required: true },
     phone: { type: String, required: true },
     email: { type: String },
@@ -104,8 +89,9 @@ const orderSchema = new mongoose.Schema({
     },
     orderDate: { type: Date, default: Date.now },
     deliveryDate: Date,
-    notes: String
-});
+    notes: String,
+    isDemo: { type: Boolean, default: false }
+}, { timestamps: true });
 
 const reviewSchema = new mongoose.Schema({
     customerName: { type: String, required: true },
@@ -118,8 +104,9 @@ const reviewSchema = new mongoose.Schema({
     },
     reviewText: { type: String, required: true },
     date: { type: Date, default: Date.now },
-    approved: { type: Boolean, default: false }
-});
+    approved: { type: Boolean, default: false },
+    isDemo: { type: Boolean, default: false }
+}, { timestamps: true });
 
 const productSchema = new mongoose.Schema({
     name: { type: String, required: true },
@@ -135,8 +122,9 @@ const productSchema = new mongoose.Schema({
     stock: { type: Number, required: true, min: 0 },
     sold: { type: Number, default: 0 },
     imageUrl: { type: String },
-    featured: { type: Boolean, default: false }
-});
+    featured: { type: Boolean, default: false },
+    isDemo: { type: Boolean, default: false }
+}, { timestamps: true });
 
 const adminSchema = new mongoose.Schema({
     email: { 
@@ -145,9 +133,10 @@ const adminSchema = new mongoose.Schema({
         required: true 
     },
     password: { type: String, required: true },
+    name: { type: String, default: 'এডমিন' },
     lastLogin: Date,
-    createdAt: { type: Date, default: Date.now }
-});
+    isDemo: { type: Boolean, default: false }
+}, { timestamps: true });
 
 // Models
 const Order = mongoose.model('Order', orderSchema);
@@ -155,41 +144,31 @@ const Review = mongoose.model('Review', reviewSchema);
 const Product = mongoose.model('Product', productSchema);
 const Admin = mongoose.model('Admin', adminSchema);
 
-// Initialize Admin Account
-const initializeAdmin = async () => {
+// Initialize Data Function
+const initializeData = async () => {
     try {
+        if (!isMongoConnected) return;
+
+        // Initialize Admin
         const adminEmail = process.env.ADMIN_EMAIL || 'admin@alnoor.com';
         const adminPassword = process.env.ADMIN_PASSWORD || 'admin123';
         
-        console.log(`🔧 Initializing admin account: ${adminEmail}`);
-        
-        const adminExists = await Admin.findOne({ email: adminEmail });
-        if (!adminExists) {
+        let admin = await Admin.findOne({ email: adminEmail });
+        if (!admin) {
             const hashedPassword = await bcrypt.hash(adminPassword, 10);
-            const admin = new Admin({
+            admin = new Admin({
                 email: adminEmail,
                 password: hashedPassword,
+                name: 'এডমিন',
                 lastLogin: new Date()
             });
             await admin.save();
-            console.log('✅ Admin account created successfully');
-        } else {
-            console.log('ℹ️ Admin account already exists');
+            console.log('✅ Admin account created');
         }
-    } catch (error) {
-        console.error('❌ Error creating admin account:', error.message);
-    }
-};
 
-// Initialize sample data
-const initializeSampleData = async () => {
-    try {
-        // Check if products exist
+        // Initialize Products
         const productCount = await Product.countDocuments();
-        
         if (productCount === 0) {
-            console.log('📦 Creating sample products...');
-            
             const sampleProducts = [
                 {
                     name: 'গোলাপ আতর',
@@ -230,15 +209,12 @@ const initializeSampleData = async () => {
             ];
             
             await Product.insertMany(sampleProducts);
-            console.log(`✅ ${sampleProducts.length} sample products created`);
+            console.log('✅ Sample products created');
         }
-        
-        // Check if reviews exist
+
+        // Initialize Reviews
         const reviewCount = await Review.countDocuments();
-        
         if (reviewCount === 0) {
-            console.log('⭐ Creating sample reviews...');
-            
             const sampleReviews = [
                 {
                     customerName: 'রাফিদ আহমেদ',
@@ -259,15 +235,12 @@ const initializeSampleData = async () => {
             ];
             
             await Review.insertMany(sampleReviews);
-            console.log(`✅ ${sampleReviews.length} sample reviews created`);
+            console.log('✅ Sample reviews created');
         }
-        
-        // Check if orders exist
+
+        // Initialize Orders
         const orderCount = await Order.countDocuments();
-        
         if (orderCount === 0) {
-            console.log('📝 Creating sample orders...');
-            
             const sampleOrders = [
                 {
                     orderId: 'ALP' + Date.now().toString().slice(-8),
@@ -299,11 +272,11 @@ const initializeSampleData = async () => {
             ];
             
             await Order.insertMany(sampleOrders);
-            console.log(`✅ ${sampleOrders.length} sample orders created`);
+            console.log('✅ Sample orders created');
         }
-        
+
     } catch (error) {
-        console.error('❌ Error initializing sample data:', error.message);
+        console.error('❌ Error initializing data:', error.message);
     }
 };
 
@@ -339,7 +312,7 @@ const authenticateToken = (req, res, next) => {
     }
 };
 
-// Helper function for demo data
+// Generate Demo Data
 const getDemoData = () => {
     return {
         totalOrders: 156,
@@ -388,7 +361,7 @@ const getDemoData = () => {
     };
 };
 
-// Routes
+// ==================== ROUTES ====================
 
 // Test route
 app.get('/api/test', (req, res) => {
@@ -406,21 +379,14 @@ app.get('/api/health', (req, res) => {
     res.json({ 
         status: 'healthy',
         timestamp: new Date().toISOString(),
-        database: isMongoConnected ? 'connected' : 'disconnected'
+        database: isMongoConnected ? 'connected' : 'disconnected',
+        uptime: process.uptime()
     });
 });
 
-// Serve frontend index.html
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, '..', 'frontend', 'index.html'));
-});
+// ==================== AUTHENTICATION ====================
 
-// Serve admin panel
-app.get('/admin', (req, res) => {
-    res.sendFile(path.join(__dirname, '..', 'admin-panel', 'admin.html'));
-});
-
-// Admin Authentication
+// Admin Login
 app.post('/api/admin/login', async (req, res) => {
     try {
         const { email, password } = req.body;
@@ -432,16 +398,12 @@ app.post('/api/admin/login', async (req, res) => {
             });
         }
         
-        // For testing, allow login even without MongoDB
+        // Demo mode if MongoDB not connected
         if (!isMongoConnected) {
-            console.log('⚠️ MongoDB not connected, using demo login');
-            
-            // Demo admin credentials
             const demoAdminEmail = 'admin@alnoor.com';
             const demoAdminPassword = 'admin123';
             
             if (email === demoAdminEmail && password === demoAdminPassword) {
-                // Create a mock token for testing
                 const token = jwt.sign(
                     { 
                         id: 'demo-admin-id', 
@@ -505,7 +467,8 @@ app.post('/api/admin/login', async (req, res) => {
             token, 
             admin: { 
                 email: admin.email,
-                lastLogin: admin.lastLogin
+                lastLogin: admin.lastLogin,
+                demo: false
             } 
         });
     } catch (error) {
@@ -517,6 +480,8 @@ app.post('/api/admin/login', async (req, res) => {
     }
 });
 
+// ==================== DASHBOARD ====================
+
 // Dashboard Stats
 app.get('/api/dashboard/stats', authenticateToken, async (req, res) => {
     try {
@@ -525,6 +490,7 @@ app.get('/api/dashboard/stats', authenticateToken, async (req, res) => {
             return res.json({
                 success: true,
                 ...demoData,
+                demo: true,
                 message: 'Showing demo data (MongoDB not connected)'
             });
         }
@@ -549,8 +515,7 @@ app.get('/api/dashboard/stats', authenticateToken, async (req, res) => {
             {
                 $group: {
                     _id: { $month: '$orderDate' },
-                    revenue: { $sum: '$totalPrice' },
-                    orders: { $sum: 1 }
+                    revenue: { $sum: '$totalPrice' }
                 }
             },
             { $sort: { '_id': 1 } }
@@ -565,7 +530,8 @@ app.get('/api/dashboard/stats', authenticateToken, async (req, res) => {
             pendingReviews,
             totalProducts,
             recentOrders,
-            monthlyRevenue
+            monthlyRevenue,
+            demo: false
         });
     } catch (error) {
         console.error('❌ Dashboard stats error:', error.message);
@@ -576,7 +542,9 @@ app.get('/api/dashboard/stats', authenticateToken, async (req, res) => {
     }
 });
 
-// Products API
+// ==================== PRODUCTS API ====================
+
+// Get all products (Admin)
 app.get('/api/products', authenticateToken, async (req, res) => {
     try {
         if (!isMongoConnected) {
@@ -592,7 +560,8 @@ app.get('/api/products', authenticateToken, async (req, res) => {
                     sold: 234,
                     imageUrl: 'https://images.unsplash.com/photo-1541643600914-78b084683601?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80',
                     featured: true,
-                    tags: ['বেস্টসেলার', 'প্রিমিয়াম']
+                    tags: ['বেস্টসেলার', 'প্রিমিয়াম'],
+                    demo: true
                 },
                 {
                     _id: '2',
@@ -605,26 +574,14 @@ app.get('/api/products', authenticateToken, async (req, res) => {
                     sold: 189,
                     imageUrl: 'https://images.unsplash.com/photo-1601042879364-f3947d1f9fc9?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80',
                     featured: true,
-                    tags: ['লাক্সারি', 'দীর্ঘস্থায়ী']
-                },
-                {
-                    _id: '3',
-                    name: 'জসমিন আতর',
-                    description: 'তাজা জসমিন ফুল থেকে নিষ্কাশিত, হালকা ও তাজা সুগন্ধি',
-                    price: 999,
-                    originalPrice: 1299,
-                    category: 'আতর',
-                    stock: 100,
-                    sold: 97,
-                    imageUrl: 'https://images.unsplash.com/photo-1590736969955-0126f7e1e88d?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80',
-                    featured: false,
-                    tags: ['ফ্রেশ', 'হালকা']
+                    tags: ['লাক্সারি', 'দীর্ঘস্থায়ী'],
+                    demo: true
                 }
             ];
             return res.json(demoProducts);
         }
         
-        const products = await Product.find().sort({ name: 1 });
+        const products = await Product.find().sort({ createdAt: -1 });
         res.json(products);
     } catch (error) {
         console.error('❌ Get products error:', error.message);
@@ -640,7 +597,6 @@ app.post('/api/products', authenticateToken, async (req, res) => {
     try {
         const productData = req.body;
         
-        // Validation
         if (!productData.name || !productData.description || !productData.price || !productData.stock) {
             return res.status(400).json({ 
                 success: false, 
@@ -655,16 +611,13 @@ app.post('/api/products', authenticateToken, async (req, res) => {
                 product: {
                     ...productData,
                     _id: 'demo-' + Date.now(),
-                    sold: 0
+                    sold: 0,
+                    demo: true
                 }
             });
         }
         
-        const product = new Product({
-            ...productData,
-            sold: productData.sold || 0
-        });
-        
+        const product = new Product(productData);
         await product.save();
         
         res.json({ 
@@ -696,7 +649,8 @@ app.get('/api/products/:id', authenticateToken, async (req, res) => {
                 sold: 234,
                 imageUrl: 'https://images.unsplash.com/photo-1541643600914-78b084683601?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80',
                 featured: true,
-                tags: ['বেস্টসেলার', 'প্রিমিয়াম']
+                tags: ['বেস্টসেলার', 'প্রিমিয়াম'],
+                demo: true
             });
         }
         
@@ -804,7 +758,8 @@ app.get('/api/products/public', async (req, res) => {
                     sold: 234,
                     imageUrl: 'https://images.unsplash.com/photo-1541643600914-78b084683601?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80',
                     featured: true,
-                    tags: ['বেস্টসেলার', 'প্রিমিয়াম']
+                    tags: ['বেস্টসেলার', 'প্রিমিয়াম'],
+                    demo: true
                 },
                 {
                     _id: '2',
@@ -816,7 +771,8 @@ app.get('/api/products/public', async (req, res) => {
                     sold: 189,
                     imageUrl: 'https://images.unsplash.com/photo-1601042879364-f3947d1f9fc9?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80',
                     featured: true,
-                    tags: ['লাক্সারি', 'দীর্ঘস্থায়ী']
+                    tags: ['লাক্সারি', 'দীর্ঘস্থায়ী'],
+                    demo: true
                 },
                 {
                     _id: '3',
@@ -828,13 +784,14 @@ app.get('/api/products/public', async (req, res) => {
                     sold: 97,
                     imageUrl: 'https://images.unsplash.com/photo-1590736969955-0126f7e1e88d?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80',
                     featured: false,
-                    tags: ['ফ্রেশ', 'হালকা']
+                    tags: ['ফ্রেশ', 'হালকা'],
+                    demo: true
                 }
             ];
             return res.json(defaultProducts);
         }
         
-        const products = await Product.find({ stock: { $gt: 0 } });
+        const products = await Product.find({ stock: { $gt: 0 } }).sort({ featured: -1, createdAt: -1 });
         res.json(products);
     } catch (error) {
         console.error('❌ Public products error:', error.message);
@@ -845,9 +802,13 @@ app.get('/api/products/public', async (req, res) => {
     }
 });
 
-// Orders API
+// ==================== ORDERS API ====================
+
+// Get all orders (Admin)
 app.get('/api/orders', authenticateToken, async (req, res) => {
     try {
+        const { status, page = 1, limit = 10, search } = req.query;
+        
         if (!isMongoConnected) {
             const demoOrders = [
                 {
@@ -864,7 +825,8 @@ app.get('/api/orders', authenticateToken, async (req, res) => {
                     paymentMethod: 'cod',
                     status: 'Pending',
                     orderDate: new Date(),
-                    notes: ''
+                    notes: '',
+                    demo: true
                 },
                 {
                     _id: '2',
@@ -881,15 +843,24 @@ app.get('/api/orders', authenticateToken, async (req, res) => {
                     status: 'Delivered',
                     orderDate: new Date(Date.now() - 86400000),
                     deliveryDate: new Date(Date.now() - 86400000 + 3600000),
-                    notes: 'গ্রাহক খুশি'
+                    notes: 'গ্রাহক খুশি',
+                    demo: true
                 }
             ];
             
-            const { status } = req.query;
             let filteredOrders = demoOrders;
             
             if (status) {
                 filteredOrders = demoOrders.filter(order => order.status === status);
+            }
+            
+            if (search) {
+                const searchLower = search.toLowerCase();
+                filteredOrders = filteredOrders.filter(order => 
+                    order.customerName.toLowerCase().includes(searchLower) ||
+                    order.orderId.toLowerCase().includes(searchLower) ||
+                    order.phone.includes(search)
+                );
             }
             
             return res.json({
@@ -901,8 +872,19 @@ app.get('/api/orders', authenticateToken, async (req, res) => {
             });
         }
         
-        const { status, page = 1, limit = 20 } = req.query;
-        const query = status ? { status } : {};
+        let query = {};
+        
+        if (status && status !== '') {
+            query.status = status;
+        }
+        
+        if (search && search !== '') {
+            query.$or = [
+                { customerName: { $regex: search, $options: 'i' } },
+                { orderId: { $regex: search, $options: 'i' } },
+                { phone: { $regex: search, $options: 'i' } }
+            ];
+        }
         
         const skip = (page - 1) * limit;
         
@@ -979,7 +961,6 @@ app.put('/api/orders/:id/status', authenticateToken, async (req, res) => {
     try {
         const { status, notes } = req.body;
         
-        // Validate status
         const validStatuses = ['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled'];
         if (!validStatuses.includes(status)) {
             return res.status(400).json({ 
@@ -998,6 +979,9 @@ app.put('/api/orders/:id/status', authenticateToken, async (req, res) => {
         }
         
         const updateData = { status };
+        if (status === 'Delivered') {
+            updateData.deliveryDate = new Date();
+        }
         if (notes !== undefined) {
             updateData.notes = notes;
         }
@@ -1061,13 +1045,12 @@ app.delete('/api/orders/:id', authenticateToken, async (req, res) => {
     }
 });
 
-// Orders from frontend
+// Create new order from frontend
 app.post('/api/orders/new', async (req, res) => {
     try {
         const orderData = req.body;
         
-        // Basic validation
-        const requiredFields = ['customerName', 'phone', 'address', 'productName', 'quantity', 'totalPrice', 'paymentMethod'];
+        const requiredFields = ['customerName', 'phone', 'address', 'product', 'quantity', 'totalPrice', 'paymentMethod'];
         for (const field of requiredFields) {
             if (!orderData[field]) {
                 return res.status(400).json({ 
@@ -1101,18 +1084,22 @@ app.post('/api/orders/new', async (req, res) => {
                     await product.save();
                 }
             }
+        } else {
+            savedOrder = {
+                ...orderData,
+                _id: 'demo-' + Date.now(),
+                orderId,
+                status: 'Pending',
+                orderDate: new Date(),
+                demo: true
+            };
         }
         
         res.json({ 
             success: true, 
             message: 'Order placed successfully! 🎉', 
             orderId,
-            order: savedOrder || { 
-                orderId, 
-                ...orderData,
-                status: 'Pending',
-                orderDate: new Date()
-            }
+            order: savedOrder
         });
         
     } catch (error) {
@@ -1124,9 +1111,13 @@ app.post('/api/orders/new', async (req, res) => {
     }
 });
 
-// Reviews API
+// ==================== REVIEWS API ====================
+
+// Get all reviews (Admin)
 app.get('/api/reviews', authenticateToken, async (req, res) => {
     try {
+        const { approved, page = 1, limit = 10 } = req.query;
+        
         if (!isMongoConnected) {
             const demoReviews = [
                 {
@@ -1136,7 +1127,8 @@ app.get('/api/reviews', authenticateToken, async (req, res) => {
                     rating: 5,
                     reviewText: 'গোলাপ আতরটি অত্যন্ত উৎকৃষ্ট মানের। সুগন্ধটি টেকসই এবং প্রকৃত গোলাপের ঘ্রাণ নিয়ে আসে।',
                     date: new Date('2023-10-10'),
-                    approved: true
+                    approved: true,
+                    demo: true
                 },
                 {
                     _id: '2',
@@ -1145,7 +1137,8 @@ app.get('/api/reviews', authenticateToken, async (req, res) => {
                     rating: 4,
                     reviewText: 'কস্তুরী আতরটি অসাধারণ! গভীর ও মিষ্টি ঘ্রাণ সারাদিন স্থায়ী হয়।',
                     date: new Date('2023-10-05'),
-                    approved: true
+                    approved: true,
+                    demo: true
                 },
                 {
                     _id: '3',
@@ -1154,11 +1147,11 @@ app.get('/api/reviews', authenticateToken, async (req, res) => {
                     rating: 3,
                     reviewText: 'ভালো, কিন্তু আরো উন্নতি করা যেতে পারে।',
                     date: new Date('2023-10-01'),
-                    approved: false
+                    approved: false,
+                    demo: true
                 }
             ];
             
-            const { approved, page = 1, limit = 20 } = req.query;
             let filteredReviews = demoReviews;
             
             if (approved !== undefined) {
@@ -1175,9 +1168,7 @@ app.get('/api/reviews', authenticateToken, async (req, res) => {
             });
         }
         
-        const { approved, page = 1, limit = 20 } = req.query;
         const query = approved !== undefined ? { approved: approved === 'true' } : {};
-        
         const skip = (page - 1) * limit;
         
         const reviews = await Review.find(query)
@@ -1282,7 +1273,7 @@ app.delete('/api/reviews/:id', authenticateToken, async (req, res) => {
     }
 });
 
-// Public reviews endpoint
+// Public reviews endpoint (approved only)
 app.get('/api/reviews/public', async (req, res) => {
     try {
         if (!isMongoConnected) {
@@ -1294,7 +1285,8 @@ app.get('/api/reviews/public', async (req, res) => {
                     rating: 5,
                     reviewText: 'গোলাপ আতরটি অত্যন্ত উৎকৃষ্ট মানের। সুগন্ধটি টেকসই এবং প্রকৃত গোলাপের ঘ্রাণ নিয়ে আসে। ডেলিভারিও খুব দ্রুত পেয়েছি।',
                     date: new Date('2023-10-10'),
-                    approved: true
+                    approved: true,
+                    demo: true
                 },
                 {
                     _id: '2',
@@ -1303,16 +1295,8 @@ app.get('/api/reviews/public', async (req, res) => {
                     rating: 4,
                     reviewText: 'কস্তুরী আতরটি অসাধারণ! গভীর ও মিষ্টি ঘ্রাণ সারাদিন স্থায়ী হয়। দামের তুলনায় মান অনেক ভালো। নিশ্চিতভাবে আবার কিনব।',
                     date: new Date('2023-10-05'),
-                    approved: true
-                },
-                {
-                    _id: '3',
-                    customerName: 'আহসান হাবীব',
-                    product: 'জসমিন আতর',
-                    rating: 5,
-                    reviewText: 'হালকা ও সতেজ ঘ্রাণ। অফিসে ব্যবহারের জন্য পারফেক্ট। প্যাকেজিং অসাধারণ।',
-                    date: new Date('2023-09-28'),
-                    approved: true
+                    approved: true,
+                    demo: true
                 }
             ];
             return res.json({ 
@@ -1331,8 +1315,7 @@ app.get('/api/reviews/public', async (req, res) => {
             reviews, 
             total: reviews.length 
         });
-    } catch (error) {
-        console.error('❌ Public reviews error:', error.message);
+    } catch (Error.message);
         res.status(500).json({ 
             success: false,
             error: 'Error fetching public reviews' 
@@ -1340,12 +1323,11 @@ app.get('/api/reviews/public', async (req, res) => {
     }
 });
 
-// Reviews from frontend
+// Create new review from frontend
 app.post('/api/reviews/new', async (req, res) => {
     try {
         const reviewData = req.body;
         
-        // Basic validation
         if (!reviewData.customerName || !reviewData.product || !reviewData.reviewText) {
             return res.status(400).json({ 
                 success: false, 
@@ -1370,16 +1352,20 @@ app.post('/api/reviews/new', async (req, res) => {
             });
 
             savedReview = await review.save();
+        } else {
+            savedReview = {
+                ...reviewData,
+                _id: 'demo-' + Date.now(),
+                date: new Date(),
+                approved: false,
+                demo: true
+            };
         }
         
         res.json({ 
             success: true, 
             message: 'Review submitted successfully! It will be visible after approval.',
-            review: savedReview || {
-                ...reviewData,
-                date: new Date(),
-                approved: false
-            }
+            review: savedReview
         });
         
     } catch (error) {
@@ -1390,6 +1376,8 @@ app.post('/api/reviews/new', async (req, res) => {
         });
     }
 });
+
+// ==================== ERROR HANDLING ====================
 
 // 404 handler
 app.use('*', (req, res) => {
@@ -1408,10 +1396,10 @@ app.use((err, req, res, next) => {
     });
 });
 
-// Initialize and start server
+// Start server
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, async () => {
+app.listen(PORT, () => {
     console.log(`
     ╔══════════════════════════════════════╗
     ║      Al-NoorPerfume সার্ভার          ║
@@ -1423,18 +1411,9 @@ app.listen(PORT, async () => {
        Frontend:     http://localhost:${PORT}
        Admin Panel:  http://localhost:${PORT}/admin
        API Test:     http://localhost:${PORT}/api/test
-       Health Check: http://localhost:${PORT}/api/health
     
     📊 Database Status: ${isMongoConnected ? '✅ Connected' : '⚠️ Disconnected (Demo Mode)'}
     
     ⏰ Started at: ${new Date().toLocaleString()}
     `);
-    
-    // Initialize data
-    if (isMongoConnected) {
-        await initializeAdmin();
-        await initializeSampleData();
-    } else {
-        console.log('📝 Running in demo mode - no database required');
-    }
 });
